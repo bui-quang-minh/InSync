@@ -1,0 +1,13 @@
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeAllMask"
+    android:canRetrieveWindowContent="true"
+    android:canPerformGestures="true"/>
+<!--    android:accessibilityEventTypes="typeAllMask"-->
+<!--    android:accessibilityFlags="flagReportViewIds|flagIncludeNotImportantViews"-->
+<!--    android:canRetrieveWindowContent="true"-->
+<!--    android:accessibilityFeedbackType="feedbackGeneric"-->
+<!--    android:notificationTimeout="500"-->
+<!--    android:isAccessibilityTool="true"-->
+<!--    -->
+<!--    android:canRequestTouchExplorationMode="true"-->
+<!--    android:settingsActivity="vn.edu.fpt.services.OverlayServices" />-->

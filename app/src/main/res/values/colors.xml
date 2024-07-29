@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFFFF7</color>
+    <color name="background_primary">#131416</color>
+    <color name="background_secondary">#1c1f28</color>
+
+    <color name="black">#FF000000</color>
+    <color name="background">#131416</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="light_white">#FFFFF7</color>
+    <color name="button">#EB2641</color>
+    <color name="grey">#808080</color>
+    <color name="aqua">#24f5ee</color>
+    <color name="red">#ff0000</color>
+    <color name="code_121212ff">#121212FF</color>
+    <color name="custom_orange">#CC6600</color>
+    <color name="custom_button">#EB2641</color>
+    <color name="custom_button_1">#F44336</color>
+</resources>
