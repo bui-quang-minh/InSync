@@ -32,6 +32,32 @@ public class TestFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_test, container, false);
         inputEditText = view.findViewById(R.id.inputEditText);
+        inputEditText.setText("[\n" +
+                "    {\n" +
+                "      \"actionType\": \"CLICK\",\n" +
+                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/xtijv2dpg4qc2uw70gle.jpg\",\n" +
+                "      \"duration\": 100,\n" +
+                "      \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"actionType\": \"CLICK\",\n" +
+                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/udynajpcxgdvsxyznjuh.jpg\",\n" +
+                "      \"duration\": 100,\n" +
+                "      \"tries\": 1\n" +
+                "    },\n" +
+                "     {\n" +
+                "      \"actionType\": \"CLICK\",\n" +
+                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/r0crmvuokqz492iiadd3.jpg\",\n" +
+                "      \"duration\": 100,\n" +
+                "      \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"actionType\": \"PASTE\",\n" +
+                "      \"duration\": 100,\n" +
+                "     \"content\": \"Thai Beo\",\n" +
+                "      \"tries\": 1\n" +
+                "    }\n" +
+                "]");
         // Inflate the layout for this fragment
         return view;
     }

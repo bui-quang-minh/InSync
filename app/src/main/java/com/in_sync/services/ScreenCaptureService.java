@@ -66,13 +66,10 @@ public class ScreenCaptureService extends AccessibilityService {
     private static final String START = "START";
     private static final String STOP = "STOP";
     private static final String SCREENCAP_NAME = "screencap";
-    private static int IMAGES_PRODUCED;
-    private int ACCURACY_POINT;
-    private Coordinate prev_point = new Coordinate(0, 0);
+
     private WindowManager windowManager;
     private View overlayView;
     private MediaProjection mMediaProjection;
-    private String mStoreDir;
     private ImageReader mImageReader;
     private Handler mHandler;
     private Display mDisplay;
@@ -85,9 +82,8 @@ public class ScreenCaptureService extends AccessibilityService {
     private String json;
     private Step[] steps;
     private ImageView imageView;
-    private int index = 0;
     private String appOpened="";
-
+    private Action action;
     private AccessibilityNodeInfo source;
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
@@ -104,6 +100,7 @@ public class ScreenCaptureService extends AccessibilityService {
     }
 
     private static boolean isStartCommand(Intent intent) {
+
         boolean res = intent.hasExtra(RESULT_CODE) && intent.hasExtra(DATA)
                 && intent.hasExtra(ACTION) && Objects.equals(intent.getStringExtra(ACTION), START);
         return res;
@@ -120,93 +117,12 @@ public class ScreenCaptureService extends AccessibilityService {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Action action = new Action();
-            if(index<steps.length){
-                switch (steps[index].getActionType()) {
-                    case "click":
-                        Bitmap bitmap = null;
-                        try (Image image = mImageReader.acquireLatestImage()) {
-                            if (image != null) {
-                                Image.Plane[] planes = image.getPlanes();
-                                ByteBuffer buffer = planes[0].getBuffer();
-                                int pixelStride = planes[0].getPixelStride();
-                                int rowStride = planes[0].getRowStride();
-                                int rowPadding = rowStride - pixelStride * mWidth;
-                                // create bitmap
-                                bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                                bitmap.copyPixelsFromBuffer(buffer);
-                                Mat mat = new Mat(bitmap.getHeight(), bitmap.getWidth(), CvType.CV_8UC4);
-                                Utils.bitmapToMat(bitmap, mat);
-                                //template bitmap
-                                URL url = new URL(steps[index].getOn());
-                                Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                                Mat template = new Mat(bmp.getHeight(), bmp.getWidth(), CvType.CV_8UC4);
-                                Utils.bitmapToMat(bmp, template);
-                                //templateMatching
-                                Mat result = new Mat(bitmap.getHeight(), bitmap.getWidth(), CvType.CV_8UC4);
-                                Imgproc.matchTemplate(mat, template, result, Imgproc.TM_CCOEFF_NORMED);
-                                // Find the location of the best match
-                                Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
-                                Point matchLoc;
-                                if (Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF || Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF_NORMED) {
-                                    matchLoc = mmr.minLoc;
-                                } else {
-                                    matchLoc = mmr.maxLoc;
-                                }
-                                Imgproc.rectangle(mat, matchLoc, new Point(matchLoc.x + template.cols(), matchLoc.y + template.rows()), new Scalar(255, 0, 0), 2);
-                                Bitmap outputBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-                                Utils.matToBitmap(mat, outputBitmap);
-                                imageView.setImageBitmap(bmp);
-                                IMAGES_PRODUCED++;
-                                if (IMAGES_PRODUCED == 1 || (prev_point.getX() == (float) matchLoc.x && prev_point.getY() == (float) matchLoc.y)) {
-                                    ACCURACY_POINT++;
-                                    prev_point.setX((float) matchLoc.x);
-                                    prev_point.setY((float) matchLoc.y);
-                                }
-                                if ((prev_point.getX() != (float) matchLoc.x || prev_point.getY() != (float) matchLoc.y)) {
-                                    ACCURACY_POINT = 0;
-                                    prev_point.setX((float) matchLoc.x);
-                                    prev_point.setY((float) matchLoc.y);
-                                }
-                                if (ACCURACY_POINT == 3) {
-                                    Action.clickAction((float) matchLoc.x + (float) bmp.getWidth() / 2, (float) matchLoc.y + (float) bmp.getHeight() / 2, steps[index].getDuration(), steps[index].getTries(), ScreenCaptureService.this);
-                                    ACCURACY_POINT = 0;
-                                    index++;
-                                }
-                                Log.e(TAG, "captured image: " + IMAGES_PRODUCED + " current step: " + index + "found at: " + matchLoc.x + " " + matchLoc.y + " prev_point: " + prev_point.getX() + " " + prev_point.getY() + " accuracy: " + ACCURACY_POINT + " ImageSize: " + bmp.getWidth() + " " + bmp.getHeight());
-                            }
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "openApp":
-                        try (Image image = mImageReader.acquireLatestImage()) {
-                            if(appOpened.equals(steps[index].getOn()))
-                                index++;
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "paste":
-                        try (Image image = mImageReader.acquireLatestImage()) {
-                            if (image != null) {
-                                pasteFromClipboard(steps[index].getContent());
-                                index++;
-                            }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                }
-
-            }else{
-                index=0;
+            if(action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source)){
                 Log.e(TAG, "onImageAvailable: StopProjection" );
                 stopProjection();
-            }
+            };
+
 
         }
 
@@ -293,6 +209,7 @@ public class ScreenCaptureService extends AccessibilityService {
         steps = bindStep(json);
         showOverlay();
         Log.e(TAG, "onStartCommand Services started");
+        action = new Action(getApplicationContext(), ScreenCaptureService.this);
         if (intent != null) {
             json = intent.getExtras().get("json").toString();
             steps = bindStep(json);
@@ -391,19 +308,6 @@ public class ScreenCaptureService extends AccessibilityService {
                 removeOverlay();
             }
         });
-//        ImageButton playButton = overlayView.findViewById(R.id.play_button);
-//        playButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
-//        ImageButton cameraButton = overlayView.findViewById(R.id.camera);
-//        cameraButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//            }
-//        });
         imageView = overlayView.findViewById(R.id.screenshot_image_view);
     }
 

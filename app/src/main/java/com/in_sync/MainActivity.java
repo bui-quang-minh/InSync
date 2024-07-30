@@ -1,10 +1,14 @@
 package com.in_sync;
 
+import static org.opencv.android.CameraRenderer.LOGTAG;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
@@ -35,6 +39,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        // Send request to enable accessibility service
+        if(!isAccessibilityEnabled()) {
+            Intent intentt = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intentt);
+        }
+
         onAppStart();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
@@ -82,6 +92,40 @@ public class MainActivity extends AppCompatActivity {
         //Set the default fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, homeFragment).commit();
+    }
+
+    public boolean isAccessibilityEnabled() {
+        int accessibilityEnabled = 0;
+        boolean accessibilityFound = false;
+        try {
+            accessibilityEnabled = Settings.Secure.getInt(this.getContentResolver(),android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+
+        } catch (Settings.SettingNotFoundException e) {
+            Log.e(LOGTAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
+        }
+
+        TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
+
+        if (accessibilityEnabled==1) {
+            String settingValue = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            Log.d(LOGTAG, "Setting: " + settingValue);
+            if (settingValue != null) {
+                TextUtils.SimpleStringSplitter splitter = mStringColonSplitter;
+                splitter.setString(settingValue);
+                while (splitter.hasNext()) {
+                    String accessabilityService = splitter.next();
+                    if (accessabilityService.equalsIgnoreCase(Settings.ACTION_ACCESSIBILITY_SETTINGS)){
+                        return true;
+                    }
+                }
+            }
+
+            Log.d(LOGTAG, "***END***");
+        }
+        else {
+            Log.d(LOGTAG, "***ACCESSIBILIY IS DISABLED***");
+        }
+        return accessibilityFound;
     }
 
 }
