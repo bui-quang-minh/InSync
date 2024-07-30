@@ -32,10 +32,10 @@
 <!--        android:src="@drawable/baseline_photo_camera_24"/>-->
     <ImageView
         android:id="@+id/screenshot_image_view"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="120dp"
+        android:layout_height="159dp"
+        android:layout_marginTop="10dp"
         android:scaleType="fitCenter"
-        android:visibility="visible"
-        android:layout_marginTop="10dp"/>
+        android:visibility="visible" />
 
 </LinearLayout>

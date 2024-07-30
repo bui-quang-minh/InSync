@@ -117,13 +117,10 @@ public class ScreenCaptureService extends AccessibilityService {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-
             if(action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source)){
                 Log.e(TAG, "onImageAvailable: StopProjection" );
                 stopProjection();
             };
-
-
         }
 
     }
@@ -185,7 +182,6 @@ public class ScreenCaptureService extends AccessibilityService {
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "onCreate: sevices started");
-        // start capture handling thread
         new Thread() {
             @Override
             public void run() {
@@ -280,7 +276,6 @@ public class ScreenCaptureService extends AccessibilityService {
     private Step[] bindStep(String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, Step[].class);
-
     }
 
     private void showOverlay() {
