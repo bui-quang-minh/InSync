@@ -11,7 +11,6 @@ import com.in_sync.R;
 
 public class ExploreFragment extends Fragment {
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

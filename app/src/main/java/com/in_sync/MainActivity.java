@@ -2,6 +2,8 @@ package com.in_sync;
 
 import static org.opencv.android.CameraRenderer.LOGTAG;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -10,6 +12,9 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -24,6 +29,10 @@ import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
 import com.in_sync.fragments.ProfileFragment;
 import com.in_sync.fragments.TestFragment;
+import com.in_sync.services.ScreenCaptureService;
+import com.in_sync.validates.PermissionValid;
+
+import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;
@@ -40,9 +49,8 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         // Send request to enable accessibility service
-        if(!isAccessibilityEnabled()) {
-            Intent intentt = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            startActivity(intentt);
+        if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
+            buildDialog();
         }
 
         onAppStart();
@@ -82,50 +90,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void onAppStart() {
-        bottomNavigationView    = findViewById(R.id.bottom_navigation_view);
-        homeFragment            = new HomeFragment();
-        logFragment             = new LogFragment();
-        exploreFragment         = new ExploreFragment();
-        testFragment            = new TestFragment();
-        profileFragment         = new ProfileFragment();
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        homeFragment = new HomeFragment();
+        logFragment = new LogFragment();
+        exploreFragment = new ExploreFragment();
+        testFragment = new TestFragment();
+        profileFragment = new ProfileFragment();
         //Set the default fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, homeFragment).commit();
     }
 
-    public boolean isAccessibilityEnabled() {
-        int accessibilityEnabled = 0;
-        boolean accessibilityFound = false;
-        try {
-            accessibilityEnabled = Settings.Secure.getInt(this.getContentResolver(),android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
-
-        } catch (Settings.SettingNotFoundException e) {
-            Log.e(LOGTAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
-        }
-
-        TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
-
-        if (accessibilityEnabled==1) {
-            String settingValue = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            Log.d(LOGTAG, "Setting: " + settingValue);
-            if (settingValue != null) {
-                TextUtils.SimpleStringSplitter splitter = mStringColonSplitter;
-                splitter.setString(settingValue);
-                while (splitter.hasNext()) {
-                    String accessabilityService = splitter.next();
-                    if (accessabilityService.equalsIgnoreCase(Settings.ACTION_ACCESSIBILITY_SETTINGS)){
-                        return true;
-                    }
-                }
-            }
-
-            Log.d(LOGTAG, "***END***");
-        }
-        else {
-            Log.d(LOGTAG, "***ACCESSIBILIY IS DISABLED***");
-        }
-        return accessibilityFound;
+    // New dialog will display when first time opens the app
+    // Request to enable accessibility service
+    private void buildDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.permission_request);
+        dialog.setCancelable(false);
+        Button requestSetting = dialog.findViewById(R.id.request_button);
+        Button cancelButton = dialog.findViewById(R.id.cancel_button);
+        requestSetting.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "Requesting", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intent);
+        });
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
 }
