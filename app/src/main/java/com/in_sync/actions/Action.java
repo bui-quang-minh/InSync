@@ -88,6 +88,7 @@ public class Action extends ActionDef {
                             Bitmap bmp = getBitmapFromURL(steps[index].getOn());
                             Mat template = createMatFromBitmap(bmp);
                             Utils.bitmapToMat(bmp, template);
+                            imageView.setImageBitmap(bmp);
                             //
                             //PERFORM TEMPLATE MATCHING
                             //
@@ -184,7 +185,7 @@ public class Action extends ActionDef {
             Imgproc.rectangle(mat, matchLoc, new Point(matchLoc.x + template.cols(), matchLoc.y + template.rows()), new Scalar(255, 0, 0), 2);
             Bitmap outputBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(mat, outputBitmap);
-            imageView.setImageBitmap(outputBitmap);
+
             IMAGES_PRODUCED++;
             if (IMAGES_PRODUCED == 1 || (prev_point.getX() == (float) matchLoc.x && prev_point.getY() == (float) matchLoc.y)) {
                 ACCURACY_POINT++;
