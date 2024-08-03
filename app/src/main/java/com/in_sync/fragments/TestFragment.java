@@ -34,6 +34,12 @@ public class TestFragment extends Fragment {
         inputEditText = view.findViewById(R.id.inputEditText);
         inputEditText.setText("[\n" +
                 "    {\n" +
+                "      \"actionType\": \"OPEN_APP\",\n" +
+                "      \"on\": \"[Facebook]\",\n" +
+                "      \"duration\": 100,\n" +
+                "      \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
                 "      \"actionType\": \"CLICK\",\n" +
                 "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/xtijv2dpg4qc2uw70gle.jpg\",\n" +
                 "      \"duration\": 100,\n" +

@@ -100,7 +100,6 @@ public class Action extends ActionDef {
                             Point matchLoc = new Point();
                             index = processTemplateMatchingResult(mmr, mat, template, imageView, bmp, index, steps, accessibilityService, matchLoc);
                         }
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

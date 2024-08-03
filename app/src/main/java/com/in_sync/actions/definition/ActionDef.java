@@ -13,5 +13,7 @@ public static final String
             ZOOM = "ZOOM",
             ROTATE = "ROTATE",
             TAP = "TAP",
+    IF = "IF",
+    FOR = "FOR",
             OPEN_APP = "OPEN_APP";
 }
