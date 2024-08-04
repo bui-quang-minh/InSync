@@ -50,19 +50,30 @@ public class TestFragment extends Fragment {
                 "      \"condition\": \"In-Sync\",\n" +
                 "      \"logResult\" : true,\n" +
                 "      \"isTrue\": [\n" +
+                "\n" +
                 "                  {\n" +
                 "                    \"index\": 3,\n" +
                 "                    \"parent\": 2,\n" +
+                "                    \"actionType\": \"CLICK\",\n" +
+                "                    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776490/ebmdwccbpwem5fw9nvqs.jpg\",\n" +
+                "                    \"logResult\" : true,\n" +
+                "                    \"duration\": 100,\n" +
+                "                    \"tries\": 1\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                    \"index\": 4,\n" +
+                "                    \"parent\": 2,\n" +
                 "                    \"actionType\": \"IF\",\n" +
                 "                    \"conditionType\": \"FIND_SOURCE\",\n" +
-                "                    \"condition\": \"Test\",\n" +
+                "                    \"condition\": \"Home\",\n" +
                 "                    \"logResult\" : true,\n" +
                 "                    \"isTrue\": [\n" +
+                "                                \n" +
                 "                                {\n" +
-                "                                  \"index\": 4,\n" +
-                "                                  \"parent\": 3,\n" +
+                "                                  \"index\": 5,\n" +
+                "                                  \"parent\": 4,\n" +
                 "                                  \"actionType\": \"CLICK\",\n" +
-                "                                  \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/xtijv2dpg4qc2uw70gle.jpg\",\n" +
+                "                                  \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776541/hl1dcpp0vhwjlppfjmn1.jpg\",\n" +
                 "                                  \"logResult\" : true,\n" +
                 "                                  \"duration\": 100,\n" +
                 "                                  \"tries\": 1\n" +
@@ -72,10 +83,10 @@ public class TestFragment extends Fragment {
                 "                ],\n" +
                 "      \"isFalse\":[\n" +
                 "                  {\n" +
-                "                    \"index\": 5,\n" +
+                "                    \"index\": 6,\n" +
                 "                    \"parent\": 2,\n" +
                 "                    \"actionType\": \"CLICK\",\n" +
-                "                    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/xtijv2dpg4qc2uw70gle.jpg\",\n" +
+                "                    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776576/sm0fnvilzzdnnfgnbx4n.jpg\",\n" +
                 "                    \"logResult\" : true,\n" +
                 "                    \"duration\": 100,\n" +
                 "                    \"tries\": 1\n" +
@@ -83,10 +94,10 @@ public class TestFragment extends Fragment {
                 "                ]\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"index\": 6,\n" +
+                "      \"index\": 7,\n" +
                 "      \"parent\": 0,\n" +
                 "      \"actionType\": \"CLICK\",\n" +
-                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/xtijv2dpg4qc2uw70gle.jpg\",\n" +
+                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776611/wrervde2ep8fr9oxllb6.jpg\",\n" +
                 "      \"logResult\" : true,\n" +
                 "      \"duration\": 100,\n" +
                 "      \"tries\": 1\n" +

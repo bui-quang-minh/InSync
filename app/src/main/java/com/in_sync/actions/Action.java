@@ -42,6 +42,7 @@ public class Action extends ActionDef {
     private Coordinate prev_point = new Coordinate(0, 0);
     private static final String TAG = Action.class.getSimpleName();
     private Context context;
+    public static String appOpenedResend;
     private AccessibilityService accessibilityService;
     public Action(Context context, AccessibilityService accessibilityService){
         this.context = context;
@@ -84,13 +85,6 @@ public class Action extends ActionDef {
         else{
             switch (currentAction.getActionType()) {
                 case "IF":
-                    if (currentAction.getConditionType().equals("FIND_SOURCE")){
-                        if (appOpened.equals("["+currentAction.getCondition()+"]")){
-                            currentAction = sequence.traverseAction(true, currentAction);
-                        }else{
-                            currentAction = sequence.traverseAction(false, currentAction);
-                        }
-                    }
                     break;
                 case Action.CLICK:
                     Bitmap bitmap = null;
@@ -126,33 +120,9 @@ public class Action extends ActionDef {
                         e.printStackTrace();
                     }
                     break;
-                case Action.OPEN_APP:
-                    try (Image image = mImageReader.acquireLatestImage()) {
-                        if(appOpened.equals(steps[index].getOn()))
-                            index++;
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case Action.PASTE:
-                    try (Image image = mImageReader.acquireLatestImage()) {
-                        if (image != null) {
-                            pasteFromClipboard(steps[index].getContent(), source);
-                            index++;
-                        }
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
             }
-
         }
         return currentAction;
-
-
-
     }
 
     public static Bitmap getBitmapFromURL(String on) {
@@ -227,6 +197,7 @@ public class Action extends ActionDef {
                         accessibilityService);
                 ACCURACY_POINT = 0;
                 IMAGES_PRODUCED = 0;
+                Log.e("Source", "click condition is true");
                 return sequence.traverseAction(true, currentAction);
             }
         } else {

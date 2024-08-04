@@ -14,6 +14,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.AnimationDrawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.Image;
@@ -135,7 +136,7 @@ public class ScreenCaptureService extends AccessibilityService {
         @Override
         public void onImageAvailable(ImageReader reader) {
             com.in_sync.models.Action newAction = action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence,currentAction, flattenedActions);
-            if(newAction.getIndex() + 1 == flattenedActions.size()){
+            if(newAction.getIndex() == -1){
                 currentAction = newAction;
                 Log.e(TAG, "onImageAvailable: StopProjection" );
                 stopProjection();
@@ -194,6 +195,17 @@ public class ScreenCaptureService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         appOpened = event.getText().toString().trim();
         source = event.getSource();
+        if(currentAction!=null){
+        if (currentAction.getConditionType().equals("FIND_SOURCE")&&currentAction.getActionType().equals("IF")){
+            if (appOpened.equals("["+currentAction.getCondition()+"]")){
+                Log.e("Action", "FIND_SOURCE Condition is true");
+                currentAction = sequence.traverseAction(true, currentAction);
+            }else{
+                Log.e("Action", "FIND_SOURCE Condition is false");
+                currentAction = sequence.traverseAction(false, currentAction);
+            }
+        }
+        }
         Log.e(TAG, "onAccessibilityEvent: "+ appOpened);
     }
 
@@ -368,7 +380,9 @@ public class ScreenCaptureService extends AccessibilityService {
         params.y = 200;
 
         windowManager.addView(overlayView, params);
-
+        ImageView blinkingLight = overlayView.findViewById(R.id.blinking_light);
+        AnimationDrawable animationDrawable = (AnimationDrawable) blinkingLight.getDrawable();
+        animationDrawable.start();
         ImageButton closeButton = overlayView.findViewById(R.id.stop_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
