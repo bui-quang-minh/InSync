@@ -74,11 +74,6 @@ public class MainActivity extends AppCompatActivity {
                             replace(R.id.container, testFragment).commit();
                     return true;
                 }
-//                else if (item.getItemId() == R.id.profile) {
-//                    getSupportFragmentManager().beginTransaction()
-//                            .replace(R.id.container, profileFragment).commit();
-//                    return true;
-//                }
                 else if (item.getItemId() == R.id.screen_capture) {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, screenCaptureFragment).commit();
