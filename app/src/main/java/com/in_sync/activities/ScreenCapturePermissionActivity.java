@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 
+import com.in_sync.services.ScreenStreamingService;
+
 
 public class ScreenCapturePermissionActivity extends Activity {
 
@@ -22,7 +24,7 @@ public class ScreenCapturePermissionActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Intent intent = com.in_sync.services.ScreenCaptureService.getStartIntent(this, resultCode, data);
+                Intent intent = ScreenStreamingService.getStartIntent(this, resultCode, data);
                 String json = getIntent().getExtras().get("json").toString();
                 intent.putExtra("json", json);
                 startService(intent);
@@ -38,6 +40,6 @@ public class ScreenCapturePermissionActivity extends Activity {
     }
 
     private void stopProjection() {
-        startService(com.in_sync.services.ScreenCaptureService.getStopIntent(this));
+        startService(ScreenStreamingService.getStopIntent(this));
     }
 }

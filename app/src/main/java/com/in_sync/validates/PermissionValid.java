@@ -4,14 +4,14 @@ import android.content.Context;
 import android.provider.Settings;
 import android.text.TextUtils;
 
-import com.in_sync.services.ScreenCaptureService;
+import com.in_sync.services.ScreenStreamingService;
 
 public class PermissionValid {
 
     // Check in the permission settings if accessibility service is enabled
     public static boolean isAccessibilitySettingsOn(Context mContext, String packageName) {
         int accessibilityEnabled = 0;
-        final String service = packageName + "/" + ScreenCaptureService.class.getCanonicalName();
+        final String service = packageName + "/" + ScreenStreamingService.class.getCanonicalName();
         try {
             accessibilityEnabled = Settings.Secure.getInt(
                     mContext.getApplicationContext().getContentResolver(),

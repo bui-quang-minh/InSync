@@ -8,4 +8,6 @@
         This permission is required inorder to execute the clicks and swipes you will create in your automations scenerios \n\n
         InSync commits we would not gain your private information
     </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
