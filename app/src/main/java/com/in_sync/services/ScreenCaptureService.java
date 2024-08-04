@@ -50,6 +50,7 @@ import org.opencv.imgproc.Imgproc;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,13 @@ public class ScreenCaptureService extends AccessibilityService {
     private String appOpened="";
     private Action action;
     private Sequence sequence;
+    private static int IMAGES_PRODUCED;
+    private int ACCURACY_POINT;
+    private Coordinate prev_point = new Coordinate(0, 0);
     private AccessibilityNodeInfo source;
+    private List<com.in_sync.models.Action> flattenedActions;
+
+    private com.in_sync.models.Action currentAction = null;
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
@@ -127,10 +134,17 @@ public class ScreenCaptureService extends AccessibilityService {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            if(action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source)){
+            com.in_sync.models.Action newAction = action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence,currentAction, flattenedActions);
+            if(newAction.getIndex() + 1 == flattenedActions.size()){
+                currentAction = newAction;
                 Log.e(TAG, "onImageAvailable: StopProjection" );
                 stopProjection();
-            };
+            }else{
+                currentAction = newAction;
+            }
+            try (Image image = mImageReader.acquireLatestImage()) {}catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
     }
@@ -287,10 +301,15 @@ public class ScreenCaptureService extends AccessibilityService {
         Gson gson = new Gson();
         Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {}.getType();
         List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);
-
-        List<com.in_sync.models.Action> flattenedActions = flattenActions(actionsList);
+        flattenedActions = new ArrayList<com.in_sync.models.Action>();
+        com.in_sync.models.Action startAction = new com.in_sync.models.Action();
+        startAction.setIndex(0);
+        flattenedActions.add(startAction);
+        for (com.in_sync.models.Action action : flattenActions(actionsList)){
+            flattenedActions.add(action);
+        }
         TreeNode root = buildTree(flattenedActions);
-        sequence = new Sequence(flattenedActions, root);
+        sequence = new Sequence(actionsList, flattenedActions, root);
         return gson.fromJson(json, Step[].class);
     }
     private static TreeNode buildTree(List<com.in_sync.models.Action> actions) {

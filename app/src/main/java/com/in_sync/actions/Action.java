@@ -18,6 +18,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import com.in_sync.actions.definition.ActionDef;
 import com.in_sync.models.Coordinate;
+import com.in_sync.models.Sequence;
 import com.in_sync.models.Step;
 import com.in_sync.services.ScreenCaptureService;
 
@@ -31,6 +32,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 
 public class Action extends ActionDef {
@@ -67,11 +69,29 @@ public class Action extends ActionDef {
         },null);
         Log.e(TAG, "Gesture Result: " + result);
     }
-    public boolean actionHandler(Step[] steps, ImageReader mImageReader, AccessibilityService accessibilityService, int mWidth, int mHeight,
-                                 android.widget.ImageView imageView, String appOpened, AccessibilityNodeInfo source){
+    public com.in_sync.models.Action actionHandler(Step[] steps, ImageReader mImageReader, AccessibilityService accessibilityService, int mWidth, int mHeight,
+                                                   android.widget.ImageView imageView, String appOpened, AccessibilityNodeInfo source, Sequence sequence,
+                                                   com.in_sync.models.Action currentAction, List<com.in_sync.models.Action> flattenedAction){
 
-        if(index<steps.length){
-            switch (steps[index].getActionType()) {
+        if (currentAction == null) {
+            currentAction = new com.in_sync.models.Action();
+            currentAction.setIndex(0);
+            currentAction = sequence.traverseAction(true, currentAction);
+            return currentAction;
+        } else if (currentAction.getIndex() + 1 == flattenedAction.size()) {
+            return currentAction;
+        }
+        else{
+            switch (currentAction.getActionType()) {
+                case "IF":
+                    if (currentAction.getConditionType().equals("FIND_SOURCE")){
+                        if (appOpened.equals("["+currentAction.getCondition()+"]")){
+                            currentAction = sequence.traverseAction(true, currentAction);
+                        }else{
+                            currentAction = sequence.traverseAction(false, currentAction);
+                        }
+                    }
+                    break;
                 case Action.CLICK:
                     Bitmap bitmap = null;
                     try (Image image = mImageReader.acquireLatestImage()) {
@@ -85,7 +105,7 @@ public class Action extends ActionDef {
                             //
                             //GET TEMPLATE BITMAP
                             //
-                            Bitmap bmp = getBitmapFromURL(steps[index].getOn());
+                            Bitmap bmp = getBitmapFromURL(currentAction.getOn());
                             Mat template = createMatFromBitmap(bmp);
                             Utils.bitmapToMat(bmp, template);
                             imageView.setImageBitmap(bmp);
@@ -99,7 +119,8 @@ public class Action extends ActionDef {
                             //
                             Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
                             Point matchLoc = new Point();
-                            index = processTemplateMatchingResult(mmr, mat, template, imageView, bmp, index, steps, accessibilityService, matchLoc);
+                            return processTemplateMatchingResult(mmr, mat, template, imageView, bmp, index, steps, accessibilityService, matchLoc, currentAction, sequence);
+
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -127,13 +148,14 @@ public class Action extends ActionDef {
                     break;
             }
 
-        }else{
-            return true;
         }
-        return false;
+        return currentAction;
+
+
+
     }
 
-    private Bitmap getBitmapFromURL(String on) {
+    public static Bitmap getBitmapFromURL(String on) {
         Bitmap bitmap = null;
         try {
             bitmap = BitmapFactory.decodeStream(new URL(on).openConnection().getInputStream());
@@ -143,7 +165,7 @@ public class Action extends ActionDef {
         return bitmap;
     }
 
-    private Bitmap getScreenBitmap(Image image) {
+    public static Bitmap getScreenBitmap(Image image) {
         Bitmap bitmap = null;
         if (image != null) {
             Image.Plane[] planes = image.getPlanes();
@@ -158,12 +180,12 @@ public class Action extends ActionDef {
         return bitmap;
     }
 
-    private Mat createMatFromBitmap(Bitmap bitmap) {
+    public static Mat createMatFromBitmap(Bitmap bitmap) {
         return new Mat(bitmap.getHeight(), bitmap.getWidth(), CvType.CV_8UC4);
     }
 
 
-    private void pasteFromClipboard(String content, AccessibilityNodeInfo source) {
+    private  void pasteFromClipboard(String content, AccessibilityNodeInfo source) {
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clipData = ClipData.newPlainText("text", content);
         clipboard.setPrimaryClip(clipData);
@@ -175,7 +197,7 @@ public class Action extends ActionDef {
         Log.e("Error", String.format("AccessibilityNodeInfoCompat.ACTION_PASTE %1$s supported", isSupported ? "is" : "is NOT"));
 
     }
-    public int processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template,  android.widget.ImageView imageView, Bitmap bmp , int index, Step[] steps, AccessibilityService accessibilityService, Point matchLoc) {
+    public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template,  android.widget.ImageView imageView, Bitmap bmp , int index, Step[] steps, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
         if (mmr.maxVal >= 0.75) {
             if (Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF || Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF_NORMED) {
                 matchLoc = mmr.minLoc;
@@ -200,17 +222,17 @@ public class Action extends ActionDef {
             if (ACCURACY_POINT == 3) {
                 Action.clickAction((float) matchLoc.x + (float) bmp.getWidth() / 2,
                         (float) matchLoc.y + (float) bmp.getHeight() / 2,
-                        steps[index].getDuration(),
-                        steps[index].getTries(),
+                        currentAction.getDuration(),
+                        currentAction.getTries(),
                         accessibilityService);
                 ACCURACY_POINT = 0;
                 IMAGES_PRODUCED = 0;
-                return ++index;
+                return sequence.traverseAction(true, currentAction);
             }
         } else {
             Log.e(TAG, "No image match found");
         }
         Log.e(TAG, "captured image: " + IMAGES_PRODUCED + " current step: " + index +" Accuray Point: "+ mmr.maxVal+ " prev_point: " + prev_point.getX() + " " + prev_point.getY() + " accuracy: " + ACCURACY_POINT + " ImageSize: " + bmp.getWidth() + " " + bmp.getHeight());
-        return index;
+        return sequence.traverseAction(false, currentAction);
     }
 }

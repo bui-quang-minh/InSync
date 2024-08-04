@@ -55,7 +55,7 @@ public class TestFragment extends Fragment {
                 "                    \"parent\": 2,\n" +
                 "                    \"actionType\": \"IF\",\n" +
                 "                    \"conditionType\": \"FIND_SOURCE\",\n" +
-                "                    \"condition\": \"Home\",\n" +
+                "                    \"condition\": \"Test\",\n" +
                 "                    \"logResult\" : true,\n" +
                 "                    \"isTrue\": [\n" +
                 "                                {\n" +
