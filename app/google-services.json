@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "741949395155",
+    "project_id": "projectinsync-f627a",
+    "storage_bucket": "projectinsync-f627a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:741949395155:android:f7c9da64bfab957fb48426",
+        "android_client_info": {
+          "package_name": "com.in_sync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeJv6F80WseVvNxkuAYIFoL8HC2JMUg2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

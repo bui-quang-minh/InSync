@@ -5,6 +5,7 @@ import static org.opencv.android.CameraRenderer.LOGTAG;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,39 +20,65 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.fragments.ExploreFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
 import com.in_sync.fragments.ProfileFragment;
 import com.in_sync.fragments.TestFragment;
+import com.in_sync.helpers.FileLogUtils;
 import com.in_sync.services.ScreenCaptureService;
 import com.in_sync.validates.PermissionValid;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
 import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;
+    private static final String TAG = "MainActivity";
     private BottomNavigationView bottomNavigationView;
     private HomeFragment homeFragment;
     private LogFragment logFragment;
     private ExploreFragment exploreFragment;
     private TestFragment testFragment;
     private ProfileFragment profileFragment;
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        //Test Firebase
+//        FirebaseLogService logService = new FirebaseLogService();
+//        Log log = new Log();
+//        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+//        log.setLogScenariosId(UUID.randomUUID().toString());
+//        log.setScenarioId(UUID.randomUUID().toString());
+//        log.setDateCreated(LocalDateTime.now().format(formatter));
+//        log.setDescription("This is a log description");
+//        log.setNote("This is a note");
+//        log.setDeviceName("Device XYZ");
+//        logService.addLog(log);
+
+
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
             buildDialog();
         }
+
 
         onAppStart();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -91,6 +118,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PermissionValid.REQUEST_CODE_PERMISSIONS_READ_WRITE_EXTERNAL_STORAGE) {
+            boolean allPermissionsGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+
+            if (allPermissionsGranted) {
+                // Quyền đã được cấp, thực hiện hành động cần thiết
+                Log.e(TAG, "Quyền đọc và ghi vào bộ nhớ ngoài bị đã chấp nhận.");
+            } else {
+                // Quyền bị từ chối
+                Log.e(TAG, "Quyền đọc và ghi vào bộ nhớ ngoài bị từ chối.");
+            }
+        }
+    }
+
     private void onAppStart() {
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         homeFragment = new HomeFragment();
@@ -102,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, homeFragment).commit();
     }
+
 
     // New dialog will display when first time opens the app
     // Request to enable accessibility service

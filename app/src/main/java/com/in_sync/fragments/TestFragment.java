@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.in_sync.R;
 import com.in_sync.activities.ScreenCapturePermissionActivity;
+import com.in_sync.validates.PermissionValid;
 
 public class TestFragment extends Fragment {
     private static final String TAG = "TestFragment";
@@ -77,6 +78,7 @@ public class TestFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         onViewStart();
         eventHandling();
+
     }
 
     private void eventHandling() {

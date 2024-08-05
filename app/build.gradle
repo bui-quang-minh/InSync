@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.googleGmsGoogleServices)
 }
 
 android {
@@ -38,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation libs.firebase.database
     compileOnly libs.lombok
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
     implementation libs.gson
@@ -46,6 +48,7 @@ dependencies {
     implementation libs.activity
     implementation libs.constraintlayout
     implementation project(':opencv')
+    implementation libs.firebase.database
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
