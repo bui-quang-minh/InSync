@@ -46,12 +46,15 @@ public class Sequence {
                             //parent search
                             if (action == currentAction&&currentList.indexOf(action)==currentList.size()-1){
                                 Action actionRoot = findParentNotInExecutedActions(action.getParent(), flatenedActions, excecutedActions);
-                                TreeNode parentNode = root.findNodeWithIndex(root, actionRoot.getIndex());
+                                TreeNode parentNode = root.findNodeWithIndex(root, currentAction.getIndex());
                                 //return the children of parent node that not in executed actions
                                 List<TreeNode> children = parentNode.getChildren();
+                                currentList = new ArrayList<Action>();
+                                if(!children.isEmpty()){
+                                    return currentAction.getIsTrue().get(0);
+                                }
                                 for (TreeNode<Action> child : children){
-                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())){
-                                        currentList = new ArrayList<Action>();
+                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())&&!parentNode.getAction().getActionType().equals("IF")){
                                         return (Action)child.getAction();
                                     }
                                 }
@@ -76,9 +79,12 @@ public class Sequence {
                                 TreeNode parentNode = root.findNodeWithIndex(root, actionRoot.getIndex());
                                 //return the children of parent node that not in executed actions
                                 List<TreeNode> children = parentNode.getChildren();
+                                currentList = new ArrayList<Action>();
+                                if(!children.isEmpty()){
+                                    return currentAction.getIsFalse().get(0);
+                                }
                                 for (TreeNode<Action> child : children){
-                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())){
-                                        currentList = new ArrayList<Action>();
+                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())&&!parentNode.getAction().getActionType().equals("IF")){
                                         return (Action)child.getAction();
                                     }
                                 }
@@ -93,11 +99,12 @@ public class Sequence {
             }
             if (actionType.equals("CLICK")){
                 if (logResult){
-                    allExecutedActions.add(currentAction.getIndex());
                     if (!conditionResult){
                         Log.e("Sequence", "Action: " + currentAction.getActionType() + "| on: " + currentAction.getOn() + " index: "+ index);
                         return flatenedActions.get(index);
                     }
+                    allExecutedActions.add(currentAction.getIndex());
+                    //conditionResult is true
                     if (!currentList.isEmpty()){
                         for (Action action : currentList){
                             if (action == currentAction&&currentList.indexOf(action)!=currentList.size()-1){
@@ -109,11 +116,14 @@ public class Sequence {
                                 TreeNode parentNode = root.findNodeWithIndex(root, actionRoot.getIndex());
                                 //return the children of parent node that not in executed actions
                                 List<TreeNode> children = parentNode.getChildren();
+                                if(!children.isEmpty()){
+                                    //may need to add smth
+                                    currentList = new ArrayList<Action>();
+                                }
                                 for (TreeNode<Action> child : children){
-                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())){
+                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())&&!parentNode.getAction().getActionType().equals("IF")){
                                         currentList = new ArrayList<Action>();
-                                        Action nextAction = child.getAction();
-                                        return nextAction;
+                                        return (Action)child.getAction();
                                     }
                                 }
                             }
@@ -125,6 +135,7 @@ public class Sequence {
                     if (!conditionResult){
                         return flatenedActions.get(index);
                     }
+                    allExecutedActions.add(currentAction.getIndex());
                     Log.e("Sequence", "Action: " + currentAction.getActionType() + " on: " + currentAction.getOn() + " index: "+ index);
                     return flatenedActions.get(index);
                 }

@@ -195,8 +195,9 @@ public class ScreenCaptureService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         appOpened = event.getText().toString().trim();
         source = event.getSource();
-        if(currentAction!=null){
-        if (currentAction.getConditionType().equals("FIND_SOURCE")&&currentAction.getActionType().equals("IF")){
+        Log.e(TAG, "onAccessibilityEvent: this open::: "+ appOpened);
+        if(currentAction!=null && currentAction.getConditionType()!=null && currentAction.getActionType()!=null){
+        if (currentAction.getConditionType().toString().equals("FIND_SOURCE")&&currentAction.getActionType().toString().equals("IF")){
             if (appOpened.equals("["+currentAction.getCondition()+"]")){
                 Log.e("Action", "FIND_SOURCE Condition is true");
                 currentAction = sequence.traverseAction(true, currentAction);
