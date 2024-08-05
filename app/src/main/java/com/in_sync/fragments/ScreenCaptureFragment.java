@@ -1,10 +1,8 @@
 package com.in_sync.fragments;
 
-import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 import android.content.Context;
 import android.content.Intent;
-import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 
@@ -18,18 +16,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.in_sync.R;
-import com.in_sync.services.ScreenCaptureService;
+import com.in_sync.activities.ScreenshotPermissionActivity;
 
 public class ScreenCaptureFragment extends Fragment {
     private Button captureButton;
     private Context context;
     private static final int REQUEST_CODE_SCREEN_CAPTURE = 1;
     private MediaProjectionManager mediaProjectionManager;
-    private MediaProjection mediaProjection;
 
     public ScreenCaptureFragment(Context context) {
         this.context = context;
     }
+
 
     @Nullable
     @Override
@@ -46,25 +44,12 @@ public class ScreenCaptureFragment extends Fragment {
     }
 
     private void handleEvent() {
-        captureButton.setOnClickListener(v -> {
-            startScreenCaptureRequest();
-        });
+        captureButton.setOnClickListener(this::initiateOverlay);
     }
 
-    private void startScreenCaptureRequest() {
-        Intent captureIntent = mediaProjectionManager.createScreenCaptureIntent();
-        startActivityForResult(captureIntent, REQUEST_CODE_SCREEN_CAPTURE);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_SCREEN_CAPTURE && resultCode == RESULT_OK) {
-            mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data);
-            // Start the screen capture service
-            Intent serviceIntent = new Intent(context, ScreenCaptureService.class);
-            serviceIntent.putExtra("media_projection", mediaProjection.toString());
-            context.startService(serviceIntent);
-        }
+    private void initiateOverlay(View view) {
+        Intent intent = new Intent(context, ScreenshotPermissionActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }
