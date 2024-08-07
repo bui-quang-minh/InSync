@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +15,18 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.in_sync.request.GetUserListRequest;
+
 //Created By: Bui Quang Minh
 //Created Date: 07-08-2024
 //This activity is used to authenticate the user
 public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
-    TextInputEditText passwordEditText;
-    TextInputLayout passwordLayout;
+    private TextInputEditText usernameEditText;
+    private TextInputEditText passwordEditText;
+    private TextInputLayout usernameLayout;
+    private TextInputLayout passwordLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,8 +40,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onAppStart() {
        loginButton = findViewById(R.id.loginButton);
-        passwordLayout = findViewById(R.id.txtPassword);
-        passwordEditText = findViewById(R.id.inputPassword);
+       usernameLayout = findViewById(R.id.txtUsername);
+       passwordLayout = findViewById(R.id.txtPassword);
+       usernameEditText = findViewById(R.id.inputUsername);
+       passwordEditText = findViewById(R.id.inputPassword);
     }
 
     private void eventHandling() {
@@ -57,7 +65,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginButtonClicked(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        if (GetUserListRequest.GetLoginParameter(usernameEditText.getText().toString(), this, usernameLayout, passwordLayout)) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }else{
+        }
     }
 }

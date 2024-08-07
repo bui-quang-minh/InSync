@@ -38,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation libs.volley
     compileOnly libs.lombok
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
     implementation libs.gson
