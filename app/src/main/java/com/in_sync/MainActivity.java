@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private ExploreFragment exploreFragment;
     private TestFragment testFragment;
     private ProfileFragment profileFragment;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,18 +107,30 @@ public class MainActivity extends AppCompatActivity {
     // New dialog will display when first time opens the app
     // Request to enable accessibility service
     private void buildDialog() {
-        Dialog dialog = new Dialog(this);
+        dialog = new Dialog(this);
         dialog.setContentView(R.layout.permission_request);
         dialog.setCancelable(false);
         Button requestSetting = dialog.findViewById(R.id.request_button);
-        Button cancelButton = dialog.findViewById(R.id.cancel_button);
         requestSetting.setOnClickListener(v -> {
             Toast.makeText(MainActivity.this, "Requesting", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
             startActivity(intent);
+            dialog.dismiss();
         });
-        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        //cancelButton.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
-
+    // Created By: Bui Quang Minh
+    // Created Date: 07-08-2024
+    // On Resume, check for accessibility settings
+    // Request to enable accessibility service
+    protected void onResume() {
+        super.onResume();
+        // Check if accessibility settings are enabled
+        if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
+            if (dialog == null || !dialog.isShowing()) {
+                buildDialog();
+            }
+        }
+    }
 }

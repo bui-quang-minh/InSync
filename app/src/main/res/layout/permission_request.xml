@@ -44,14 +44,9 @@
             android:text="Move to Settings"
             android:id="@+id/request_button"
             android:backgroundTint="@color/black"
+            android:layout_marginBottom="10dp"
             />
-        <Button
-            android:layout_width="250sp"
-            android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:id="@+id/cancel_button"
-            android:backgroundTint="@color/black"
-            />
+
     </LinearLayout>
 
 </LinearLayout>
