@@ -79,7 +79,8 @@ public class Action extends ActionDef {
             currentAction.setIndex(0);
             currentAction = sequence.traverseAction(true, currentAction);
             return currentAction;
-        } else if (currentAction.getIndex() + 1 == flattenedAction.size()) {
+        } else if (currentAction.getIndex() == -1) {
+            Log.e(TAG, "All actions have been executed. Projection Stop");
             return currentAction;
         }
         else{

@@ -23,128 +23,154 @@ public class Sequence {
     }
     public Action traverseAction(boolean conditionResult, Action currentAction){
         int index = currentAction.getIndex();
+        if(index == 5){
+            Log.e("Sequence", "Index is 5");
+        }
+        String actionType = currentAction.getActionType();
+        boolean logResult = currentAction.isLogResult();
+        if (currentAction == flatenedActions.get(flatenedActions.size()-1) && conditionResult){
+            Log.e("Sequence", "All actions have been executed");
+            currentAction.setIndex(-1);
+            return currentAction;
+        }
         if(index == 0){
             //push action to 1
             Log.e("Sequence", "Action index is 0, pushing to 1 " + flatenedActions.get(index+1).getActionType());
+            List<TreeNode> treeChildren = root.findNodeWithIndex(root, 0).getChildren();
+            for (TreeNode<Action> child : treeChildren){
+                currentList.add((Action)child.getAction());
+            }
             return flatenedActions.get(++index);
         }
-        if (index < flatenedActions.size()){
-            boolean logResult = currentAction.isLogResult();
-            String actionType = currentAction.getActionType();
-            if (actionType.equals("IF")){
-                excecutedActions.add(currentAction.getIndex());
-                allExecutedActions.add(currentAction.getIndex());
-                if(conditionResult){
-                    if (logResult){
-                        Log.e("Sequence", "Action: " + currentAction.getActionType() + "| on: " + currentAction.getCondition() + " |is true, the current index: "+ index);
-                    }
-                    if (!currentList.isEmpty()){
+        if (currentList.size() == 1){
+            switch(actionType){
+                case "CLICK":
+                    allExecutedActions.add(currentAction.getIndex());
+                    if (conditionResult){
+                        Log.e("Sequence", "Last action in list, popping to parent");
+                        currentList = new ArrayList<Action>();
+                        Action parrentAction = findParentNotInExecutedActions(currentAction.getParent(), flatenedActions, excecutedActions);
+                        TreeNode parrentTreeNode = root.findNodeWithIndex(root, parrentAction.getIndex());
+                        List<TreeNode> treeChildren = parrentTreeNode.getChildren();
+                        for (TreeNode<Action> child : treeChildren){
+                            currentList.add((Action)child.getAction());
+                        }
                         for (Action action : currentList){
-                            if (action == currentAction&&currentList.indexOf(action)!=currentList.size()-1){
-                                return currentList.get(currentList.indexOf(action)+1);
-                            }
-                            //parent search
-                            if (action == currentAction&&currentList.indexOf(action)==currentList.size()-1){
-                                Action actionRoot = findParentNotInExecutedActions(action.getParent(), flatenedActions, excecutedActions);
-                                TreeNode parentNode = root.findNodeWithIndex(root, currentAction.getIndex());
-                                //return the children of parent node that not in executed actions
-                                List<TreeNode> children = parentNode.getChildren();
+                            if (allExecutedActions.contains(action.getIndex())){
+                                continue;
+                            } else {
                                 currentList = new ArrayList<Action>();
-                                if(!children.isEmpty()){
-                                    return currentAction.getIsTrue().get(0);
-                                }
-                                for (TreeNode<Action> child : children){
-                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())&&!parentNode.getAction().getActionType().equals("IF")){
-                                        return (Action)child.getAction();
-                                    }
-                                }
+                                currentList.add(action);
+                                return action;
                             }
                         }
-                    }else {
+                    } else {
+                        Log.e("Sequence", "Condition not met, skipping: " + currentAction.getIndex());
+                    }
+                    break;
+                case "IF":
+                    excecutedActions.add(currentAction.getIndex());
+                    allExecutedActions.add(currentAction.getIndex());
+                    if (conditionResult){
+                        Log.e("Sequence", "Condition met, pushing to: " + currentAction.getIsTrue());
                         currentList = currentAction.getIsTrue();
-                        return currentList.get(0);
-                    }
-                } else {
-                    if (logResult){
-                        Log.e("Sequence", "Action: " + currentAction.getActionType() + "| on: " + currentAction.getCondition() + " | is false, current index: "+ index);
-                    }
-                    if (!currentList.isEmpty()){
-                        for (Action action : currentList){
-                            if (action == currentAction&&currentList.indexOf(action)!=currentList.size()-1){
-                                return currentList.get(currentList.indexOf(action)+1);
-                            }
-                            //parent search
-                            if (action == currentAction&&currentList.indexOf(action)==currentList.size()-1){
-                                Action actionRoot = findParentNotInExecutedActions(action.getParent(), flatenedActions, excecutedActions);
-                                TreeNode parentNode = root.findNodeWithIndex(root, actionRoot.getIndex());
-                                //return the children of parent node that not in executed actions
-                                List<TreeNode> children = parentNode.getChildren();
-                                currentList = new ArrayList<Action>();
-                                if(!children.isEmpty()){
-                                    return currentAction.getIsFalse().get(0);
-                                }
-                                for (TreeNode<Action> child : children){
-                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())&&!parentNode.getAction().getActionType().equals("IF")){
-                                        return (Action)child.getAction();
-                                    }
-                                }
-                            }
-                        }
-                    }else {
+                        return currentAction.getIsTrue().get(0);
+                    } else {
+                        Log.e("Sequence", "Condition not met, pushing to: " + currentAction.getIsFalse());
+                        Log.e("Sequence", "Condition met, pushing to: " + currentAction.getIsFalse());
                         currentList = currentAction.getIsFalse();
-                        return currentList.get(0);
+                        return currentAction.getIsFalse().get(0);
                     }
-                    return flatenedActions.get(index);
-                }
             }
-            if (actionType.equals("CLICK")){
-                if (logResult){
-                    if (!conditionResult){
-                        Log.e("Sequence", "Action: " + currentAction.getActionType() + "| on: " + currentAction.getOn() + " index: "+ index);
-                        return flatenedActions.get(index);
-                    }
+        }
+        if (currentList.size() > 1){
+            switch(actionType){
+                case "CLICK":
                     allExecutedActions.add(currentAction.getIndex());
-                    //conditionResult is true
-                    if (!currentList.isEmpty()){
-                        for (Action action : currentList){
-                            if (action == currentAction&&currentList.indexOf(action)!=currentList.size()-1){
-                                return currentList.get(currentList.indexOf(action)+1);
+                    if (conditionResult){
+                        Log.e("Sequence", "Clicking on: " + currentAction.getIndex());
+
+                        if(currentList.get(currentList.size()-1).getIndex() == currentAction.getIndex()){
+                            Log.e("Sequence", "Last action in list, popping to parent");
+                            currentList = new ArrayList<Action>();
+                            Action parrentAction = findParentNotInExecutedActions(currentAction.getParent(), flatenedActions, excecutedActions);
+                            TreeNode parrentTreeNode = root.findNodeWithIndex(root, parrentAction.getIndex());
+                            List<TreeNode> treeChildren = parrentTreeNode.getChildren();
+                            for (TreeNode<Action> child : treeChildren){
+                                currentList.add((Action)child.getAction());
                             }
-                            //parent search
-                            if (action == currentAction&&currentList.indexOf(action)==currentList.size()-1){
-                                Action actionRoot = findParentNotInExecutedActions(action.getParent(), flatenedActions, excecutedActions);
-                                TreeNode parentNode = root.findNodeWithIndex(root, actionRoot.getIndex());
-                                //return the children of parent node that not in executed actions
-                                List<TreeNode> children = parentNode.getChildren();
-                                if(!children.isEmpty()){
-                                    //may need to add smth
+                            for (Action action : currentList){
+                                if (allExecutedActions.contains(action.getIndex())){
+                                    continue;
+                                } else {
                                     currentList = new ArrayList<Action>();
+                                    currentList.add(action);
+                                    return action;
                                 }
-                                for (TreeNode<Action> child : children){
-                                    if (!excecutedActions.contains((child.getAction()).getIndex())&&!allExecutedActions.contains((child.getAction()).getIndex())&&!parentNode.getAction().getActionType().equals("IF")){
-                                        currentList = new ArrayList<Action>();
-                                        return (Action)child.getAction();
-                                    }
+                            }
+
+                        }
+                        for (Action action : currentList){
+                            if(action.getIndex() == currentAction.getIndex()){
+                                return flatenedActions.get(index+1);
+                            }
+                        }
+                    } else {
+                        Log.e("Sequence", "Condition not met, skipping: " + currentAction.getIndex());
+                    }
+                    break;
+                case "IF":
+                    excecutedActions.add(currentAction.getIndex());
+                    allExecutedActions.add(currentAction.getIndex());
+                    if (conditionResult){
+                        Log.e("Sequence", "Condition met, pushing to: " + currentAction.getIsTrue());
+
+                        if (currentList.isEmpty()){
+                            Action parrentAction = findParentNotInExecutedActions(currentAction.getParent(), flatenedActions, allExecutedActions);
+                            TreeNode parrentTreeNode = root.findNodeWithIndex(root, parrentAction.getIndex());
+                            List<TreeNode> treeChildren = parrentTreeNode.getChildren();
+                            for (TreeNode<Action> child : treeChildren){
+                                currentList.add((Action)child.getAction());
+                            }
+                            for (Action action : currentList){
+                                if (allExecutedActions.contains(action.getIndex())){
+                                    continue;
+                                } else {
+                                    currentList = new ArrayList<Action>();
+                                    currentList.add(action);
+                                    return action;
                                 }
                             }
                         }
+                        currentList = currentAction.getIsTrue();
+                        return currentAction.getIsTrue().get(0);
+                    } else {
+                        Log.e("Sequence", "Condition met, pushing to: " + currentAction.getIsTrue());
+
+                        if (currentList.isEmpty()){
+                            Action parrentAction = findParentNotInExecutedActions(currentAction.getParent(), flatenedActions, allExecutedActions);
+                            TreeNode parrentTreeNode = root.findNodeWithIndex(root, parrentAction.getIndex());
+                            List<TreeNode> treeChildren = parrentTreeNode.getChildren();
+                            for (TreeNode<Action> child : treeChildren){
+                                currentList.add((Action)child.getAction());
+                            }
+                            for (Action action : currentList){
+                                if (allExecutedActions.contains(action.getIndex())){
+                                    continue;
+                                } else {
+                                    currentList = new ArrayList<Action>();
+                                    currentList.add(action);
+                                    return action;
+                                }
+                            }
+                        }
+                        currentList = currentAction.getIsFalse();
+                        return currentAction.getIsFalse().get(0);
                     }
-                    Log.e("Sequence", "Action: " + currentAction.getActionType() + " on: " + currentAction.getOn() + " index: "+ index);
-                    return flatenedActions.get(++index);
-                }else{
-                    if (!conditionResult){
-                        return flatenedActions.get(index);
-                    }
-                    allExecutedActions.add(currentAction.getIndex());
-                    Log.e("Sequence", "Action: " + currentAction.getActionType() + " on: " + currentAction.getOn() + " index: "+ index);
-                    return flatenedActions.get(index);
-                }
             }
-        }else{
-            Log.e("Sequence", "Action index is greater than flatened actions size");
-            Action endAction = new Action();
-            endAction.setIndex(-1);
-            return endAction;
+        }
+        if (currentList.isEmpty()){
+            Log.e("Sequence", "Current list is empty");
         }
         return currentAction;
     }
