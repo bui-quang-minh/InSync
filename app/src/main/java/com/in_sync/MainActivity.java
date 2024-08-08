@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.Inflater;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private ExploreFragment exploreFragment;
     private TestFragment testFragment;
     private ProfileFragment profileFragment;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,17 +64,12 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         //Test Firebase
-//        FirebaseLogService logService = new FirebaseLogService();
-//        Log log = new Log();
-//        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-//        log.setLogScenariosId(UUID.randomUUID().toString());
-//        log.setScenarioId(UUID.randomUUID().toString());
-//        log.setDateCreated(LocalDateTime.now().format(formatter));
-//        log.setDescription("This is a log description");
-//        log.setNote("This is a note");
-//        log.setDeviceName("Device XYZ");
-//        logService.addLog(log);
-
+        FirebaseLogService logService = new FirebaseLogService();
+//        logService.monitorValueChange();
+//        logService.addLog("fea6cf4d-b556-4be8-8a6e-cc9e3b318c47", "Log Phan Huy", "Log để kiểm tra");
+//        logService.addLog("fea6cf4d-b556-4be8-8a6e-cc9e3b318c47", "Log Phan Huy 1", "Log để kiểm tra check");
+//        logService.getAllLogOfScenarioByDate("fea6cf4d-b556-4be8-8a6e-cc9e3b318c47",new Date());
+//        logService.getLogById("14594673-7e0f-48d5-b580-51cfc853ffd1");
 
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
