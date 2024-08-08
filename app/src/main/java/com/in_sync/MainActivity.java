@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         //Test Firebase
         List<com.in_sync.models.Log> logs = new ArrayList<>();
 
-// Giả sử bạn có một phương thức tạo log
+        // Giả sử bạn có một phương thức tạo log
         com.in_sync.models.Log log1 = new com.in_sync.models.Log();
         log1.setScenario_id("scenario1");
         log1.setDescription("description1");
