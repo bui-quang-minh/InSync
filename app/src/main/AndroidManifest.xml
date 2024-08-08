@@ -16,7 +16,7 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/ic_google"
+        android:icon="@drawable/accessibility_service"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/accessibility_service"
