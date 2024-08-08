@@ -13,10 +13,28 @@ import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class LogUtils {
-    public static void LogOnFireBase(String scenarioId, String description, String note, boolean isLog) {
-        if(!isLog) return;
-        FirebaseLogService firebaseLogService = new FirebaseLogService();
+    private static LogUtils instance;
+    private FirebaseLogService firebaseLogService;
+    private LogUtils() {
+        firebaseLogService = new FirebaseLogService();
+    }
+
+
+    public static synchronized LogUtils getInstance() {
+        if (instance == null) {
+            instance = new LogUtils();
+        }
+        return instance;
+    }
+
+    public void LogOnFireBase(String scenarioId, String description, String note, boolean isLog) {
+        if (!isLog) return;
         firebaseLogService.addLog(scenarioId, description, note);
+    }
+
+    public void LogManyLogsOnFireBase(List<Log> logs,boolean isLog) {
+        if (!isLog) return;
+        firebaseLogService.addLogs(logs);
     }
 
 }

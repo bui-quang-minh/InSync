@@ -35,6 +35,7 @@ import com.in_sync.fragments.LogFragment;
 import com.in_sync.fragments.ProfileFragment;
 import com.in_sync.fragments.TestFragment;
 import com.in_sync.helpers.FileLogUtils;
+import com.in_sync.helpers.LogUtils;
 import com.in_sync.services.ScreenCaptureService;
 import com.in_sync.validates.PermissionValid;
 
@@ -42,6 +43,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -64,12 +66,23 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         //Test Firebase
-        FirebaseLogService logService = new FirebaseLogService();
-//        logService.monitorValueChange();
-//        logService.addLog("fea6cf4d-b556-4be8-8a6e-cc9e3b318c47", "Log Phan Huy", "Log để kiểm tra");
-//        logService.addLog("fea6cf4d-b556-4be8-8a6e-cc9e3b318c47", "Log Phan Huy 1", "Log để kiểm tra check");
-//        logService.getAllLogOfScenarioByDate("fea6cf4d-b556-4be8-8a6e-cc9e3b318c47",new Date());
-//        logService.getLogById("14594673-7e0f-48d5-b580-51cfc853ffd1");
+        List<com.in_sync.models.Log> logs = new ArrayList<>();
+
+// Giả sử bạn có một phương thức tạo log
+        com.in_sync.models.Log log1 = new com.in_sync.models.Log();
+        log1.setScenario_id("scenario1");
+        log1.setDescription("description1");
+        log1.setNote("note1");
+
+        com.in_sync.models.Log log2 = new com.in_sync.models.Log();
+        log2.setScenario_id("scenario2");
+        log2.setDescription("description2");
+        log2.setNote("note2");
+
+        logs.add(log1);
+        logs.add(log2);
+
+        LogUtils.getInstance().LogManyLogsOnFireBase(logs, true);
 
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {

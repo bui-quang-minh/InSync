@@ -87,6 +87,23 @@ public class FirebaseLogService {
                 });
     }
 
+    public void addLogs(List<com.in_sync.models.Log> logs) {
+
+        Map<String, Object> updates = new HashMap<>();
+
+        for (com.in_sync.models.Log log:logs) {
+            updates.put(PATH + "/" + log.getLog_scenarios_id(), log);
+        }
+
+        databaseReference.updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Logs added successfully into Firebase.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to add logs into Firebase", e);
+                });
+    }
+
 
     public List<com.in_sync.models.Log> getAllLogs(LogCallback<List<com.in_sync.models.Log>> callback) {
         List<com.in_sync.models.Log> logList = new ArrayList<>();
