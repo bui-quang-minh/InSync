@@ -17,4 +17,7 @@
     <color name="custom_orange">#CC6600</color>
     <color name="custom_button">#EB2641</color>
     <color name="custom_button_1">#F44336</color>
+    <color name="colorPrimary">#3BA8BE</color>
+    <color name="colorPrimaryDark">#27707E</color>
+    <color name="colorAccent">#CE7672</color>
 </resources>

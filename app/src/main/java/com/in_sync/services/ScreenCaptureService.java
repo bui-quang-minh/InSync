@@ -14,6 +14,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.AnimationDrawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.Image;
@@ -47,15 +48,25 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.gson.reflect.TypeToken;
 import com.in_sync.R;
 import com.in_sync.actions.Action;
 import com.in_sync.helpers.NotificationUtils;
 import com.in_sync.models.Coordinate;
+import com.in_sync.models.Sequence;
 import com.in_sync.models.Step;
+import com.in_sync.models.TreeNode;
 
 public class ScreenCaptureService extends AccessibilityService {
 
@@ -84,7 +95,14 @@ public class ScreenCaptureService extends AccessibilityService {
     private ImageView imageView;
     private String appOpened="";
     private Action action;
+    private Sequence sequence;
+    private static int IMAGES_PRODUCED;
+    private int ACCURACY_POINT;
+    private Coordinate prev_point = new Coordinate(0, 0);
     private AccessibilityNodeInfo source;
+    private List<com.in_sync.models.Action> flattenedActions;
+
+    private com.in_sync.models.Action currentAction = null;
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
@@ -117,10 +135,17 @@ public class ScreenCaptureService extends AccessibilityService {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            if(action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source)){
+            com.in_sync.models.Action newAction = action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence,currentAction, flattenedActions);
+            if(newAction.getIndex() == -1){
+                currentAction = newAction;
                 Log.e(TAG, "onImageAvailable: StopProjection" );
                 stopProjection();
-            };
+            }else{
+                currentAction = newAction;
+            }
+            try (Image image = mImageReader.acquireLatestImage()) {}catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
     }
@@ -170,6 +195,18 @@ public class ScreenCaptureService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         appOpened = event.getText().toString().trim();
         source = event.getSource();
+        Log.e(TAG, "onAccessibilityEvent: this open::: "+ appOpened);
+        if(currentAction!=null && currentAction.getConditionType()!=null && currentAction.getActionType()!=null){
+        if (currentAction.getConditionType().toString().equals("FIND_SOURCE")&&currentAction.getActionType().toString().equals("IF")){
+            if (appOpened.equals("["+currentAction.getCondition()+"]")){
+                Log.e("Action", "FIND_SOURCE Condition is true");
+                currentAction = sequence.traverseAction(true, currentAction);
+            }else{
+                Log.e("Action", "FIND_SOURCE Condition is false");
+                currentAction = sequence.traverseAction(false, currentAction);
+            }
+        }
+        }
         Log.e(TAG, "onAccessibilityEvent: "+ appOpened);
     }
 
@@ -275,7 +312,56 @@ public class ScreenCaptureService extends AccessibilityService {
 
     private Step[] bindStep(String json) {
         Gson gson = new Gson();
+        Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {}.getType();
+        List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);
+        flattenedActions = new ArrayList<com.in_sync.models.Action>();
+        com.in_sync.models.Action startAction = new com.in_sync.models.Action();
+        startAction.setIndex(0);
+        flattenedActions.add(startAction);
+        for (com.in_sync.models.Action action : flattenActions(actionsList)){
+            flattenedActions.add(action);
+        }
+        TreeNode root = buildTree(flattenedActions);
+        sequence = new Sequence(actionsList, flattenedActions, root);
         return gson.fromJson(json, Step[].class);
+    }
+    private static TreeNode buildTree(List<com.in_sync.models.Action> actions) {
+        Map<Integer, TreeNode> nodeMap = new HashMap<>();
+        TreeNode root = null;
+
+        // Create nodes and map them by index
+        for (com.in_sync.models.Action action : actions) {
+            TreeNode node = new TreeNode(action);
+            nodeMap.put(action.index, node);
+        }
+        TreeNode rootNode = new TreeNode(new com.in_sync.models.Action());
+        root = rootNode;
+        nodeMap.put(0, rootNode);
+        // Establish parent-child relationships
+        for (TreeNode node : nodeMap.values()) {
+            com.in_sync.models.Action action = node.action;
+            if(action.index!=0) {
+                TreeNode parentNode = nodeMap.get(action.parent);
+                if (parentNode != null) {
+                    parentNode.addChild(node);
+                }
+            }
+        }
+
+        return root;
+    }
+
+
+    private static List<com.in_sync.models.Action> flattenActions(List<com.in_sync.models.Action> actions) {
+        return actions.stream()
+                .flatMap(action -> Stream.concat(
+                        Stream.of(action),
+                        Stream.concat(
+                                action.isTrue != null ? flattenActions(action.isTrue).stream() : Stream.empty(),
+                                action.isFalse != null ? flattenActions(action.isFalse).stream() : Stream.empty()
+                        )
+                ))
+                .collect(Collectors.toList());
     }
 
     private void showOverlay() {
@@ -295,7 +381,9 @@ public class ScreenCaptureService extends AccessibilityService {
         params.y = 200;
 
         windowManager.addView(overlayView, params);
-
+        ImageView blinkingLight = overlayView.findViewById(R.id.blinking_light);
+        AnimationDrawable animationDrawable = (AnimationDrawable) blinkingLight.getDrawable();
+        animationDrawable.start();
         ImageButton closeButton = overlayView.findViewById(R.id.stop_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override

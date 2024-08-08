@@ -1,0 +1,10 @@
+# C/C++ build system timings
+generate_cxx_metadata
+<<<<<<<< HEAD:opencv/build/intermediates/cxx/Debug/505w2w6y/logs/x86/generate_cxx_metadata_1473_timing.txt
+  create-invalidation-state 16ms
+generate_cxx_metadata completed in 25ms
+========
+  create-invalidation-state 11ms
+generate_cxx_metadata completed in 16ms
+>>>>>>>> master:opencv/build/intermediates/cxx/Debug/2f6t2w56/logs/arm64-v8a/generate_cxx_metadata_763_timing.txt
+

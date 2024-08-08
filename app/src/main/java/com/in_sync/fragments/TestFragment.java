@@ -34,37 +34,76 @@ public class TestFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_test, container, false);
         inputEditText = view.findViewById(R.id.inputEditText);
         inputEditText.setText("[\n" +
-                "    {\n" +
-                "      \"actionType\": \"OPEN_APP\",\n" +
-                "      \"on\": \"[Facebook]\",\n" +
-                "      \"duration\": 100,\n" +
-                "      \"tries\": 1\n" +
-                "    },\n" +
-                "    {\n" +
+                "  {\n" +
+                "      \"index\": 1,\n" +
+                "      \"parent\": 0,\n" +
                 "      \"actionType\": \"CLICK\",\n" +
-                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/xtijv2dpg4qc2uw70gle.jpg\",\n" +
+                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722710948/svakqn8easwstoxfffig.jpg\",\n" +
+                "      \"logResult\" : true,\n" +
                 "      \"duration\": 100,\n" +
                 "      \"tries\": 1\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"actionType\": \"CLICK\",\n" +
-                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/udynajpcxgdvsxyznjuh.jpg\",\n" +
-                "      \"duration\": 100,\n" +
-                "      \"tries\": 1\n" +
-                "    },\n" +
-                "     {\n" +
-                "      \"actionType\": \"CLICK\",\n" +
-                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1719885857/r0crmvuokqz492iiadd3.jpg\",\n" +
-                "      \"duration\": 100,\n" +
-                "      \"tries\": 1\n" +
+                "      \"index\": 2,\n" +
+                "      \"parent\": 0,\n" +
+                "      \"actionType\": \"IF\",\n" +
+                "      \"conditionType\": \"FIND_SOURCE\",\n" +
+                "      \"condition\": \"In-Sync\",\n" +
+                "      \"logResult\" : true,\n" +
+                "      \"isTrue\": [\n" +
+                "\n" +
+                "                  {\n" +
+                "                    \"index\": 3,\n" +
+                "                    \"parent\": 2,\n" +
+                "                    \"actionType\": \"CLICK\",\n" +
+                "                    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776490/ebmdwccbpwem5fw9nvqs.jpg\",\n" +
+                "                    \"logResult\" : true,\n" +
+                "                    \"duration\": 100,\n" +
+                "                    \"tries\": 1\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                    \"index\": 4,\n" +
+                "                    \"parent\": 2,\n" +
+                "                    \"actionType\": \"IF\",\n" +
+                "                    \"conditionType\": \"FIND_SOURCE\",\n" +
+                "                    \"condition\": \"Home\",\n" +
+                "                    \"logResult\" : true,\n" +
+                "                    \"isTrue\": [\n" +
+                "                                \n" +
+                "                                {\n" +
+                "                                  \"index\": 5,\n" +
+                "                                  \"parent\": 4,\n" +
+                "                                  \"actionType\": \"CLICK\",\n" +
+                "                                  \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776541/hl1dcpp0vhwjlppfjmn1.jpg\",\n" +
+                "                                  \"logResult\" : true,\n" +
+                "                                  \"duration\": 100,\n" +
+                "                                  \"tries\": 1\n" +
+                "                                }\n" +
+                "                              ]\n" +
+                "                  }\n" +
+                "                ],\n" +
+                "      \"isFalse\":[\n" +
+                "                  {\n" +
+                "                    \"index\": 6,\n" +
+                "                    \"parent\": 2,\n" +
+                "                    \"actionType\": \"CLICK\",\n" +
+                "                    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776576/sm0fnvilzzdnnfgnbx4n.jpg\",\n" +
+                "                    \"logResult\" : true,\n" +
+                "                    \"duration\": 100,\n" +
+                "                    \"tries\": 1\n" +
+                "                  }\n" +
+                "                ]\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"actionType\": \"PASTE\",\n" +
+                "      \"index\": 7,\n" +
+                "      \"parent\": 0,\n" +
+                "      \"actionType\": \"CLICK\",\n" +
+                "      \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1722776611/wrervde2ep8fr9oxllb6.jpg\",\n" +
+                "      \"logResult\" : true,\n" +
                 "      \"duration\": 100,\n" +
-                "     \"content\": \"Thai Beo\",\n" +
                 "      \"tries\": 1\n" +
                 "    }\n" +
-                "]");
+                "]\n");
         // Inflate the layout for this fragment
         return view;
     }

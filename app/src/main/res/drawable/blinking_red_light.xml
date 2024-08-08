@@ -1,0 +1,10 @@
+<!-- res/drawable/blinking_red_light.xml -->
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item
+        android:drawable="@drawable/circular_red"
+        android:duration="500" /> <!-- Red light for 500 milliseconds -->
+    <item
+        android:drawable="@drawable/circular_transparent"
+        android:duration="500" /> <!-- Off for 500 milliseconds -->
+</animation-list>

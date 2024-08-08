@@ -15,14 +15,23 @@
 <!--        android:src="@drawable/baseline_play_circle_24"-->
 <!--        android:onClick="processImage"-->
 <!--        />-->
+    <ImageView
+        android:id="@+id/blinking_light"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_gravity="end"
+        android:src="@drawable/blinking_red_light"
+        />
+
     <ImageButton
         android:id="@+id/stop_button"
         android:scaleType="fitXY"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:background="@android:color/transparent"
         android:src="@drawable/baseline_stop_circle_24"
         android:onClick="closeOverlay"/>
+
 <!--    <ImageButton-->
 <!--        android:id="@+id/camera"-->
 <!--        android:scaleType="fitXY"-->
@@ -32,8 +41,8 @@
 <!--        android:src="@drawable/baseline_photo_camera_24"/>-->
     <ImageView
         android:id="@+id/screenshot_image_view"
-        android:layout_width="120dp"
-        android:layout_height="159dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginTop="10dp"
         android:scaleType="fitCenter"
         android:visibility="visible" />
