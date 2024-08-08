@@ -18,12 +18,11 @@ import org.json.JSONArray;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetUserListRequest{
-    private static String URL = Settings.URL + Settings.GET_USER;
+public class GetAllUserRequest {
+    private static String URL = Settings.URL + Settings.GET_ALL_USERS;
     private static Boolean responseResult = false;
-    public static void GetLoginParameter(String username, Context context, final VolleyArrayRequestCallback callback){
-
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, URL + username, null,new Response.Listener<JSONArray>() {
+    public static void GetUsersList(Context context, final VolleyArrayRequestCallback callback){
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, URL, null,new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray jsonArray) {
                 if (jsonArray.length() > 0) {
