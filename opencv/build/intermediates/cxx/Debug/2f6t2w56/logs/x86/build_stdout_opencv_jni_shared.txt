@@ -1,2 +1,0 @@
-ninja: Entering directory `D:\ProjectThesis\ProjectInSync\InSync\opencv\.cxx\Debug\2f6t2w56\x86'
-ninja: no work to do.
