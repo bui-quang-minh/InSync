@@ -20,12 +20,16 @@ import lombok.Setter;
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class Log {
     private String log_scenarios_id = UUID.randomUUID().toString();
-    private String scenario_id;
+    private String session_id;
     private String date_created = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     private String description;
     private String note;
-    private String device_name = "";
+    private boolean status = false;
 
-
+    public Log(String session_id, String description, String note) {
+        this.session_id = session_id;
+        this.description = description;
+        this.note = note;
+    }
 }
 

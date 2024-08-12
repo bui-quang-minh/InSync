@@ -27,14 +27,14 @@ public class LogUtils {
         return instance;
     }
 
-    public void LogOnFireBase(String scenarioId, String description, String note, boolean isLog) {
-        if (!isLog) return;
-        firebaseLogService.addLog(scenarioId, description, note);
-    }
-
-    public void LogManyLogsOnFireBase(List<Log> logs,boolean isLog) {
-        if (!isLog) return;
-        firebaseLogService.addLogs(logs);
-    }
+//    public void LogOnFireBase(String scenarioId, String description, String note, boolean isLog) {
+//        if (!isLog) return;
+//        firebaseLogService.addLog(scenarioId, description, note);
+//    }
+//
+//    public void LogManyLogsOnFireBase(List<Log> logs,boolean isLog) {
+//        if (!isLog) return;
+//        firebaseLogService.addLogs(logs);
+//    }
 
 }
