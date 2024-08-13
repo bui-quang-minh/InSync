@@ -17,6 +17,12 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         android:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
 
+        <ImageView
+            android:id="@+id/sort_icon"
+            android:layout_gravity="end"
+            android:src="@drawable/arrow"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
     </androidx.appcompat.widget.Toolbar>
     <SearchView
         android:layout_gravity="end"

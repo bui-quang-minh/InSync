@@ -1,5 +1,6 @@
 package com.in_sync.fragments;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -44,11 +46,13 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     Spinner scenarioSpinner;
     SearchView searchViewInToolBar;
     TextView notifyTextView;
+    ImageView sort_icon;
 
     ScenarioSpinnerAdapter scenarioSpinnerAdapter;
     LogSessionAdapter sessionAdapter;
     FirebaseLogService service;
     private static final String TAG = "LogFragment";
+    private static final  String[] sortOptions = {FirebaseLogService.SORT_A_Z, FirebaseLogService.SORT_Z_A, FirebaseLogService.SORT_BY_NEWEST, FirebaseLogService.SORT_BY_OLDEST};
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -73,6 +77,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         searchViewInToolBar = view.findViewById(R.id.search_view_key);
         scenarioSpinner = view.findViewById(R.id.scenario_sp);
         notifyTextView = view.findViewById(R.id.notify_no_session);
+        sort_icon = view.findViewById(R.id.sort_icon);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
@@ -89,7 +94,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         scenarioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                searchSessionLog();
+                searchSessionLog(sortOptions[2]);
             }
 
             @Override
@@ -100,16 +105,58 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         searchViewInToolBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchSessionLog();
+                searchSessionLog(sortOptions[2]);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchSessionLog();
+                searchSessionLog(sortOptions[2]);
                 return true;
             }
         });
+        sort_icon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSortOptionsDialog();
+            }
+        });
+    }
+
+    private void showSortOptionsDialog() {
+        // Các tùy chọn sắp xếp
+        String[] sortOptions = {FirebaseLogService.SORT_A_Z, FirebaseLogService.SORT_Z_A, FirebaseLogService.SORT_BY_NEWEST, FirebaseLogService.SORT_BY_OLDEST};
+
+        // Tạo AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Choose Sort Option")
+                .setItems(sortOptions, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Xử lý khi người dùng chọn một tùy chọn
+                        switch (which) {
+                            case 0:
+                               searchSessionLog(sortOptions[0]);
+
+                                break;
+                            case 1:
+                                searchSessionLog(sortOptions[1]);
+
+                                break;
+                            case 2:
+                                searchSessionLog(sortOptions[2]);
+
+                                break;
+
+                            case 3:
+                                searchSessionLog(sortOptions[3]);
+
+                                break;
+                        }
+                    }
+                });
+        // Hiển thị dialog
+        builder.show();
     }
 
     @Override
@@ -142,23 +189,23 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         });
     }
 
-    public void searchSessionLog() {
+    public void searchSessionLog(String sortBy) {
         String scenarioId = (String) scenarioSpinner.getSelectedItem();
         String search = searchViewInToolBar.getQuery().toString();
 
         Log.e(TAG, scenarioId);
-        service.getLogSessionsByScenarioIdAndDate(scenarioId, null, null, search, new FirebaseLogService.LogCallback<List<LogSession>>() {
+        service.getLogSessionsByScenarioIdAndDate(scenarioId, null, null, search, sortBy,new FirebaseLogService.LogCallback<List<LogSession>>() {
             @Override
             public void onCallback(List<LogSession> data) {
                 List<LogSession> result = new ArrayList<>();
                 if (data != null) {
                     result = data;
                     notifyTextView.setVisibility(View.GONE);
-                     sessionAdapter = new LogSessionAdapter(getContext(), result, LogFragment.this);
+                    sessionAdapter = new LogSessionAdapter(getContext(), result, LogFragment.this);
                     RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
                     logSessionRecyclerView.setLayoutManager(layoutManager);
                     logSessionRecyclerView.setAdapter(sessionAdapter);
-                }else{
+                } else {
                     notifyTextView.setVisibility(View.VISIBLE);
                 }
             }
@@ -201,7 +248,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                 public void onCallback(Boolean data) {
                     if (data) {
                         Toast.makeText(getContext(), "Delete success", Toast.LENGTH_SHORT).show();
-                        searchSessionLog();
+                        searchSessionLog(sortOptions[2]);
                     } else {
                         Toast.makeText(getContext(), "Delete fail", Toast.LENGTH_SHORT).show();
                     }

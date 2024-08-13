@@ -45,6 +45,7 @@ public class FirebaseLogService {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     private static final DateTimeFormatter DATE_TIME_FORMATTER_2 = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    public static final String SORT_A_Z = "Sort A-Z", SORT_Z_A = "Sort Z-A", SORT_BY_NEWEST = "Sort by Newest", SORT_BY_OLDEST = "Sort by Oldest";
 
     private DatabaseReference databaseReference;
 
@@ -113,7 +114,7 @@ public class FirebaseLogService {
 //            }
 //        });
 //    }
-    public void getLogSessionsByScenarioId(String scenarioId, LogCallback<List<LogSession>> callback) {
+    public void getLogSessionsByScenarioId(String scenarioId,String sortBy, LogCallback<List<LogSession>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
                 .child(LOG_SESSIONS_PATH);
@@ -127,7 +128,7 @@ public class FirebaseLogService {
                     logSessions.add(logSession);
                 }
                 // Sắp xếp danh sách logSessions theo date_created
-                logSessions.sort((session1, session2) -> LogSesstionSortDecreaseWithDate(session1.getDate_created(), session2.getDate_created()));
+                logSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2, sortBy));
 
                 Log.d(TAG, "Log sessions retrieved successfully: " + logSessions.size());
                 callback.onCallback(logSessions);
@@ -191,7 +192,7 @@ public class FirebaseLogService {
     }
 
 
-    public void getLogSessionsByScenarioIdAndDate(String scenarioId, Date dateFrom, Date dateTo, String keySearch, LogCallback<List<LogSession>> callback) {
+    public void getLogSessionsByScenarioIdAndDate(String scenarioId, Date dateFrom, Date dateTo, String keySearch,String sortBy, LogCallback<List<LogSession>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
                 .child(LOG_SESSIONS_PATH);
@@ -241,7 +242,7 @@ public class FirebaseLogService {
                         }
                     }
                 }
-                logSessions.sort((session1, session2) -> LogSesstionSortDecreaseWithDate(session1.getDate_created(), session2.getDate_created()));
+                logSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2,sortBy));
                 Log.d(TAG, "Log sessions retrieved successfully: " + logSessions.size());
                 callback.onCallback(logSessions);
             }
@@ -255,15 +256,32 @@ public class FirebaseLogService {
         });
     }
 
-    public int LogSesstionSortDecreaseWithDate(String dateString1, String dateString2) {
-        try {
-            LocalDateTime date1 = LocalDateTime.parse(dateString1, DATE_TIME_FORMATTER_2);
-            LocalDateTime date2 = LocalDateTime.parse(dateString2, DATE_TIME_FORMATTER_2);
-            return date2.compareTo(date1);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to parse date_created", e);
-            return 0;
+    public int LogSessionSortWithOption(LogSession object1, LogSession object2, String sortBy) {
+
+        if(sortBy.equalsIgnoreCase(SORT_A_Z)){
+            return object1.getSession_name().compareTo(object2.getSession_name());
+        }else if (sortBy.equalsIgnoreCase(SORT_Z_A)){
+            return object2.getSession_name().compareTo(object1.getSession_name());
+        }else if(sortBy.equalsIgnoreCase(SORT_BY_NEWEST)){
+            try {
+                LocalDateTime date1 = LocalDateTime.parse(object1.getDate_created(), DATE_TIME_FORMATTER_2);
+                LocalDateTime date2 = LocalDateTime.parse(object2.getDate_created(), DATE_TIME_FORMATTER_2);
+                return date2.compareTo(date1);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to parse date_created", e);
+                return 0;
+            }
+        }else if(sortBy.equalsIgnoreCase(SORT_BY_OLDEST)){
+            try {
+                LocalDateTime date1 = LocalDateTime.parse(object1.getDate_created(), DATE_TIME_FORMATTER_2);
+                LocalDateTime date2 = LocalDateTime.parse(object2.getDate_created(), DATE_TIME_FORMATTER_2);
+                return date1.compareTo(date2);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to parse date_created", e);
+                return 0;
+            }
         }
+       return 0;
     }
 
     private Calendar GetCalender(int hour, int minute, int second, int millisecond, Date date) {
@@ -296,9 +314,6 @@ public class FirebaseLogService {
                         logs.add(log);
                     }
                 }
-                // Sắp xếp danh sách logSessions theo date_created
-                logs.sort((log1, log2) -> LogSesstionSortDecreaseWithDate(log1.getDate_created(), log2.getDate_created()));
-
                 Log.d(TAG, "Logs retrieved successfully: " + logs.size());
                 callback.onCallback(logs);
             }
