@@ -44,6 +44,7 @@ public class FirebaseLogService {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER_2 = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private DatabaseReference databaseReference;
 
@@ -125,8 +126,37 @@ public class FirebaseLogService {
                     LogSession logSession = snapshot1.getValue(LogSession.class);
                     logSessions.add(logSession);
                 }
+                // Sắp xếp danh sách logSessions theo date_created
+                logSessions.sort((session1, session2) -> LogSesstionSortDecreaseWithDate(session1.getDate_created(), session2.getDate_created()));
+
                 Log.d(TAG, "Log sessions retrieved successfully: " + logSessions.size());
                 callback.onCallback(logSessions);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onCallback(null);
+                Log.e(TAG, "Failed to retrieve log sessions" + error.getMessage());
+            }
+        });
+    }
+
+    public void getLogSessionsById(String scenarioId, String sessionId, LogCallback<LogSession> callback) {
+        DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
+                .child(scenarioId)
+                .child(LOG_SESSIONS_PATH)
+                .child(sessionId);
+        logSessionsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                LogSession logSession = snapshot.getValue(LogSession.class);
+                if (logSession == null) {
+                    callback.onCallback(null);
+                    return;
+                }
+                Log.d(TAG, "Log sessions retrieved successfully: " + logSession.getSession_name());
+                callback.onCallback(logSession);
             }
 
             @Override
@@ -160,20 +190,34 @@ public class FirebaseLogService {
         });
     }
 
-    public void getLogSessionsByScenarioIdAndDate(String scenarioId, Date dateFrom, Date dateTo, LogCallback<List<LogSession>> callback) {
+
+    public void getLogSessionsByScenarioIdAndDate(String scenarioId, Date dateFrom, Date dateTo, String keySearch, LogCallback<List<LogSession>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
                 .child(LOG_SESSIONS_PATH);
 
 
         // Sử dụng Calendar để thiết lập thời gian bắt đầu và kết thúc cho khoảng thời gian
-        Calendar calFrom = GetCalender(0, 0, 0, 0, dateFrom);
-        Calendar calTo = GetCalender(23, 59, 59, 999, dateTo);
+        Calendar calFrom = Calendar.getInstance(), calTo = Calendar.getInstance();
+        if (dateFrom != null) {
+            calFrom = GetCalender(0, 0, 0, 0, dateFrom);
+        } else {
+            calFrom = null;
+        }
+        if (dateTo != null) {
+            calTo = GetCalender(23, 59, 59, 999, dateTo);
+        } else {
+            calTo = null;
+        }
 
+
+        Calendar finalCalFrom = calFrom;
+        Calendar finalCalTo = calTo;
         logSessionsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<LogSession> logSessions = new ArrayList<>();
+
 
                 for (DataSnapshot sessionSnapshot : snapshot.getChildren()) {
                     LogSession logSession = sessionSnapshot.getValue(LogSession.class);
@@ -189,15 +233,15 @@ public class FirebaseLogService {
                         }
 
                         // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
-                        boolean inRange = sessionDate != null && !sessionDate.before(calFrom.getTime()) && !sessionDate.after(calTo.getTime());
-
+                        boolean inRange = sessionDate != null && (finalCalFrom == null || !sessionDate.before(finalCalFrom.getTime())) && (finalCalTo == null || !sessionDate.after(finalCalTo.getTime()));
+                        boolean isContain = logSession.getSession_name().contains(keySearch) || logSession.getDevice_name().contains(keySearch);
                         // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
-                        if (inRange) {
+                        if (inRange && isContain) {
                             logSessions.add(logSession);
                         }
                     }
                 }
-
+                logSessions.sort((session1, session2) -> LogSesstionSortDecreaseWithDate(session1.getDate_created(), session2.getDate_created()));
                 Log.d(TAG, "Log sessions retrieved successfully: " + logSessions.size());
                 callback.onCallback(logSessions);
             }
@@ -210,8 +254,19 @@ public class FirebaseLogService {
             }
         });
     }
-    private Calendar GetCalender(int hour, int minute, int second, int millisecond, Date date)
-    {
+
+    public int LogSesstionSortDecreaseWithDate(String dateString1, String dateString2) {
+        try {
+            LocalDateTime date1 = LocalDateTime.parse(dateString1, DATE_TIME_FORMATTER_2);
+            LocalDateTime date2 = LocalDateTime.parse(dateString2, DATE_TIME_FORMATTER_2);
+            return date2.compareTo(date1);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to parse date_created", e);
+            return 0;
+        }
+    }
+
+    private Calendar GetCalender(int hour, int minute, int second, int millisecond, Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.set(Calendar.HOUR_OF_DAY, hour);
@@ -222,8 +277,7 @@ public class FirebaseLogService {
     }
 
 
-
-    public void getLogsByScenarioIdAndSessionId(String scenarioId, String sessionId, LogCallback<List<com.in_sync.models.Log>> callback) {
+    public void getLogsByScenarioIdAndSessionId(String scenarioId, String sessionId,String keySearch, LogCallback<List<com.in_sync.models.Log>> callback) {
 
         DatabaseReference logsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -238,10 +292,13 @@ public class FirebaseLogService {
 
                 for (DataSnapshot logSnapshot : snapshot.getChildren()) {
                     com.in_sync.models.Log log = logSnapshot.getValue(com.in_sync.models.Log.class);
-                    if (log != null) {
+                    if (log != null && (keySearch == null || log.getDescription().contains(keySearch) || log.getNote().contains(keySearch))) {
                         logs.add(log);
                     }
                 }
+                // Sắp xếp danh sách logSessions theo date_created
+                logs.sort((log1, log2) -> LogSesstionSortDecreaseWithDate(log1.getDate_created(), log2.getDate_created()));
+
                 Log.d(TAG, "Logs retrieved successfully: " + logs.size());
                 callback.onCallback(logs);
             }

@@ -1,0 +1,10 @@
+#Mon Aug 12 14:39:45 ICT 2024
+base.0=D\:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\build\\intermediates\\dex\\debugAndroidTest\\mergeLibDexDebugAndroidTest\\0\\classes.dex
+base.1=D\:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\build\\intermediates\\dex\\debugAndroidTest\\mergeProjectDexDebugAndroidTest\\0\\classes.dex
+base.2=D\:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\build\\intermediates\\dex\\debugAndroidTest\\mergeProjectDexDebugAndroidTest\\2\\classes.dex
+path.0=0/classes.dex
+path.1=0/classes.dex
+path.2=2/classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex

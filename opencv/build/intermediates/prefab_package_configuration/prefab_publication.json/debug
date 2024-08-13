@@ -1,0 +1,50 @@
+{
+  "installationFolder": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\build\\intermediates\\prefab_package\\debug\\prefab",
+  "gradlePath": ":opencv",
+  "packageInfo": {
+    "packageName": "opencv",
+    "packageSchemaVersion": 2,
+    "packageDependencies": [],
+    "modules": [
+      {
+        "moduleName": "opencv_jni_shared",
+        "moduleHeaders": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\native\\jni\\include",
+        "moduleExportLibraries": [],
+        "abis": [
+          {
+            "abiName": "armeabi-v7a",
+            "abiApi": 21,
+            "abiNdkMajor": 25,
+            "abiStl": "c++_shared",
+            "abiLibrary": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\armeabi-v7a\\libopencv_jni_shared.a",
+            "abiAndroidGradleBuildJsonFile": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\armeabi-v7a\\android_gradle_build.json"
+          },
+          {
+            "abiName": "arm64-v8a",
+            "abiApi": 21,
+            "abiNdkMajor": 25,
+            "abiStl": "c++_shared",
+            "abiLibrary": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\arm64-v8a\\libopencv_jni_shared.a",
+            "abiAndroidGradleBuildJsonFile": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\arm64-v8a\\android_gradle_build.json"
+          },
+          {
+            "abiName": "x86",
+            "abiApi": 21,
+            "abiNdkMajor": 25,
+            "abiStl": "c++_shared",
+            "abiLibrary": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\x86\\libopencv_jni_shared.a",
+            "abiAndroidGradleBuildJsonFile": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\x86\\android_gradle_build.json"
+          },
+          {
+            "abiName": "x86_64",
+            "abiApi": 21,
+            "abiNdkMajor": 25,
+            "abiStl": "c++_shared",
+            "abiLibrary": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\x86_64\\libopencv_jni_shared.a",
+            "abiAndroidGradleBuildJsonFile": "D:\\ProjectThesis\\ProjectInSync\\InSync\\opencv\\.cxx\\Debug\\2f6t2w56\\x86_64\\android_gradle_build.json"
+          }
+        ]
+      }
+    ]
+  }
+}

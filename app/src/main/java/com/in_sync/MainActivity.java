@@ -69,41 +69,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        //Test Firebase
-        FirebaseLogService service = new FirebaseLogService();
-//
-//        String scenarioId ="8bd1d256-0a2d-4768-bde5-590855473285";
-//        String sessionName = "New Session";
-//        String deviceName = "Device Name";
-//        LogSession logSession = new LogSession(sessionName, deviceName, scenarioId);
-//        List<com.in_sync.models.Log> logs = new ArrayList<>();
-//
-//// Tạo Log 1
-//        com.in_sync.models.Log log1 = new com.in_sync.models.Log(logSession.getSession_id(), "Description for log 1", "Note for log 1");
-//        logs.add(log1);
-//
-//// Tạo Log 2
-//        com.in_sync.models.Log log2 = new com.in_sync.models.Log(logSession.getSession_id(), "Description for log 2", "Note for log 2");
-//        logs.add(log2);
-//      service.addLogSessionWithLogs(scenarioId, logSession, logs, new FirebaseLogService.LogCallback<Boolean>(){
-//
-//          @Override
-//          public void onCallback(Boolean data) {
-//              Log.e("TAG", "onCallback:" + data);
-//          }
-//      });
-        Calendar from = Calendar.getInstance();
-        from.set(2024, 7, 7);
-        Calendar to = Calendar.getInstance();
-        to.set(2024, 7, 10);
-        service.getLogSessionsByScenarioIdAndDate("8bd1d256-0a2d-4768-bde5-590855473285"
-                ,from.getTime()
-                , to.getTime(), new FirebaseLogService.LogCallback<List<LogSession>>() {
-            @Override
-            public void onCallback(List<LogSession> data) {
-                Log.e("TAG", "onCallback:" + data.size());
-            }
-        });
+
 
 
         // Send request to enable accessibility service
@@ -172,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void onAppStart() {
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         homeFragment = new HomeFragment();
