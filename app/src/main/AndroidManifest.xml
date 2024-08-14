@@ -58,12 +58,20 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <service
+            android:name=".services.ScreenshotService"
+            android:foregroundServiceType="mediaProjection"
+            android:exported="false"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"></activity>
         <activity
             android:name=".activities.ScreenCapturePermissionActivity"
-            android:exported="true"></activity>
+            android:exported="true"/>
+        <activity
+            android:name=".activities.ScreenshotPermissionActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

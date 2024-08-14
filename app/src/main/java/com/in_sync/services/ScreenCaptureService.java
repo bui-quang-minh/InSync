@@ -11,8 +11,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.display.DisplayManager;
@@ -39,7 +37,6 @@ import androidx.core.util.Pair;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import com.google.gson.Gson;
-
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;

@@ -1,7 +1,6 @@
 package com.in_sync.actions;
 
 import android.accessibilityservice.AccessibilityService;
-import android.accessibilityservice.AccessibilityServiceInfo;
 import android.accessibilityservice.GestureDescription;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -20,7 +19,6 @@ import com.in_sync.actions.definition.ActionDef;
 import com.in_sync.models.Coordinate;
 import com.in_sync.models.Sequence;
 import com.in_sync.models.Step;
-import com.in_sync.services.ScreenCaptureService;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
