@@ -24,7 +24,6 @@ public class ScreenshotPermissionActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Intent intent = ScreenshotService.getStartIntent(this, resultCode, data);
                 startService(intent);
-                finish();
             }
 
         }
