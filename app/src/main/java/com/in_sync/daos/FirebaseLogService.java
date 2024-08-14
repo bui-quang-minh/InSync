@@ -37,7 +37,6 @@ import lombok.var;
 public class FirebaseLogService {
     private static final String TAG = "FirebaseRealTimeService";
     private static final String LOGS_PATH = "logs";
-
     private static final String SCENARIOS_PATH = "scenarios";
     private static final String LOG_SESSIONS_PATH = "log_sessions";
     private static final String PATHBASE = "https://projectinsync-f627a-default-rtdb.firebaseio.com/";
@@ -49,12 +48,15 @@ public class FirebaseLogService {
 
     private DatabaseReference databaseReference;
 
+    //Phan Quang Huy
+    //Constructor initialization of Firebase Realtime Database
     public FirebaseLogService() {
         // Khởi tạo Firebase Database
         databaseReference = FirebaseDatabase.getInstance().getReferenceFromUrl(PATHBASE);
     }
 
-
+    //Phan Quang Huy
+    //Add a logging session and list the logs of that session
     public void addLogSessionWithLogs(String scenarioId, LogSession logSession, List<com.in_sync.models.Log> logs, LogCallback<Boolean> callback) {
 
         // Tạo bản đồ để cập nhật các giá trị của log
@@ -114,6 +116,9 @@ public class FirebaseLogService {
 //            }
 //        });
 //    }
+
+    //Phan Quang Huy
+    //Get all log sessions of a specific scenario
     public void getLogSessionsByScenarioId(String scenarioId,String sortBy, LogCallback<List<LogSession>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -142,6 +147,8 @@ public class FirebaseLogService {
         });
     }
 
+    //Phan Quang Huy
+    //Get a specific log session by its ID
     public void getLogSessionsById(String scenarioId, String sessionId, LogCallback<LogSession> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -168,6 +175,9 @@ public class FirebaseLogService {
         });
     }
 
+
+    //Phan Quang Huy
+    //Get all scenario
     public void getAllScenario(LogCallback<List<String>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH);
         logSessionsRef.addValueEventListener(new ValueEventListener() {
@@ -192,6 +202,8 @@ public class FirebaseLogService {
     }
 
 
+    //Phan Quang Huy
+    //Get all log sessions of a specific scenario
     public void getLogSessionsByScenarioIdAndDate(String scenarioId, Date dateFrom, Date dateTo, String keySearch,String sortBy, LogCallback<List<LogSession>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -256,6 +268,75 @@ public class FirebaseLogService {
         });
     }
 
+    //Phan Quang Huy
+    //Get all log sessions of a list scenario
+    public void getLogSessionsByListScenarioIdAndDate(List<String> scenarioIds, Date dateFrom, Date dateTo, String keySearch,String sortBy, LogCallback<List<LogSession>> callback) {
+
+        List<LogSession> allLogSessions = new ArrayList<>();
+        // Sử dụng Calendar để thiết lập thời gian bắt đầu và kết thúc cho khoảng thời gian
+        Calendar calFrom = Calendar.getInstance(), calTo = Calendar.getInstance();
+        if (dateFrom != null) {
+            calFrom = GetCalender(0, 0, 0, 0, dateFrom);
+        } else {
+            calFrom = null;
+        }
+        if (dateTo != null) {
+            calTo = GetCalender(23, 59, 59, 999, dateTo);
+        } else {
+            calTo = null;
+        }
+
+        Calendar finalCalFrom = calFrom;
+        Calendar finalCalTo = calTo;
+
+        for (String scenarioId : scenarioIds) {
+            DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
+                    .child(scenarioId)
+                    .child(LOG_SESSIONS_PATH);
+            logSessionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot sessionSnapshot : snapshot.getChildren()) {
+                        LogSession logSession = sessionSnapshot.getValue(LogSession.class);
+                        if (logSession != null) {
+                            // Chuyển đổi date_created từ String thành Date
+                            Date sessionDate;
+                            try {
+                                sessionDate = DATE_TIME_FORMATTER.parse(logSession.getDate_created());
+                            } catch (ParseException e) {
+                                Log.e(TAG, "Failed to parse date", e);
+                                continue;
+                            }
+
+                            // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
+                            boolean inRange = sessionDate != null && (finalCalFrom == null || !sessionDate.before(finalCalFrom.getTime())) && (finalCalTo == null || !sessionDate.after(finalCalTo.getTime()));
+                            boolean isContain = logSession.getSession_name().contains(keySearch) || logSession.getDevice_name().contains(keySearch);
+                            // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
+                            if (inRange && isContain) {
+                                allLogSessions.add(logSession);
+                            }
+                        }
+                    }
+
+                    // Nếu đây là lần truy cập cuối cùng, gọi callback để trả về kết quả
+                    if (scenarioId.equals(scenarioIds.get(scenarioIds.size() - 1))) {
+                        Log.d(TAG, "All log sessions retrieved successfully: " + allLogSessions.size());
+                        allLogSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2,sortBy));
+                        callback.onCallback(allLogSessions);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Failed to retrieve log sessions for scenario: " + scenarioId + ", Error: " + error.getMessage());
+                    callback.onCallback(null);
+                }
+            });
+        }
+    }
+
+    //Phan Quang Huy
+    //Sort log sessions
     public int LogSessionSortWithOption(LogSession object1, LogSession object2, String sortBy) {
 
         if(sortBy.equalsIgnoreCase(SORT_A_Z)){
@@ -284,6 +365,7 @@ public class FirebaseLogService {
        return 0;
     }
 
+    //Phan Quang Huy
     private Calendar GetCalender(int hour, int minute, int second, int millisecond, Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -295,6 +377,8 @@ public class FirebaseLogService {
     }
 
 
+    //Phan Quang Huy
+    //Get all logs of a specific log session
     public void getLogsByScenarioIdAndSessionId(String scenarioId, String sessionId,String keySearch, LogCallback<List<com.in_sync.models.Log>> callback) {
 
         DatabaseReference logsRef = databaseReference.child(SCENARIOS_PATH)
@@ -326,6 +410,8 @@ public class FirebaseLogService {
         });
     }
 
+    //Phan Quang Huy
+    //Update log session
     public void updateLogSession(String scenarioId, String sessionId, LogSession updatedLogSession, LogCallback<Boolean> callback) {
         DatabaseReference sessionRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -353,6 +439,8 @@ public class FirebaseLogService {
                 });
     }
 
+    //Phan Quang Huy
+    //Delete log session
     public void deleteLogSession(String scenarioId, String sessionId, LogCallback<Boolean> callback) {
         DatabaseReference sessionRef = databaseReference
                 .child(SCENARIOS_PATH)
@@ -373,6 +461,8 @@ public class FirebaseLogService {
     }
 
     // action relative to log
+    //Phan Quang Huy
+    //Add log to session
     public void addLogToSession(String scenarioId, String sessionId, com.in_sync.models.Log log, LogCallback<Boolean> callback) {
 
         DatabaseReference logsRef = databaseReference
@@ -394,6 +484,8 @@ public class FirebaseLogService {
                 });
     }
 
+    //Phan Quang Huy
+    //Add logs to session
     public void addLogsToSession(String scenarioId, String sessionId, List<com.in_sync.models.Log> logs, LogCallback<Boolean> callback) {
 
         Map<String, Object> updates_log = new HashMap<>();
@@ -414,6 +506,8 @@ public class FirebaseLogService {
                 });
     }
 
+    //Phan Quang Huy
+    //Update log in session
     public void updateLogInSession(String scenarioId, String sessionId, String logId, com.in_sync.models.Log updatedLog, LogCallback<Boolean> callback) {
 
         DatabaseReference logRef = databaseReference.child(SCENARIOS_PATH)
@@ -443,6 +537,8 @@ public class FirebaseLogService {
                 });
     }
 
+    //Phan Quang Huy
+    //Delete log from session
     public void deleteLogFromLogSession(String scenarioId, String sessionId, String logId, LogCallback<Boolean> callback) {
 
         DatabaseReference logRef = databaseReference.child(SCENARIOS_PATH)
@@ -463,6 +559,8 @@ public class FirebaseLogService {
                 });
     }
 
+    //Phan Quang Huy
+    //Callback interface
     public interface LogCallback<T> {
         void onCallback(T data);
     }
