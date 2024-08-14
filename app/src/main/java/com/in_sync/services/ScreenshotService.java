@@ -189,6 +189,7 @@ public class ScreenshotService extends Service {
         if (externalFilesDir != null) {
             mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
             File storeDirectory = new File(mStoreDir);
+            Log.e(TAG, "Directory: " + mStoreDir );
             if (!storeDirectory.exists()) {
                 boolean success = storeDirectory.mkdirs();
                 if (!success) {
