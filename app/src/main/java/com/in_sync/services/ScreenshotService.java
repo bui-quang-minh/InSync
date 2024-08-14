@@ -23,13 +23,18 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.Surface;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Pair;
 
+import com.in_sync.R;
 import com.in_sync.helpers.NotificationUtils;
 
 import java.io.File;
@@ -60,6 +65,10 @@ public class ScreenshotService extends Service {
     private int mWidth;
     private int mHeight;
     private int mRotation;
+    private WindowManager windowManager;
+    private int LAYOUT_TYPE;
+    private WindowManager.LayoutParams floatWindowLayoutParam;
+    private ViewGroup viewGroup;
     private OrientationChangeCallback mOrientationChangeCallback;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
@@ -92,45 +101,7 @@ public class ScreenshotService extends Service {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-
-            FileOutputStream fos = null;
-            Bitmap bitmap = null;
-            try (Image image = mImageReader.acquireLatestImage()) {
-                if (image != null) {
-                    Image.Plane[] planes = image.getPlanes();
-                    ByteBuffer buffer = planes[0].getBuffer();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * mWidth;
-
-                    // create bitmap
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(buffer);
-
-                    // write bitmap to a file
-                    fos = new FileOutputStream(mStoreDir + "/myscreen_" + IMAGES_PRODUCED + ".png");
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-
-                    IMAGES_PRODUCED++;
-                    Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (fos != null) {
-                    try {
-                        fos.close();
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
-
-                if (bitmap != null) {
-                    bitmap.recycle();
-                }
-
-            }
+            captureScreenshot();
         }
     }
 
@@ -163,14 +134,11 @@ public class ScreenshotService extends Service {
         @Override
         public void onStop() {
             Log.e(TAG, "stopping projection.");
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mVirtualDisplay != null) mVirtualDisplay.release();
-                    if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
-                    if (mOrientationChangeCallback != null) mOrientationChangeCallback.disable();
-                    mMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
-                }
+            boolean post = mHandler.post(() -> {
+                if (mVirtualDisplay != null) mVirtualDisplay.release();
+                if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
+                if (mOrientationChangeCallback != null) mOrientationChangeCallback.disable();
+                mMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
             });
         }
     }
@@ -189,7 +157,7 @@ public class ScreenshotService extends Service {
         if (externalFilesDir != null) {
             mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
             File storeDirectory = new File(mStoreDir);
-            Log.e(TAG, "Directory: " + mStoreDir );
+            Log.e(TAG, "Directory: " + mStoreDir);
             if (!storeDirectory.exists()) {
                 boolean success = storeDirectory.mkdirs();
                 if (!success) {
@@ -280,8 +248,80 @@ public class ScreenshotService extends Service {
 
         // start capture reader
         mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.screenshot_button, null);
+        ImageButton captureButton = viewGroup.findViewById(R.id.screenshot_button);
+        ImageButton stopButton    = viewGroup.findViewById(R.id.screenshot_stop_button);
+        captureButton.setOnClickListener((view) -> {
+            Log.e(TAG, "Capture Button is clicked" );
+            viewGroup.setVisibility(View.GONE);
+            //mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
+            captureScreenshot();
+            viewGroup.setVisibility(View.VISIBLE);
+        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_TOAST;
+        }
+        floatWindowLayoutParam = new WindowManager.LayoutParams(
+                200,
+                400,
+                LAYOUT_TYPE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+        );
+        //floatWindowLayoutParam.gravity = Gravity.CENTER;
+        floatWindowLayoutParam.x = 0;
+        floatWindowLayoutParam.y = 0;
+        windowManager.addView(viewGroup, floatWindowLayoutParam);
+
+
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
                 mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
-        mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
+
+    }
+
+    private void captureScreenshot() {
+
+        FileOutputStream fos = null;
+        Bitmap bitmap = null;
+        try (Image image = mImageReader.acquireLatestImage()) {
+            if (image != null) {
+                Image.Plane[] planes = image.getPlanes();
+                ByteBuffer buffer = planes[0].getBuffer();
+                int pixelStride = planes[0].getPixelStride();
+                int rowStride = planes[0].getRowStride();
+                int rowPadding = rowStride - pixelStride * mWidth;
+
+                // create bitmap
+                bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                bitmap.copyPixelsFromBuffer(buffer);
+
+                // write bitmap to a file
+                fos = new FileOutputStream(mStoreDir + "/myscreen_" + IMAGES_PRODUCED + ".png");
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
+                IMAGES_PRODUCED++;
+                Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+
+        }
     }
 }
