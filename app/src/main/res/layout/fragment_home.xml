@@ -37,6 +37,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TextView" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/hero_1"/>
         </LinearLayout>
     </ScrollView>
 

@@ -21,9 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.fragments.ExploreFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
