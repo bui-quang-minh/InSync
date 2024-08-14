@@ -6,19 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="In-Sync"
-        android:textAlignment="center"
-        android:textColor="#4E4E4E"
-        android:textSize="24sp"
-        android:textStyle="normal|bold"
-        app:layout_constraintBottom_toTopOf="@+id/cardView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
@@ -40,24 +27,97 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sign in to InSync"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome back! Please sign in to continue."
+                android:textColor="@color/neutral_500"
+                android:layout_gravity="center"
+                android:textSize="12sp"
+                android:paddingBottom="12dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/loginWithGoogleButton"
+                app:icon="@drawable/ic_google"
+                app:iconGravity="textStart"
+                app:iconTint="@null"
+                app:strokeColor="@color/neutral_400"
+                app:strokeWidth="1dp"
+                android:backgroundTint="@android:color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Continue with Google"
+                android:drawablePadding="8dp"
+                android:layout_marginTop="4dp"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+            />
+
+
+            <!-- Text "or" -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
+
+                <!-- Left line -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/neutral_300" />
+
+                <!-- Text "or" -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="or"
+                    android:textColor="@color/neutral_500"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp" />
+
+                <!-- Right line -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/neutral_300" />
+
+            </LinearLayout>
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/txtUsername"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"
+                android:hint="Email"
                 android:layout_marginTop="5dp"
-                android:textColorHint="#A7A7A7"
-                app:boxStrokeColor="#EAEAEE">
+                android:textColorHint="@color/neutral_500"
+                app:boxStrokeColor="@color/neutral_700">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#5B5B5B"
+                    android:textColor="@color/neutral_700"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:autofillHints="emailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -65,42 +125,33 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:hint="Password"
-                android:textColorHint="#A7A7A7"
+                android:textColorHint="@color/neutral_500"
                 app:endIconMode="password_toggle"
-                app:boxStrokeColor="#EAEAEE">
+                app:boxStrokeColor="@color/neutral_500">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/inputPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#5B5B5B"
+                    android:textColor="@color/neutral_700"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:autofillHints="password"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/loginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="LOGIN"
+                android:text="Continue"
                 android:layout_marginTop="16dp"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold" />
-            <Button
-                android:id="@+id/loginWithGoogleButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="LOGIN WITH GOOGLE"
-                android:drawableStart="@drawable/ic_google"
-                android:layout_marginTop="4dp"
-                android:textAlignment="center"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+
 
             <TextView
                 android:id="@+id/textView8"
@@ -108,8 +159,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Forgot Password?"
-                android:textColor="#3BA8BE"
+                android:textColor="@color/colorPrimary"
                 android:textSize="13sp"
+                android:textStyle="bold"
                 android:layout_gravity="end" />
 
             <LinearLayout
@@ -124,7 +176,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Don't have account?"
-                    android:textColor="#A7A7A7"
+                    android:textColor="@color/neutral_500"
                     android:textSize="13sp" />
 
                 <TextView
@@ -133,7 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:text="Create a new account"
-                    android:textColor="#3BA8BE"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
