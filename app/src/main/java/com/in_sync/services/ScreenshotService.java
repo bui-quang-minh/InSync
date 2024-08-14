@@ -253,13 +253,6 @@ public class ScreenshotService extends Service {
         viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.screenshot_button, null);
         ImageButton captureButton = viewGroup.findViewById(R.id.screenshot_button);
         ImageButton stopButton    = viewGroup.findViewById(R.id.screenshot_stop_button);
-        captureButton.setOnClickListener((view) -> {
-            Log.e(TAG, "Capture Button is clicked" );
-            viewGroup.setVisibility(View.GONE);
-            //mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
-            captureScreenshot();
-            viewGroup.setVisibility(View.VISIBLE);
-        });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
@@ -277,12 +270,30 @@ public class ScreenshotService extends Service {
         floatWindowLayoutParam.y = 0;
         windowManager.addView(viewGroup, floatWindowLayoutParam);
 
+        stopButton.setOnClickListener((view) -> {
+            stopProjection();
+            ScreenshotService.getStopIntent(this);
+            windowManager.removeView(viewGroup);
+        });
+
+        captureButton.setOnClickListener((view) -> {
+            Log.e(TAG, "Capture Button is clicked" );
+            windowManager.removeView(viewGroup);
+            //mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
+            captureScreenshot();
+            windowManager.addView(viewGroup, null);
+        });
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
                 mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
 
     }
 
+    /**
+     * @author Dương Thành Luân
+     * @date 14/08/2024
+     * @desc notice the lastest image which is sent by Media Projector
+     */
     private void captureScreenshot() {
 
         FileOutputStream fos = null;
