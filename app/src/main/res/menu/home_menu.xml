@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_main_add_script"
+        android:icon="@drawable/baseline_add_circle_outline_24"
+        android:orderInCategory="200"
+        app:showAsAction="always"
+        android:title="Setting" />
+    <item
+        android:id="@+id/menu_main_options_menu"
+        android:icon="@drawable/baseline_more_vert_24"
+        android:orderInCategory="200"
+        app:showAsAction="always"
+        android:title="Options" />
+</menu>
