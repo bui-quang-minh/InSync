@@ -26,7 +26,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        textView = view.findViewById(R.id.dummyText);
+        //textView = view.findViewById(R.id.dummyText);
         SharedPreferences sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         //textView.setText(sharedPreferences.getString("UserInfo", "User"));
 

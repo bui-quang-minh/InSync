@@ -33,14 +33,58 @@
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="64dp">
             <TextView
-                android:id="@+id/dummyText"
+                android:id="@+id/header_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
-            <ImageView
+                android:text="InSync - The ultimate tool for"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center"/>
+            <TextView
+                android:id="@+id/header_2"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:text="MOBILE AUTOMATION"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
                 android:src="@drawable/hero_1"/>
+            <TextView
+                android:id="@+id/content_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/insync_description"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:textColor="@color/neutral_500"
+                android:textSize="12dp"
+                android:gravity="center"/>
+            <Button
+                android:id="@+id/insync_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Get Started"
+                android:layout_marginLeft="50sp"
+                android:layout_marginRight="50sp"
+                android:textColor="@color/white"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:id="@+id/content_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="I already have an account"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12dp"
+                android:gravity="center"/>
+
         </LinearLayout>
     </ScrollView>
 
