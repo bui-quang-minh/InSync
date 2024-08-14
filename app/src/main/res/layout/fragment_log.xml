@@ -9,13 +9,13 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_log"
+        app:menu="@menu/home_menu"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        app:title="Log Session"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        android:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
+        app:title="Log"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
         <ImageView
             android:id="@+id/sort_icon"
             android:layout_gravity="end"

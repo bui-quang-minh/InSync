@@ -59,8 +59,6 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
         service = new FirebaseLogService();
         scenarioId = getIntent().getStringExtra("scenarioId");
         logSessionId = getIntent().getStringExtra("logSessionId");
-
-
         SetTitleForToolbar();
         searchLog("");
 

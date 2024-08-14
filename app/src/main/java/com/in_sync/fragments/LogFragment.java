@@ -71,14 +71,6 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         return view;
     }
 
-//    @Override
-//    public void onCreate(@Nullable Bundle savedInstanceState) {
-//        View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_log, null, false);
-//        initView(view);
-//        handlerEvent();
-//        super.onCreate(savedInstanceState);
-//    }
-
     // Phan Quang Huy
     // Initialize controls
     private void initView(View view) {
@@ -93,7 +85,6 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
             activity.setSupportActionBar(toolbar);
-            activity.getSupportActionBar().setTitle("Log Sesstion");
         }
         initDataForScenarioSpinner();
     }
