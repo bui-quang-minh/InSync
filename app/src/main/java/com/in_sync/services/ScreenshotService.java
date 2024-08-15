@@ -281,7 +281,7 @@ public class ScreenshotService extends Service {
             windowManager.removeView(viewGroup);
             //mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
             captureScreenshot();
-            windowManager.addView(viewGroup, null);
+            windowManager.addView(viewGroup, floatWindowLayoutParam);
         });
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,

@@ -10,7 +10,7 @@
     tools:context=".fragments.ScreenCaptureFragment">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        app:menu="@menu/home_menu"
+        app:menu="@menu/screenshot_menu"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         app:title="Screenshot"
