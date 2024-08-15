@@ -23,6 +23,7 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.Surface;
@@ -35,13 +36,17 @@ import androidx.annotation.RequiresApi;
 import androidx.core.util.Pair;
 
 import com.in_sync.R;
+import com.in_sync.activities.ScreenshotPermissionActivity;
 import com.in_sync.helpers.NotificationUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.sql.Time;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ScreenshotService extends Service {
 
@@ -67,9 +72,10 @@ public class ScreenshotService extends Service {
     private int mRotation;
     private WindowManager windowManager;
     private int LAYOUT_TYPE;
-    private WindowManager.LayoutParams floatWindowLayoutParam;
+    private WindowManager.LayoutParams floatWindowLayoutParam, hiddenFloatWindowLayoutParam;
     private ViewGroup viewGroup;
     private OrientationChangeCallback mOrientationChangeCallback;
+    private Timer timer;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenshotService.class);
@@ -96,13 +102,6 @@ public class ScreenshotService extends Service {
 
     private static int getVirtualDisplayFlags() {
         return DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
-    }
-
-    private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
-        @Override
-        public void onImageAvailable(ImageReader reader) {
-            captureScreenshot();
-        }
     }
 
     private class OrientationChangeCallback extends OrientationEventListener {
@@ -151,7 +150,7 @@ public class ScreenshotService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        timer = new Timer();
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);
         if (externalFilesDir != null) {
@@ -252,7 +251,7 @@ public class ScreenshotService extends Service {
         LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.screenshot_button, null);
         ImageButton captureButton = viewGroup.findViewById(R.id.screenshot_button);
-        ImageButton stopButton    = viewGroup.findViewById(R.id.screenshot_stop_button);
+        ImageButton stopButton = viewGroup.findViewById(R.id.screenshot_stop_button);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
@@ -265,23 +264,34 @@ public class ScreenshotService extends Service {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
-        //floatWindowLayoutParam.gravity = Gravity.CENTER;
+
+        hiddenFloatWindowLayoutParam = new WindowManager.LayoutParams(
+                200,
+                400,
+                LAYOUT_TYPE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+        );
+
         floatWindowLayoutParam.x = 0;
         floatWindowLayoutParam.y = 0;
+        floatWindowLayoutParam.gravity = Gravity.TOP | Gravity.START;
         windowManager.addView(viewGroup, floatWindowLayoutParam);
 
         stopButton.setOnClickListener((view) -> {
-            stopProjection();
-            ScreenshotService.getStopIntent(this);
+            Intent intent = new Intent(this, ScreenshotService.class);
+            stopService(intent);
             windowManager.removeView(viewGroup);
         });
 
         captureButton.setOnClickListener((view) -> {
-            Log.e(TAG, "Capture Button is clicked" );
             windowManager.removeView(viewGroup);
-            //mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
-            captureScreenshot();
-            windowManager.addView(viewGroup, floatWindowLayoutParam);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> {
+                captureScreenshot();
+                windowManager.addView(viewGroup, floatWindowLayoutParam);
+            });
+
         });
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
@@ -296,6 +306,7 @@ public class ScreenshotService extends Service {
      */
     private void captureScreenshot() {
 
+
         FileOutputStream fos = null;
         Bitmap bitmap = null;
         try (Image image = mImageReader.acquireLatestImage()) {
@@ -305,14 +316,12 @@ public class ScreenshotService extends Service {
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
                 int rowPadding = rowStride - pixelStride * mWidth;
-
                 // create bitmap
                 bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                 bitmap.copyPixelsFromBuffer(buffer);
-
                 // write bitmap to a file
                 fos = new FileOutputStream(mStoreDir + "/myscreen_" + IMAGES_PRODUCED + ".png");
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
                 IMAGES_PRODUCED++;
                 Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
@@ -335,4 +344,5 @@ public class ScreenshotService extends Service {
 
         }
     }
+
 }

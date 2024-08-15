@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.zip.Inflater;
 
 
 public class ScreenCaptureFragment extends Fragment {
@@ -39,7 +40,7 @@ public class ScreenCaptureFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = LayoutInflater.from(context).inflate(R.layout.fragment_screen_capture, null);
+        View view = inflater.inflate(R.layout.fragment_screen_capture, null);
         return view;
     }
 
