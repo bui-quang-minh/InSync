@@ -27,6 +27,12 @@
             android:exported="false"
             android:theme="@style/Theme.InSync" />
         <activity
+            android:name=".WalkthoughNavigationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".GetStartedActivity"
+            android:exported="false" />
+        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
@@ -39,6 +45,7 @@
             android:name=".LogsOfSessionActivity"
             android:exported="true">
         </activity>
+
         <service
             android:name=".services.ScreenCaptureService"
             android:exported="false"
@@ -61,6 +68,7 @@
             android:name=".MainActivity"
             android:exported="true" >
         </activity>
+
         <activity
             android:name=".activities.ScreenCapturePermissionActivity"
             android:exported="true" />

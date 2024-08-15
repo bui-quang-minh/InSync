@@ -226,6 +226,8 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 } else {
                     usernameLayout.setError("Invalid username");
+                    loginButton.setEnabled(true);
+                    loginWithGoogleButton.setEnabled(true);
                 }
             }
 
@@ -246,6 +248,8 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                             } else {
                                 passwordLayout.setError("Invalid password");
+                                loginButton.setEnabled(true);
+                                loginWithGoogleButton.setEnabled(true);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -255,6 +259,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         passwordLayout.setError("Invalid password");
+                        loginButton.setEnabled(true);
+                        loginWithGoogleButton.setEnabled(true);
                     }
                 });
             }
