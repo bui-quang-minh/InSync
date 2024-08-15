@@ -137,7 +137,7 @@ public class ScreenCaptureService extends AccessibilityService {
             if (newAction.getIndex() == -1) {
                 currentAction = newAction;
                 Log.e(TAG, "onImageAvailable: StopProjection");
-                stopProjection();
+                removeOverlay();
             } else {
                 currentAction = newAction;
             }
@@ -253,7 +253,6 @@ public class ScreenCaptureService extends AccessibilityService {
             Intent data = intent.getParcelableExtra(DATA);
             startProjection(resultCode, data);
         } else if (isStopCommand(intent)) {
-            stopProjection();
             stopSelf();
         } else {
             stopSelf();
@@ -290,6 +289,20 @@ public class ScreenCaptureService extends AccessibilityService {
                 public void run() {
                     if (mMediaProjection != null) {
                         mMediaProjection.stop();
+                        //mMediaProjection = null; // Clear the reference
+                    }
+                    if (mVirtualDisplay != null) {
+                        mVirtualDisplay.release();
+                        //mVirtualDisplay = null; // Clear the reference
+                    }
+                    if (mImageReader != null) {
+                        mImageReader.setOnImageAvailableListener(null, null);
+                        mImageReader.close();
+                        //mImageReader = null; // Clear the reference
+                    }
+                    if (mOrientationChangeCallback != null) {
+                        mOrientationChangeCallback.disable();
+                        //mOrientationChangeCallback = null; // Clear the reference
                     }
                 }
             });
@@ -398,8 +411,9 @@ public class ScreenCaptureService extends AccessibilityService {
     private void removeOverlay() {
         if (overlayView != null) {
             windowManager.removeView(overlayView);
-            stopProjection();
-            overlayView = null;
+            stopProjection(); // Stop the MediaProjection and release resources
+            // Call stopSelf to stop the service
+            stopSelf();
         }
     }
 
