@@ -23,7 +23,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.InSync"
         tools:targetApi="31">
-
+        <activity
+            android:name=".WalkthoughNavigationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".GetStartedActivity"
+            android:exported="false" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -35,8 +40,7 @@
         </activity>
         <activity
             android:name=".LogsOfSessionActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
         <service
             android:name=".services.ScreenCaptureService"
@@ -51,18 +55,17 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
-
         <service
             android:name=".services.ScreenshotService"
-            android:foregroundServiceType="mediaProjection"
-            android:exported="false"/>
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
 
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".activities.ScreenCapturePermissionActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".activities.ScreenshotPermissionActivity"
             android:exported="true" />

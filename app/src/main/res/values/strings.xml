@@ -10,9 +10,28 @@
     </string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="insync_description">
+    <string name="insync_description_1">
         Automate, optimize, and elevate your Android experience with InSync. Whether you are
         <b><font color="#18181B">refining app tests or streamlining daily tasks</font></b>,
         InSync adapts to your needs—bringing seamless automation right to your fingertips.
     </string>
+    <string name="insync_description_2">
+        InSync is an advanced automation tool designed for Android applications, enabling you to create, customize, and execute automation scripts with ease.
+    </string>
+    <string name="insync_description_3">
+        By leveraging a powerful web-based interface and an intuitive Android client, InSync allows developers and testers to automate complex scenarios without relying on traditional ADB methods.
+    </string>
+    <string name="card_header_2">No ADB Required</string>
+    <string name="card_header_1">Visual Script Customization</string>
+    <string name="card_header_3">Real-time Execution</string>
+    <string name="card_content_1">Our web service offers a user-friendly platform to visually create and customize automation scripts, making the process faster and more accessible.</string>
+    <string name="card_content_2">Unlike traditional tools, InSync uses Android\'s accessibility services, eliminating the need for complex ADB setups.</string>
+    <string name="card_content_3">Experience seamless script execution directly on your Android device, with real-time logs to monitor every action.</string>
+    <string name="startDesc">Continue exploring, tweaking, and perfecting your scripts to streamline your productivity.</string>
+    <string name="wt_text_1">Create Your Script</string>
+    <string name="wt_text_2">Customize and Personalize</string>
+    <string name="wt_text_3">Precise Log History</string>
+    <string name="wt_desc_1">Use our intuitive script editor to design the sequence of actions that match your workflow. Whether its a simple task or a complex series of operation.</string>
+    <string name="wt_desc_2">Adjust parameters, set conditions, and loop actions to create a script that is tailored to your exact needs. The possibilities are endless.</string>
+    <string name="wt_desc_3">Stay informed with detailed and precise logs. Every action, every change, and every task performed by InSync is logged meticulously, so you always know what’s happening behind the scenes.</string>
 </resources>
