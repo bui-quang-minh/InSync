@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -18,18 +19,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class Log {
-    private String log_scenarios_id = UUID.randomUUID().toString();
-    private String session_id;
+public class LogSession {
+    private String session_id = UUID.randomUUID().toString();
+    private String session_name;
+    private String device_name;
+    private String scenario_id;
     private String date_created = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-    private String description;
-    private String note;
-    private boolean status = false;
 
-    public Log(String session_id, String description, String note) {
-        this.session_id = session_id;
-        this.description = description;
-        this.note = note;
+    public LogSession(String session_name, String device_name, String scenario_id) {
+        this.session_name = session_name;
+        this.device_name = device_name;
+        this.scenario_id = scenario_id;
     }
 }
-

@@ -21,9 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.fragments.ExploreFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
@@ -33,6 +30,7 @@ import com.in_sync.fragments.TestFragment;
 import com.in_sync.validates.PermissionValid;
 import com.in_sync.helpers.FileLogUtils;
 import com.in_sync.helpers.LogUtils;
+import com.in_sync.models.LogSession;
 import com.in_sync.services.ScreenCaptureService;
 import com.in_sync.validates.PermissionValid;
 
@@ -41,6 +39,7 @@ import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -63,24 +62,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        //Test Firebase
-        List<com.in_sync.models.Log> logs = new ArrayList<>();
-
-        // Giả sử bạn có một phương thức tạo log
-        com.in_sync.models.Log log1 = new com.in_sync.models.Log();
-        log1.setScenario_id("scenario1");
-        log1.setDescription("description1");
-        log1.setNote("note1");
-
-        com.in_sync.models.Log log2 = new com.in_sync.models.Log();
-        log2.setScenario_id("scenario2");
-        log2.setDescription("description2");
-        log2.setNote("note2");
-
-        logs.add(log1);
-        logs.add(log2);
-
-        LogUtils.getInstance().LogManyLogsOnFireBase(logs, true);
 
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
@@ -149,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void onAppStart() {
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         homeFragment = new HomeFragment();
@@ -179,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
         //cancelButton.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+
     // Created By: Bui Quang Minh
     // Created Date: 07-08-2024
     // On Resume, check for accessibility settings

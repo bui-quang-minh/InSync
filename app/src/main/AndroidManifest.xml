@@ -21,8 +21,6 @@
         android:roundIcon="@drawable/accessibility_service"
         android:supportsRtl="true"
         android:theme="@style/Theme.InSync"
-        android:hardwareAccelerated="false"
-        android:largeHeap="true"
         tools:targetApi="31" >
         <activity
             android:name=".activities.ImageDetailActivity"
@@ -30,14 +28,17 @@
             android:theme="@style/Theme.InSync" />
         <activity
             android:name=".LoginActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".LogsOfSessionActivity"
+            android:exported="true">
+        </activity>
         <service
             android:name=".services.ScreenCaptureService"
             android:exported="false"

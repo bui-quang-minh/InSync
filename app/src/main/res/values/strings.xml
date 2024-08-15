@@ -51,5 +51,10 @@
         sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>>
+    <string name="insync_description">
+        Automate, optimize, and elevate your Android experience with InSync. Whether you are
+        <b><font color="#18181B">refining app tests or streamlining daily tasks</font></b>,
+        InSync adapts to your needs—bringing seamless automation right to your fingertips.
     </string>
 </resources>
