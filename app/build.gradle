@@ -36,15 +36,20 @@ android {
             }
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
     implementation libs.firebase.database
-    implementation 'com.google.android.gms:play-services-auth:19.2.0'
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    implementation libs.play.services.auth
+    implementation libs.glide
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
     compileOnly libs.lombok
     implementation libs.volley
-    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor libs.lombok.v11834
     implementation libs.gson
     implementation libs.appcompat
     implementation libs.material
@@ -52,6 +57,7 @@ dependencies {
     implementation libs.constraintlayout
     implementation project(':opencv')
     implementation libs.firebase.database
+    implementation libs.picasso
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
