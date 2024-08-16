@@ -4,7 +4,7 @@
     <!-- Item SearchView -->
     <item
         android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/baseline_search_24"
         android:title="Search"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView"
@@ -15,7 +15,7 @@
     <item
         android:id="@+id/action_sort"
         android:title="Sort"
-        android:icon="@drawable/sort"
+        android:icon="@drawable/baseline_sort_24"
         app:title="Settings"
         app:showAsAction="ifRoom" />
 </menu>
