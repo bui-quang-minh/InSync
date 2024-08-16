@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.fragments.ExploreFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
@@ -44,6 +45,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.Inflater;
+
 public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "MainActivity";
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+
 
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
@@ -97,8 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().
                             replace(R.id.container, testFragment).commit();
                     return true;
-                }
-                else if (item.getItemId() == R.id.screen_capture) {
+                } else if (item.getItemId() == R.id.screen_capture) {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, screenCaptureFragment).commit();
                     return true;
@@ -107,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
