@@ -100,10 +100,11 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_gravity="center"
-                android:layout_weight="5"
+                android:layout_weight="4"
                 android:layout_width="0dip"
                 android:padding="5dp"
                 android:layout_height="wrap_content">
+
                 <Button
                     android:id="@+id/view_log_btn"
                     android:text="View logs"
@@ -115,6 +116,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
             </LinearLayout>
+            <ImageView
+                android:padding="5dp"
+                android:layout_margin="5dp"
+                android:id="@+id/need_resolve_img"
+                android:src="@drawable/mark"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="20dp"/>
 
         </LinearLayout>
 
