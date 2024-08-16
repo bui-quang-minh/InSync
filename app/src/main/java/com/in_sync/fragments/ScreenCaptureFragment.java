@@ -1,55 +1,96 @@
 package com.in_sync.fragments;
-
-import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 import android.content.Context;
 import android.content.Intent;
-import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.in_sync.R;
 import com.in_sync.activities.ScreenshotPermissionActivity;
+import com.in_sync.adapter.ImageGalleryAdapter;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 
 public class ScreenCaptureFragment extends Fragment {
-    private Button captureButton;
+    private View captureButton;
     private Context context;
-    private static final int REQUEST_CODE_SCREEN_CAPTURE = 1;
-    private MediaProjectionManager mediaProjectionManager;
+    private String TAG = "SCREENCAPTURE";
+    private String FOLDER_PATH;
+    private RecyclerView imagesRV;
+    private ImageGalleryAdapter imageRVAdapter;
 
+    public ScreenCaptureFragment() {}
     public ScreenCaptureFragment(Context context) {
         this.context = context;
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_screen_capture, container, false);
-        initView(view);
-        handleEvent();
+        View view = LayoutInflater.from(context).inflate(R.layout.fragment_screen_capture, null);
         return view;
     }
 
     private void initView(View view) {
-        captureButton = view.findViewById(R.id.capture_button);
-        mediaProjectionManager = (MediaProjectionManager) context.getSystemService(MEDIA_PROJECTION_SERVICE);
+        FOLDER_PATH = Objects.requireNonNull(context.getExternalFilesDir(null)).getAbsolutePath() + "/screenshots/";
+        captureButton = view.findViewById(R.id.screen_capture_button);
+        imagesRV = view.findViewById(R.id.image_gallery);
     }
 
-    private void handleEvent() {
-        captureButton.setOnClickListener(this::initiateOverlay);
+
+    private void catchEvent() {
+        captureButton.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ScreenshotPermissionActivity.class);
+            startActivity(intent);
+        });
     }
 
-    private void initiateOverlay(View view) {
-        Intent intent = new Intent(context, ScreenshotPermissionActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initView(view);
+        catchEvent();
+        prepareRecyclerView();
     }
+
+
+    private void prepareRecyclerView() {
+        imageRVAdapter = new ImageGalleryAdapter(context, getFileName());
+        GridLayoutManager manager = new GridLayoutManager(context, 2);
+        imagesRV.setLayoutManager(manager);
+        imagesRV.setAdapter(imageRVAdapter);
+    }
+
+    private List<String> getFileName() {
+        List<String> filesName = new ArrayList<>();
+        try {
+            File folder = new File(FOLDER_PATH);
+            if(folder.exists() && folder.isDirectory()) {
+                File[] files = folder.listFiles((file) -> file.getName().endsWith(".png"));
+                if(files != null) {
+                    for (File file: files) {
+                        filesName.add(FOLDER_PATH + file.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "ERROR: CAN NOT READ IMAGE FOLDER", Toast.LENGTH_SHORT).show();
+        }
+
+        return filesName;
+    }
+
+
 }

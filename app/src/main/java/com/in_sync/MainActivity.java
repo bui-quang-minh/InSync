@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
             buildDialog();
         }
-
-
         onAppStart();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
@@ -81,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE);
             }
         }
+        eventHandler();
         //Setup for the bottom navigation view
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -112,6 +112,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void eventHandler() {
+    }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -137,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void onAppStart() {
+
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         homeFragment = new HomeFragment();
         logFragment = new LogFragment();
