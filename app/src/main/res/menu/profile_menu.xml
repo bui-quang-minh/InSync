@@ -9,7 +9,7 @@
             android:title="Share" />
         <item
             android:id="@+id/settings_icon"
-            android:icon="@drawable/profile_setting_icon"
+            android:icon="@drawable/profile_settings_icon"
             android:orderInCategory="200"
             app:showAsAction="always"
             android:title="Settings" />
