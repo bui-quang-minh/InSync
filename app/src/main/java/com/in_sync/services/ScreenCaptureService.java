@@ -11,8 +11,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.display.DisplayManager;
@@ -39,7 +37,6 @@ import androidx.core.util.Pair;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import com.google.gson.Gson;
-
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -93,7 +90,7 @@ public class ScreenCaptureService extends AccessibilityService {
     private String json;
     private Step[] steps;
     private ImageView imageView;
-    private String appOpened="";
+    private String appOpened = "";
     private Action action;
     private Sequence sequence;
     private static int IMAGES_PRODUCED;
@@ -103,6 +100,7 @@ public class ScreenCaptureService extends AccessibilityService {
     private List<com.in_sync.models.Action> flattenedActions;
 
     private com.in_sync.models.Action currentAction = null;
+
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
@@ -135,15 +133,16 @@ public class ScreenCaptureService extends AccessibilityService {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            com.in_sync.models.Action newAction = action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence,currentAction, flattenedActions);
-            if(newAction.getIndex() == -1){
+            com.in_sync.models.Action newAction = action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction, flattenedActions);
+            if (newAction.getIndex() == -1) {
                 currentAction = newAction;
-                Log.e(TAG, "onImageAvailable: StopProjection" );
-                stopProjection();
-            }else{
+                Log.e(TAG, "onImageAvailable: StopProjection");
+                removeOverlay();
+            } else {
                 currentAction = newAction;
             }
-            try (Image image = mImageReader.acquireLatestImage()) {}catch (Exception e){
+            try (Image image = mImageReader.acquireLatestImage()) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -195,19 +194,19 @@ public class ScreenCaptureService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         appOpened = event.getText().toString().trim();
         source = event.getSource();
-        Log.e(TAG, "onAccessibilityEvent: this open::: "+ appOpened);
-        if(currentAction!=null && currentAction.getConditionType()!=null && currentAction.getActionType()!=null){
-        if (currentAction.getConditionType().toString().equals("FIND_SOURCE")&&currentAction.getActionType().toString().equals("IF")){
-            if (appOpened.equals("["+currentAction.getCondition()+"]")){
-                Log.e("Action", "FIND_SOURCE Condition is true");
-                currentAction = sequence.traverseAction(true, currentAction);
-            }else{
-                Log.e("Action", "FIND_SOURCE Condition is false");
-                currentAction = sequence.traverseAction(false, currentAction);
+        Log.e(TAG, "onAccessibilityEvent: this open::: " + appOpened);
+        if (currentAction != null && currentAction.getConditionType() != null && currentAction.getActionType() != null) {
+            if (currentAction.getConditionType().toString().equals("FIND_SOURCE") && currentAction.getActionType().toString().equals("IF")) {
+                if (appOpened.equals("[" + currentAction.getCondition() + "]")) {
+                    Log.e("Action", "FIND_SOURCE Condition is true");
+                    currentAction = sequence.traverseAction(true, currentAction);
+                } else {
+                    Log.e("Action", "FIND_SOURCE Condition is false");
+                    currentAction = sequence.traverseAction(false, currentAction);
+                }
             }
         }
-        }
-        Log.e(TAG, "onAccessibilityEvent: "+ appOpened);
+        Log.e(TAG, "onAccessibilityEvent: " + appOpened);
     }
 
     @Override
@@ -254,7 +253,6 @@ public class ScreenCaptureService extends AccessibilityService {
             Intent data = intent.getParcelableExtra(DATA);
             startProjection(resultCode, data);
         } else if (isStopCommand(intent)) {
-            stopProjection();
             stopSelf();
         } else {
             stopSelf();
@@ -291,6 +289,20 @@ public class ScreenCaptureService extends AccessibilityService {
                 public void run() {
                     if (mMediaProjection != null) {
                         mMediaProjection.stop();
+                        //mMediaProjection = null; // Clear the reference
+                    }
+                    if (mVirtualDisplay != null) {
+                        mVirtualDisplay.release();
+                        //mVirtualDisplay = null; // Clear the reference
+                    }
+                    if (mImageReader != null) {
+                        mImageReader.setOnImageAvailableListener(null, null);
+                        mImageReader.close();
+                        //mImageReader = null; // Clear the reference
+                    }
+                    if (mOrientationChangeCallback != null) {
+                        mOrientationChangeCallback.disable();
+                        //mOrientationChangeCallback = null; // Clear the reference
                     }
                 }
             });
@@ -312,19 +324,21 @@ public class ScreenCaptureService extends AccessibilityService {
 
     private Step[] bindStep(String json) {
         Gson gson = new Gson();
-        Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {}.getType();
+        Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {
+        }.getType();
         List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);
         flattenedActions = new ArrayList<com.in_sync.models.Action>();
         com.in_sync.models.Action startAction = new com.in_sync.models.Action();
         startAction.setIndex(0);
         flattenedActions.add(startAction);
-        for (com.in_sync.models.Action action : flattenActions(actionsList)){
+        for (com.in_sync.models.Action action : flattenActions(actionsList)) {
             flattenedActions.add(action);
         }
         TreeNode root = buildTree(flattenedActions);
         sequence = new Sequence(actionsList, flattenedActions, root);
         return gson.fromJson(json, Step[].class);
     }
+
     private static TreeNode buildTree(List<com.in_sync.models.Action> actions) {
         Map<Integer, TreeNode> nodeMap = new HashMap<>();
         TreeNode root = null;
@@ -340,7 +354,7 @@ public class ScreenCaptureService extends AccessibilityService {
         // Establish parent-child relationships
         for (TreeNode node : nodeMap.values()) {
             com.in_sync.models.Action action = node.action;
-            if(action.index!=0) {
+            if (action.index != 0) {
                 TreeNode parentNode = nodeMap.get(action.parent);
                 if (parentNode != null) {
                     parentNode.addChild(node);
@@ -397,10 +411,12 @@ public class ScreenCaptureService extends AccessibilityService {
     private void removeOverlay() {
         if (overlayView != null) {
             windowManager.removeView(overlayView);
-            stopProjection();
-            overlayView = null;
+            stopProjection(); // Stop the MediaProjection and release resources
+            // Call stopSelf to stop the service
+            stopSelf();
         }
     }
+
     private void pasteFromClipboard(String content) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clipData = ClipData.newPlainText("text", content);

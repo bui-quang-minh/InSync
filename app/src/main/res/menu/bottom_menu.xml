@@ -18,7 +18,7 @@
         android:icon="@drawable/baseline_mode_edit_24"
         android:title="Test" />
     <item
-        android:id="@+id/profile"
+        android:id="@+id/screen_capture"
         android:icon="@drawable/baseline_account_circle_24"
-        android:title="Profile" />
+        android:title="Screen Capture" />
 </menu>

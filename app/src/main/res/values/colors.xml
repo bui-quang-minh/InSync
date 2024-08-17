@@ -4,7 +4,6 @@
     <color name="text_secondary">#FFFFF7</color>
     <color name="background_primary">#131416</color>
     <color name="background_secondary">#1c1f28</color>
-
     <color name="black">#FF000000</color>
     <color name="background">#131416</color>
     <color name="white">#FFFFFFFF</color>
@@ -17,7 +16,112 @@
     <color name="custom_orange">#CC6600</color>
     <color name="custom_button">#EB2641</color>
     <color name="custom_button_1">#F44336</color>
-    <color name="colorPrimary">#3BA8BE</color>
-    <color name="colorPrimaryDark">#27707E</color>
-    <color name="colorAccent">#CE7672</color>
+    <color name="colorPrimary">#18181B</color>
+    <!-- Slate colors -->
+    <color name="slate_50">#f8fafc</color>
+    <color name="slate_100">#f1f5f9</color>
+    <color name="slate_200">#e2e8f0</color>
+    <color name="slate_300">#cbd5e1</color>
+    <color name="slate_400">#94a3b8</color>
+    <color name="slate_500">#64748b</color>
+    <color name="slate_600">#475569</color>
+    <color name="slate_700">#334155</color>
+    <color name="slate_800">#1e293b</color>
+    <color name="slate_900">#0f172a</color>
+
+    <!-- Neutral colors -->
+    <color name="neutral_50">#fafafa</color>
+    <color name="neutral_100">#f5f5f5</color>
+    <color name="neutral_200">#e5e5e5</color>
+    <color name="neutral_300">#d4d4d4</color>
+    <color name="neutral_400">#a3a3a3</color>
+    <color name="neutral_500">#737373</color>
+    <color name="neutral_600">#525252</color>
+    <color name="neutral_700">#404040</color>
+    <color name="neutral_800">#262626</color>
+    <color name="neutral_900">#171717</color>
+
+    <!-- Red colors -->
+    <color name="red_50">#fef2f2</color>
+    <color name="red_100">#fee2e2</color>
+    <color name="red_200">#fecaca</color>
+    <color name="red_300">#fca5a5</color>
+    <color name="red_400">#f87171</color>
+    <color name="red_500">#ef4444</color>
+    <color name="red_600">#dc2626</color>
+    <color name="red_700">#b91c1c</color>
+    <color name="red_800">#991b1b</color>
+    <color name="red_900">#7f1d1d</color>
+
+    <!-- Yellow colors -->
+    <color name="yellow_50">#fefce8</color>
+    <color name="yellow_100">#fef9c3</color>
+    <color name="yellow_200">#fef08a</color>
+    <color name="yellow_300">#fde047</color>
+    <color name="yellow_400">#facc15</color>
+    <color name="yellow_500">#eab308</color>
+    <color name="yellow_600">#ca8a04</color>
+    <color name="yellow_700">#a16207</color>
+    <color name="yellow_800">#854d0e</color>
+    <color name="yellow_900">#713f12</color>
+
+    <!-- Lime colors -->
+    <color name="lime_50">#f7fee7</color>
+    <color name="lime_100">#ecfccb</color>
+    <color name="lime_200">#d9f99d</color>
+    <color name="lime_300">#bef264</color>
+    <color name="lime_400">#a3e635</color>
+    <color name="lime_500">#84cc16</color>
+    <color name="lime_600">#65a30d</color>
+    <color name="lime_700">#4d7c0f</color>
+    <color name="lime_800">#3f6212</color>
+    <color name="lime_900">#365314</color>
+
+    <!-- Green colors -->
+    <color name="green_50">#f0fdf4</color>
+    <color name="green_100">#dcfce7</color>
+    <color name="green_200">#bbf7d0</color>
+    <color name="green_300">#86efac</color>
+    <color name="green_400">#4ade80</color>
+    <color name="green_500">#22c55e</color>
+    <color name="green_600">#16a34a</color>
+    <color name="green_700">#15803d</color>
+    <color name="green_800">#166534</color>
+    <color name="green_900">#14532d</color>
+
+    <!-- Cyan colors -->
+    <color name="cyan_50">#ecfeff</color>
+    <color name="cyan_100">#cffafe</color>
+    <color name="cyan_200">#a5f3fc</color>
+    <color name="cyan_300">#67e8f9</color>
+    <color name="cyan_400">#22d3ee</color>
+    <color name="cyan_500">#06b6d4</color>
+    <color name="cyan_600">#0891b2</color>
+    <color name="cyan_700">#0e7490</color>
+    <color name="cyan_800">#155e75</color>
+    <color name="cyan_900">#164e63</color>
+
+    <!-- Blue colors -->
+    <color name="blue_50">#eff6ff</color>
+    <color name="blue_100">#dbeafe</color>
+    <color name="blue_200">#bfdbfe</color>
+    <color name="blue_300">#93c5fd</color>
+    <color name="blue_400">#60a5fa</color>
+    <color name="blue_500">#3b82f6</color>
+    <color name="blue_600">#2563eb</color>
+    <color name="blue_700">#1d4ed8</color>
+    <color name="blue_800">#1e40af</color>
+    <color name="blue_900">#1e3a8a</color>
+
+    <!-- Purple colors -->
+    <color name="purple_50">#f5f3ff</color>
+    <color name="purple_100">#ede9fe</color>
+    <color name="purple_200">#ddd6fe</color>
+    <color name="purple_300">#c4b5fd</color>
+    <color name="purple_400">#a78bfa</color>
+    <color name="purple_500">#8b5cf6</color>
+    <color name="purple_600">#7c3aed</color>
+    <color name="purple_700">#6d28d9</color>
+    <color name="purple_800">#5b21b6</color>
+    <color name="purple_900">#4c1d95</color>
 </resources>

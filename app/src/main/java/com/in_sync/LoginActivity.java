@@ -6,8 +6,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.color.utilities.TonalPalette;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.in_sync.interfaces.VolleyArrayRequestCallback;
@@ -73,6 +78,33 @@ public class LoginActivity extends AppCompatActivity {
     private void eventHandling() {
         loginWithGoogleButton   .setOnClickListener(this::loginWithGoogleButtonClicked);
         loginButton             .setOnClickListener(this::loginButtonClicked);
+        usernameEditText        .setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    // Handle the Enter key press here
+                    passwordEditText.requestFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        passwordEditText        .setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    // Handle the Enter key press here
+                    loginButtonClicked(v);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    // Hide the keyboard
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(passwordEditText.getWindowToken(), 0);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
         passwordEditText        .setTransformationMethod(PasswordTransformationMethod.getInstance());
         passwordLayout          .setEndIconOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginWithGoogleButtonClicked(View view) {
+        Toast.makeText(this, "Logging in with Google...", Toast.LENGTH_SHORT).show();
         mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -155,20 +188,29 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginButtonClicked(View view) {
+        Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
+        loginButton.setEnabled(false);
+        loginWithGoogleButton.setEnabled(false);
         usernameLayout.setError(null);
         passwordLayout.setError(null);
         //catch empty
         if (usernameEditText.getText().toString().isEmpty()&&passwordEditText.getText().toString().isEmpty()) {
             usernameLayout.setError("Username is required");
             passwordLayout.setError("Password is required");
+            loginButton.setEnabled(true);
+            loginWithGoogleButton.setEnabled(true);
             return;
         }
         if (usernameEditText.getText().toString().isEmpty()) {
             usernameLayout.setError("Username is required");
+            loginButton.setEnabled(true);
+            loginWithGoogleButton.setEnabled(true);
             return;
         }
         if (passwordEditText.getText().toString().isEmpty()) {
             passwordLayout.setError("Password is required");
+            loginButton.setEnabled(true);
+            loginWithGoogleButton.setEnabled(true);
             return;
         }
         GetUserListRequest.GetLoginParameter(usernameEditText.getText().toString(), this, new VolleyArrayRequestCallback() {
@@ -184,6 +226,8 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 } else {
                     usernameLayout.setError("Invalid username");
+                    loginButton.setEnabled(true);
+                    loginWithGoogleButton.setEnabled(true);
                 }
             }
 
@@ -204,6 +248,8 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                             } else {
                                 passwordLayout.setError("Invalid password");
+                                loginButton.setEnabled(true);
+                                loginWithGoogleButton.setEnabled(true);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -213,6 +259,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         passwordLayout.setError("Invalid password");
+                        loginButton.setEnabled(true);
+                        loginWithGoogleButton.setEnabled(true);
                     }
                 });
             }

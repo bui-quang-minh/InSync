@@ -16,11 +16,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:titleTextAppearance="@style/ToolbarTitleText"
         />
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dip"
         app:layout_constraintVertical_bias="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,16 +30,249 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="64dp">
+            android:orientation="vertical">
+
             <TextView
-                android:id="@+id/dummyText"
+                android:id="@+id/header_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="InSync - The ultimate tool for"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center"
+                android:layout_marginTop="24dp"/>
+            <TextView
+                android:id="@+id/header_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="MOBILE AUTOMATION"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+                android:src="@drawable/hero_1"/>
+            <TextView
+                android:id="@+id/content_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/insync_description_1"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:textColor="@color/neutral_500"
+                android:textSize="18sp"
+                android:gravity="center"/>
+            <Button
+                android:id="@+id/getStartedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Get Started"
+                android:layout_marginLeft="50sp"
+                android:layout_marginRight="50sp"
+                android:textColor="@color/white"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:id="@+id/content_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="I already have an account"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                android:gravity="center"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/neutral_300"
+                android:layout_margin="16dp" />
+            <TextView
+                android:id="@+id/header_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="What is In-Sync?"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center"/>
+            <TextView
+                android:id="@+id/header_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Everything you need to streamling your workflow"
+                android:textSize="16sp"
+                android:textColor="@color/neutral_500"
+                android:gravity="center"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+                android:src="@drawable/hero_2"/>
+            <TextView
+                android:id="@+id/content_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/insync_description_2"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:textColor="@color/neutral_500"
+                android:textSize="18sp"
+                android:gravity="start"
+                android:layout_marginTop="10dp"/>
+            <TextView
+                android:id="@+id/content_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/insync_description_3"
+                android:paddingLeft="10sp"
+                android:paddingRight="10sp"
+                android:textColor="@color/neutral_500"
+                android:textSize="18sp"
+                android:gravity="start"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/neutral_300"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"/>
+            <TextView
+                android:id="@+id/header_5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Why choose In-Sync?"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/colorPrimary"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"/>
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="230dip"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/eyes_card"
+                        android:layout_marginStart="4dp" />
+                    <TextView
+                        android:id="@+id/cart_title_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/card_header_1"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/colorPrimary"
+                        android:layout_marginStart="4dp"
+                        android:gravity="start"/>
+                    <TextView
+                        android:id="@+id/cart_content_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/card_content_1"
+                        android:textSize="18sp"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/neutral_500"
+                        android:gravity="start"
+                        android:layout_marginStart="4dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="230dip"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/android_card"
+                        android:layout_marginStart="4dp"
+                        />
+                    <TextView
+                        android:id="@+id/cart_title_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/card_header_2"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/colorPrimary"
+                        android:gravity="start"
+                        android:layout_marginStart="4dp"/>
+
+                    <TextView
+                        android:id="@+id/cart_content_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="start"
+                        android:text="@string/card_content_2"
+                        android:textColor="@color/neutral_500"
+                        android:textSize="18sp"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="230dip"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/sync_card"
+                        android:layout_marginStart="4dp"
+                        />
+                    <TextView
+                        android:id="@+id/cart_title_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/card_header_3"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/colorPrimary"
+                        android:gravity="start"
+                        android:layout_marginStart="4dp"/>
+                    <TextView
+                        android:id="@+id/cart_content_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/card_content_3"
+                        android:textSize="18sp"
+                        android:layout_marginTop="12dp"
+                        android:textColor="@color/neutral_500"
+                        android:gravity="start"
+                        android:layout_marginStart="4dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

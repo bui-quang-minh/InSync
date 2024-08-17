@@ -1,17 +1,16 @@
 package com.in_sync.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 
-public class ScreenCapturePermissionActivity extends Activity {
+import com.in_sync.services.ScreenshotService;
 
+public class ScreenshotPermissionActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 100;
-    private MediaProjectionManager mediaProjectionManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,13 +19,11 @@ public class ScreenCapturePermissionActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Intent intent = com.in_sync.services.ScreenCaptureService.getStartIntent(this, resultCode, data);
-                String json = getIntent().getExtras().get("json").toString();
-                intent.putExtra("json", json);
+                Intent intent = ScreenshotService.getStartIntent(this, resultCode, data);
                 startService(intent);
-                finish();
             }
 
         }
@@ -35,9 +32,5 @@ public class ScreenCapturePermissionActivity extends Activity {
         MediaProjectionManager mProjectionManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
-    }
-
-    private void stopProjection() {
-        startService(com.in_sync.services.ScreenCaptureService.getStopIntent(this));
     }
 }

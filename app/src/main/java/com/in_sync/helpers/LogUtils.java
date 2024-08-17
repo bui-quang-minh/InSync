@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 
 import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.models.Log;
+import com.in_sync.models.LogSession;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,14 +28,16 @@ public class LogUtils {
         return instance;
     }
 
-    public void LogOnFireBase(String scenarioId, String description, String note, boolean isLog) {
+    public void saveSessionLogOnFireBase(String scenarioId, LogSession logSession, List<com.in_sync.models.Log> logs, boolean isLog) {
         if (!isLog) return;
-        firebaseLogService.addLog(scenarioId, description, note);
+        firebaseLogService.addLogSessionWithLogs(scenarioId, logSession, logs, new FirebaseLogService.LogCallback<Boolean>() {
+            @Override
+            public void onCallback(Boolean data) {
+
+            }
+        });
     }
 
-    public void LogManyLogsOnFireBase(List<Log> logs,boolean isLog) {
-        if (!isLog) return;
-        firebaseLogService.addLogs(logs);
-    }
+
 
 }

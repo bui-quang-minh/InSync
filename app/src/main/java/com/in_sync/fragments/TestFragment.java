@@ -1,5 +1,6 @@
 package com.in_sync.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,13 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.in_sync.R;
-import com.in_sync.activities.ScreenCapturePermissionActivity;
-import com.in_sync.validates.PermissionValid;
+import com.in_sync.helpers.ScreenCapturePermissionUtils;
 
 public class TestFragment extends Fragment {
     private static final String TAG = "TestFragment";
@@ -22,10 +24,29 @@ public class TestFragment extends Fragment {
     private Button initiateOverlayButton;
     private Context context;
     private com.google.android.material.textfield.TextInputEditText inputEditText;
+    private ScreenCapturePermissionUtils screenCaptureHelper;
+    private ActivityResultLauncher<Intent> screenCaptureLauncher;
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context= context;
+        screenCaptureLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent resultData = result.getData();
+                        if (resultData != null) {
+                            // Add the json data to the intent before passing it to the handler
+                            String json = inputEditText.getText().toString();
+                            resultData.putExtra("json", json);
+
+                            screenCaptureHelper.handleResult(result.getResultCode(), resultData);
+                        }
+                    }
+                }
+        );
+        // Initialize ScreenCapturePermissionUtils
+        screenCaptureHelper = new ScreenCapturePermissionUtils(context, screenCaptureLauncher);
     }
 
     @Override
@@ -104,20 +125,19 @@ public class TestFragment extends Fragment {
                 "      \"tries\": 1\n" +
                 "    }\n" +
                 "]\n");
+        onViewStart(view);
+        eventHandling();
         // Inflate the layout for this fragment
         return view;
     }
 
-    private void onViewStart() {
-        initiateOverlayButton = getActivity().findViewById(R.id.initiateOverlayButton);
+    private void onViewStart(View v) {
+        initiateOverlayButton = (v).findViewById(R.id.initiateOverlayButton);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        onViewStart();
-        eventHandling();
-
     }
 
     private void eventHandling() {
@@ -125,9 +145,13 @@ public class TestFragment extends Fragment {
     }
 
     private void initiateOverlay(View view) {
-        Intent intent = new Intent(context, ScreenCapturePermissionActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("json", inputEditText.getText()) ;
-        startActivity(intent);
+//        Intent intent = new Intent(context, ScreenCapturePermissionActivity.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.putExtra("json", inputEditText.getText()) ;
+//        startActivity(intent);
+        screenCaptureHelper.startProjection();
+
+
+
     }
 }

@@ -1,16 +1,12 @@
 package com.in_sync;
 
-import static org.opencv.android.CameraRenderer.LOGTAG;
-
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,16 +22,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.fragments.ExploreFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
 import com.in_sync.fragments.ProfileFragment;
+import com.in_sync.fragments.ScreenCaptureFragment;
 import com.in_sync.fragments.TestFragment;
+import com.in_sync.validates.PermissionValid;
 import com.in_sync.helpers.FileLogUtils;
 import com.in_sync.helpers.LogUtils;
+import com.in_sync.models.LogSession;
 import com.in_sync.services.ScreenCaptureService;
 import com.in_sync.validates.PermissionValid;
 
@@ -45,6 +41,7 @@ import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -59,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private ExploreFragment exploreFragment;
     private TestFragment testFragment;
     private ProfileFragment profileFragment;
+    private ScreenCaptureFragment screenCaptureFragment;
     private Dialog dialog;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -67,31 +65,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        //Test Firebase
-        List<com.in_sync.models.Log> logs = new ArrayList<>();
 
-        // Giả sử bạn có một phương thức tạo log
-        com.in_sync.models.Log log1 = new com.in_sync.models.Log();
-        log1.setScenario_id("scenario1");
-        log1.setDescription("description1");
-        log1.setNote("note1");
 
-        com.in_sync.models.Log log2 = new com.in_sync.models.Log();
-        log2.setScenario_id("scenario2");
-        log2.setDescription("description2");
-        log2.setNote("note2");
-
-        logs.add(log1);
-        logs.add(log2);
-
-        LogUtils.getInstance().LogManyLogsOnFireBase(logs, true);
 
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
             buildDialog();
         }
-
-
         onAppStart();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
@@ -100,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE);
             }
         }
+        eventHandler();
         //Setup for the bottom navigation view
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -120,15 +101,21 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().
                             replace(R.id.container, testFragment).commit();
                     return true;
-                } else if (item.getItemId() == R.id.profile) {
+                } else if (item.getItemId() == R.id.screen_capture) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, profileFragment).commit();
+                            .replace(R.id.container, screenCaptureFragment).commit();
                     return true;
                 }
                 return false;
             }
         });
     }
+
+
+    private void eventHandler() {
+    }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -152,13 +139,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void onAppStart() {
+
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         homeFragment = new HomeFragment();
         logFragment = new LogFragment();
         exploreFragment = new ExploreFragment();
         testFragment = new TestFragment();
         profileFragment = new ProfileFragment();
+        screenCaptureFragment = new ScreenCaptureFragment(this);
         //Set the default fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, homeFragment).commit();
@@ -181,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
         //cancelButton.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+
     // Created By: Bui Quang Minh
     // Created Date: 07-08-2024
     // On Resume, check for accessibility settings
