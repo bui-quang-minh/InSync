@@ -6,6 +6,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -31,6 +34,8 @@ import java.util.List;
 public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapter.OnItemClickLogListener {
 
     private Toolbar toolbar;
+    private ProgressBar progressBar;
+    private TextView notify_no_log;
     private static final String TAG = "LogsOfSessionActivity";
     private SearchView searchView;
     private RecyclerView logsRecycleView;
@@ -67,6 +72,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
     }
 
     public void searchLog(String keySearch){
+        notify_no_log.setVisibility(View.VISIBLE);
         service.getLogsByScenarioIdAndSessionId(scenarioId, logSessionId,keySearch, new FirebaseLogService.LogCallback<List<com.in_sync.models.Log>>() {
             @Override
             public void onCallback(List<com.in_sync.models.Log> data) {
@@ -77,11 +83,16 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
                     GridLayoutManager layoutManager = new GridLayoutManager(LogsOfSessionActivity.this,1, RecyclerView.VERTICAL,false);
                     logsRecycleView.setLayoutManager(layoutManager);
                     logsRecycleView.setAdapter(logAdapter);
+                }else{
+                    notify_no_log.setVisibility(View.VISIBLE);
+                    logsRecycleView.setVisibility(View.GONE);
                 }
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
     public void SetTitleForToolbar(){
+        progressBar.setVisibility(View.VISIBLE);
         service.getLogSessionsById(scenarioId, logSessionId, new FirebaseLogService.LogCallback<LogSession>() {
             @Override
             public void onCallback(LogSession data) {
@@ -91,6 +102,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
                     LogsOfSessionActivity.this.getSupportActionBar().setTitle("Log of Seession : " + data.getSession_name());
                     Log.d(TAG, "onCallback: "+data.getSession_name());
                 }
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -114,7 +126,8 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
         toolbar = findViewById(R.id.toolbar_log_session);
         searchView = findViewById(R.id.search_view);
         logsRecycleView = findViewById(R.id.log_session_recycle);
-
+        notify_no_log = findViewById(R.id.notify_no_log);
+        progressBar = findViewById(R.id.progress_bar_log);
 
         this.setSupportActionBar(toolbar);
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);

@@ -24,11 +24,15 @@ public class LogSession {
     private String session_name;
     private String device_name;
     private String scenario_id;
+    private boolean need_resolve = false;
     private String date_created = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     public LogSession(String session_name, String device_name, String scenario_id) {
         this.session_name = session_name;
         this.device_name = device_name;
         this.scenario_id = scenario_id;
+    }
+    public void setNeedResolve(boolean needResolve) {
+        this.need_resolve = needResolve;
     }
 }

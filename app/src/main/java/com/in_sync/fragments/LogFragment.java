@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -43,6 +44,8 @@ import java.util.zip.Inflater;
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class LogFragment extends Fragment implements LogSessionAdapter.OnItemClickLogSessionListener {
     Toolbar toolbar;
+    ProgressBar progressBar;
+
     RecyclerView logSessionRecyclerView;
     Spinner scenarioSpinner;
     SearchView searchViewInToolBar;
@@ -67,6 +70,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_log, container, false);
+        setHasOptionsMenu(true);
         initView(view);
         return view;
     }
@@ -76,11 +80,10 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     private void initView(View view) {
         service = new FirebaseLogService();
         toolbar = view.findViewById(R.id.toolbar_log);
+        progressBar = view.findViewById(R.id.progress_bar);
         logSessionRecyclerView = view.findViewById(R.id.log_session_recycle);
-        searchViewInToolBar = view.findViewById(R.id.search_view_key);
         scenarioSpinner = view.findViewById(R.id.scenario_sp);
         notifyTextView = view.findViewById(R.id.notify_no_session);
-        sort_icon = view.findViewById(R.id.sort_icon);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
@@ -103,25 +106,6 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Log.e("alsdfjalds", "Nothing");
-            }
-        });
-        searchViewInToolBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                searchSessionLog(sortOptions[2]);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                searchSessionLog(sortOptions[2]);
-                return true;
-            }
-        });
-        sort_icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showSortOptionsDialog();
             }
         });
     }
@@ -169,7 +153,28 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         // Inflate menu vào ActionBar
-        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.log_menu, menu);
+
+        // Lấy SearchView từ menu và thiết lập sự kiện tìm kiếm
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchViewInToolBar = (SearchView) searchItem.getActionView();
+        searchViewInToolBar.setQueryHint("Enter key word to search...");
+
+        searchViewInToolBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchSessionLog(sortOptions[2]);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchSessionLog(sortOptions[2]);
+                return true;
+            }
+        });
+
+
     }
 
     // Phan Quang Huy
@@ -177,8 +182,8 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // Xử lý sự kiện khi người dùng chọn mục trong ActionBar
-        if (item.getItemId() == android.R.id.home) {
-            getActivity().onBackPressed();
+        if (item.getItemId() == R.id.action_sort) {
+            showSortOptionsDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -187,6 +192,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Phan Quang Huy
     // Get data for scenario spinner
     public void initDataForScenarioSpinner() {
+        progressBar.setVisibility(View.VISIBLE);
         service.getAllScenario(new FirebaseLogService.LogCallback<List<String>>() {
             @Override
             public void onCallback(List<String> data) {
@@ -197,6 +203,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                     scenarioSpinnerAdapter = new ScenarioSpinnerAdapter(getContext(), result);
                     scenarioSpinner.setAdapter(scenarioSpinnerAdapter);
                 }
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -222,6 +229,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Phan Quang Huy
     // Get all log session of a scenario
     public void GetAllLogSessionOfScenario(String scenarioId, String search, String sortBy) {
+        progressBar.setVisibility(View.VISIBLE);
         service.getLogSessionsByScenarioIdAndDate(scenarioId, null, null, search, sortBy,new FirebaseLogService.LogCallback<List<LogSession>>() {
             @Override
             public void onCallback(List<LogSession> data) {
@@ -236,6 +244,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                 } else {
                     notifyTextView.setVisibility(View.VISIBLE);
                 }
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -243,6 +252,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Phan Quang Huy
     // Get all log session of all scenario
     public void GetAllLogSessionOfAllScenario(String search, String sortBy) {
+        progressBar.setVisibility(View.VISIBLE);
         service.getAllScenario(new FirebaseLogService.LogCallback<List<String>>() {
             @Override
             public void onCallback(List<String> data) {
@@ -266,6 +276,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                         }
                     });
                 }
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -275,12 +286,12 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Handle click event to switch to a new activity
     @Override
     public void onViewClick(View view, int position) {
-        String scenarioId = (String) scenarioSpinner.getSelectedItem();
         LogSession logSession = sessionAdapter.getItem(position);
         if (logSession == null) {
             Toast.makeText(getContext(), "Can't find the right session please try again", Toast.LENGTH_SHORT).show();
         }
         String logSessionId = logSession.getSession_id();
+        String scenarioId = logSession.getScenario_id();
         Intent intent = new Intent(getContext(), LogsOfSessionActivity.class);
         intent.putExtra("scenarioId", scenarioId);
         intent.putExtra("logSessionId", logSessionId);
@@ -324,4 +335,6 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
 
         Log.e(TAG, "CLick Delete");
     }
+
+
 }

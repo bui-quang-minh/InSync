@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -73,11 +74,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         }
 
         if(log.isStatus()){
-            holder.statusLog.setText("Success");
-            holder.statusLog.setBackgroundResource(R.drawable.status_success_of_log);
+            holder.statusLog.setImageResource(R.drawable.mark);
+
         }else{
-            holder.statusLog.setText("Fail");
-            holder.statusLog.setBackgroundResource(R.drawable.status_fail_of_log);
+            holder.statusLog.setImageResource(R.drawable.warning);
         }
     }
 
@@ -90,7 +90,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         TextView descriptionLogTextView;
         TextView noteLogTextView;
         TextView dateCreatedTextView;
-        TextView statusLog;
+        ImageView statusLog;
 
 
         public LogViewHolder(@NonNull View itemView) {

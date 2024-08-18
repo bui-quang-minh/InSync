@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import lombok.var;
 
@@ -64,6 +66,12 @@ public class FirebaseLogService {
         Map<String, Object> updates_logs = new HashMap<>();
         // path of new session in firebase
         String logSessionPath = SCENARIOS_PATH + "/" + scenarioId + "/" + LOG_SESSIONS_PATH + "/" + logSession.getSession_id();
+
+        List<com.in_sync.models.Log> logFails = logs.stream().filter(l-> !l.isStatus())
+                .collect(Collectors.toList());
+        if(logFails.size()>0){
+            logSession.setNeedResolve(true);
+        }
 
         // add logSession in to Map to update on firebase
         updates_logsession.put(logSessionPath, logSession);
@@ -226,6 +234,7 @@ public class FirebaseLogService {
 
         Calendar finalCalFrom = calFrom;
         Calendar finalCalTo = calTo;
+
         logSessionsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -247,7 +256,7 @@ public class FirebaseLogService {
 
                         // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
                         boolean inRange = sessionDate != null && (finalCalFrom == null || !sessionDate.before(finalCalFrom.getTime())) && (finalCalTo == null || !sessionDate.after(finalCalTo.getTime()));
-                        boolean isContain = logSession.getSession_name().contains(keySearch) || logSession.getDevice_name().contains(keySearch);
+                        boolean isContain = logSession.getSession_name().toLowerCase().contains(keySearch.toLowerCase()) || logSession.getDevice_name().toLowerCase().contains(keySearch.toLowerCase());
                         // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
                         if (inRange && isContain) {
                             logSessions.add(logSession);
@@ -310,7 +319,7 @@ public class FirebaseLogService {
 
                             // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
                             boolean inRange = sessionDate != null && (finalCalFrom == null || !sessionDate.before(finalCalFrom.getTime())) && (finalCalTo == null || !sessionDate.after(finalCalTo.getTime()));
-                            boolean isContain = logSession.getSession_name().contains(keySearch) || logSession.getDevice_name().contains(keySearch);
+                            boolean isContain = logSession.getSession_name().toLowerCase().contains(keySearch.toLowerCase()) || logSession.getDevice_name().toLowerCase().contains(keySearch.toLowerCase());
                             // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
                             if (inRange && isContain) {
                                 allLogSessions.add(logSession);
@@ -394,7 +403,7 @@ public class FirebaseLogService {
 
                 for (DataSnapshot logSnapshot : snapshot.getChildren()) {
                     com.in_sync.models.Log log = logSnapshot.getValue(com.in_sync.models.Log.class);
-                    if (log != null && (keySearch == null || log.getDescription().contains(keySearch) || log.getNote().contains(keySearch))) {
+                    if (log != null && (keySearch == null || log.getDescription().toLowerCase().contains(keySearch.toLowerCase()) || log.getNote().toLowerCase().contains(keySearch.toLowerCase()))) {
                         logs.add(log);
                     }
                 }

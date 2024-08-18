@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,7 +26,7 @@ public class LogSessionAdapter extends RecyclerView.Adapter<LogSessionAdapter.Lo
     private Context context;
     private OnItemClickLogSessionListener onItemClickLogSessionListener;
     private static final  DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public LogSessionAdapter(Context context, List<LogSession> logSessions, OnItemClickLogSessionListener onItemClickLogSessionListener) {
         this.context = context;
@@ -54,6 +55,13 @@ public class LogSessionAdapter extends RecyclerView.Adapter<LogSessionAdapter.Lo
 
         holder.sessionNameTextView.setText(logSession.getSession_name());
         holder.deviceNameTextView.setText(logSession.getDevice_name());
+        if(logSession.isNeed_resolve()){
+            holder.need_resolve_img.setImageResource(R.drawable.warning);
+            holder.systemDescription.setText("An issue has been detected that may affect the final result. Please check the error details and verify.");
+        }else{
+            holder.need_resolve_img.setImageResource(R.drawable.mark);
+            holder.systemDescription.setText("Everything is working perfectly. The system is performing optimally with no issues to report.");
+        }
         try{
             LocalDateTime dateTime = LocalDateTime.parse(logSession.getDate_created(), dateTimeFormatter);
             holder.dateCreatedTextView.setText(dateTime.format(dateFormatter));
@@ -75,15 +83,19 @@ public class LogSessionAdapter extends RecyclerView.Adapter<LogSessionAdapter.Lo
         TextView sessionNameTextView;
         TextView deviceNameTextView;
         TextView dateCreatedTextView;
+        TextView systemDescription;
+        ImageView need_resolve_img;
         Button viewLogs, deleteSession;
 
         public LogSessionViewHolder(@NonNull View itemView) {
             super(itemView);
+            systemDescription = itemView.findViewById(R.id.system_description);
             sessionNameTextView = itemView.findViewById(R.id.session_name_tv);
             deviceNameTextView = itemView.findViewById(R.id.device_name_tv);
             dateCreatedTextView = itemView.findViewById(R.id.date_created_tv);
             viewLogs = itemView.findViewById(R.id.view_log_btn);
             deleteSession = itemView.findViewById(R.id.delete_session_btn);
+            need_resolve_img = itemView.findViewById(R.id.need_resolve_img);
 
             viewLogs.setOnClickListener(v -> onItemClickLogSessionListener.onViewClick(v, getAdapterPosition()));
             deleteSession.setOnClickListener(v-> onItemClickLogSessionListener.onDeleteClick(v, getAdapterPosition()));
