@@ -1,8 +1,10 @@
 package com.in_sync.fragments;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,13 +17,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.in_sync.R;
 import com.in_sync.activities.ScreenshotPermissionActivity;
-import com.in_sync.adapter.ImageGalleryAdapter;
+import com.in_sync.adapters.ImageGalleryAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.zip.Inflater;
 
 
 public class ScreenCaptureFragment extends Fragment {
@@ -40,8 +41,7 @@ public class ScreenCaptureFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_screen_capture, null);
-        return view;
+        return inflater.inflate(R.layout.fragment_screen_capture, null);
     }
 
     private void initView(View view) {
@@ -67,11 +67,13 @@ public class ScreenCaptureFragment extends Fragment {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private void prepareRecyclerView() {
         imageRVAdapter = new ImageGalleryAdapter(context, getFileName());
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         imagesRV.setLayoutManager(manager);
         imagesRV.setAdapter(imageRVAdapter);
+
     }
 
     private List<String> getFileName() {
@@ -92,6 +94,5 @@ public class ScreenCaptureFragment extends Fragment {
 
         return filesName;
     }
-
 
 }

@@ -228,12 +228,9 @@ public class ScreenshotService extends Service {
 
     private void stopProjection() {
         if (mHandler != null) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mMediaProjection != null) {
-                        mMediaProjection.stop();
-                    }
+            mHandler.post(() -> {
+                if (mMediaProjection != null) {
+                    mMediaProjection.stop();
                 }
             });
         }
@@ -287,11 +284,11 @@ public class ScreenshotService extends Service {
         captureButton.setOnClickListener((view) -> {
             windowManager.removeView(viewGroup);
             Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(() -> {
-                captureScreenshot();
-                windowManager.addView(viewGroup, floatWindowLayoutParam);
-            });
-
+            // Delay after click capture button by 2 seconds
+            handler.postDelayed(() -> {
+                    captureScreenshot();
+                    windowManager.addView(viewGroup, floatWindowLayoutParam);
+            }, 2000);
         });
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
@@ -305,8 +302,6 @@ public class ScreenshotService extends Service {
      * @desc notice the lastest image which is sent by Media Projector
      */
     private void captureScreenshot() {
-
-
         FileOutputStream fos = null;
         Bitmap bitmap = null;
         try (Image image = mImageReader.acquireLatestImage()) {

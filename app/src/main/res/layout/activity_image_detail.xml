@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:menu="@menu/home_menu"
+            app:menu="@menu/image_detail_menu"
             app:title="Screen Detail"
 
             />
