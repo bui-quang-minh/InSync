@@ -3,12 +3,10 @@ package com.in_sync.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import com.in_sync.activities.ImageDetailActivity;
 import com.squareup.picasso.Picasso;
 
@@ -61,22 +59,6 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
                 holder.image.setBackground(context.getResources().getDrawable(R.drawable.border));
                 return true;
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         });
     }
 
