@@ -279,7 +279,7 @@ public class ScreenshotService extends Service {
             handler.postDelayed(() -> {
                     captureScreenshot();
                     windowManager.addView(viewGroup, floatWindowLayoutParam);
-            }, 1000);
+            }, 500);
         });
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
