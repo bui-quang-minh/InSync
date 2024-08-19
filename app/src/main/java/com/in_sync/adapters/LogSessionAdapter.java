@@ -26,7 +26,7 @@ public class LogSessionAdapter extends RecyclerView.Adapter<LogSessionAdapter.Lo
     private Context context;
     private OnItemClickLogSessionListener onItemClickLogSessionListener;
     private static final  DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy, HH:mm:ss");
 
     public LogSessionAdapter(Context context, List<LogSession> logSessions, OnItemClickLogSessionListener onItemClickLogSessionListener) {
         this.context = context;
