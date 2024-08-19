@@ -5,24 +5,35 @@
     android:layout_marginTop="100dp"
     android:orientation="vertical"
     android:padding="10dp"
-    android:background="#AA000000">
-<!--    <ImageButton-->
-<!--        android:id="@+id/play_button"-->
-<!--        android:scaleType="fitXY"-->
-<!--        android:layout_width="40dp"-->
-<!--        android:layout_height="40dp"-->
-<!--        android:background="@android:color/transparent"-->
-<!--        android:src="@drawable/baseline_play_circle_24"-->
-<!--        android:onClick="processImage"-->
-<!--        />-->
-    <ImageView
-        android:id="@+id/blinking_light"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_gravity="end"
-        android:src="@drawable/blinking_red_light"
-        />
+    android:background="@drawable/layout_border">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
 
+        <ImageButton
+            android:id="@+id/arrow_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:src="@drawable/baseline_keyboard_arrow_down_24" />
+
+        <ImageView
+            android:id="@+id/blinking_light"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/blinking_red_light" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/overlay_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
     <ImageButton
         android:id="@+id/stop_button"
         android:scaleType="fitXY"
@@ -31,14 +42,6 @@
         android:background="@android:color/transparent"
         android:src="@drawable/baseline_stop_circle_24"
         android:onClick="closeOverlay"/>
-
-<!--    <ImageButton-->
-<!--        android:id="@+id/camera"-->
-<!--        android:scaleType="fitXY"-->
-<!--        android:layout_width="40dp"-->
-<!--        android:layout_height="40dp"-->
-<!--        android:background="@android:color/transparent"-->
-<!--        android:src="@drawable/baseline_photo_camera_24"/>-->
     <ImageView
         android:id="@+id/screenshot_image_view"
         android:layout_width="50dp"
@@ -46,5 +49,6 @@
         android:layout_marginTop="10dp"
         android:scaleType="fitCenter"
         android:visibility="visible" />
+    </LinearLayout>
 
 </LinearLayout>
