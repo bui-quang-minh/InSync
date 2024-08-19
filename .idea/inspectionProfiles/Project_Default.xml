@@ -3,7 +3,7 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="Deprecation" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JavadocDeclaration" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ADDITIONAL_TAGS" value="Author,Date,Desc,desc" />
+      <option name="ADDITIONAL_TAGS" value="Author,Date,Desc,desc,date" />
     </inspection_tool>
   </profile>
 </component>

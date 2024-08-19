@@ -1,7 +1,12 @@
 package com.in_sync.fragments;
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.MEDIA_PROJECTION_SERVICE;
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -18,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.in_sync.R;
 import com.in_sync.activities.ScreenshotPermissionActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.services.ScreenshotService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,11 +34,11 @@ import java.util.Objects;
 public class ScreenCaptureFragment extends Fragment {
     private View captureButton;
     private Context context;
-    private String TAG = "SCREENCAPTURE";
+    private final String TAG = "SCREENCAPTURE";
+    private static final int REQUEST_CODE = 100;
     private String FOLDER_PATH;
     private RecyclerView imagesRV;
-    private ImageGalleryAdapter imageRVAdapter;
-
+    private List<String> imageList;
     public ScreenCaptureFragment() {}
     public ScreenCaptureFragment(Context context) {
         this.context = context;
@@ -48,13 +54,13 @@ public class ScreenCaptureFragment extends Fragment {
         FOLDER_PATH = Objects.requireNonNull(context.getExternalFilesDir(null)).getAbsolutePath() + "/screenshots/";
         captureButton = view.findViewById(R.id.screen_capture_button);
         imagesRV = view.findViewById(R.id.image_gallery);
+        imageList = getFileName();
     }
 
 
     private void catchEvent() {
         captureButton.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ScreenshotPermissionActivity.class);
-            startActivity(intent);
+            startProjection();
         });
     }
 
@@ -69,7 +75,7 @@ public class ScreenCaptureFragment extends Fragment {
 
     @SuppressLint("NotifyDataSetChanged")
     private void prepareRecyclerView() {
-        imageRVAdapter = new ImageGalleryAdapter(context, getFileName());
+        ImageGalleryAdapter imageRVAdapter = new ImageGalleryAdapter(context, imageList);
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         imagesRV.setLayoutManager(manager);
         imagesRV.setAdapter(imageRVAdapter);
@@ -84,7 +90,8 @@ public class ScreenCaptureFragment extends Fragment {
                 File[] files = folder.listFiles((file) -> file.getName().endsWith(".png"));
                 if(files != null) {
                     for (File file: files) {
-                        filesName.add(FOLDER_PATH + file.getName());
+                        if(file.length() > 0)
+                            filesName.add(FOLDER_PATH + file.getName());
                     }
                 }
             }
@@ -93,6 +100,24 @@ public class ScreenCaptureFragment extends Fragment {
         }
 
         return filesName;
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Intent intent = ScreenshotService.getStartIntent(context, resultCode, data);
+                context.startService(intent);
+            }
+        }
+    }
+
+    private void startProjection() {
+        MediaProjectionManager mProjectionManager =
+                (MediaProjectionManager) context.getSystemService(MEDIA_PROJECTION_SERVICE);
+        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
     }
 
 }

@@ -37,6 +37,7 @@ import androidx.core.util.Pair;
 
 import com.in_sync.R;
 import com.in_sync.activities.ScreenshotPermissionActivity;
+import com.in_sync.adapters.ImageGalleryAdapter;
 import com.in_sync.helpers.NotificationUtils;
 
 import java.io.File;
@@ -44,6 +45,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -57,9 +60,6 @@ public class ScreenshotService extends Service {
     private static final String START = "START";
     private static final String STOP = "STOP";
     private static final String SCREENCAP_NAME = "screencap";
-
-    private static int IMAGES_PRODUCED;
-
     private MediaProjection mMediaProjection;
     private String mStoreDir;
     private ImageReader mImageReader;
@@ -71,11 +71,10 @@ public class ScreenshotService extends Service {
     private int mHeight;
     private int mRotation;
     private WindowManager windowManager;
-    private int LAYOUT_TYPE;
-    private WindowManager.LayoutParams floatWindowLayoutParam, hiddenFloatWindowLayoutParam;
+    private WindowManager.LayoutParams floatWindowLayoutParam;
     private ViewGroup viewGroup;
     private OrientationChangeCallback mOrientationChangeCallback;
-    private Timer timer;
+    private ImageGalleryAdapter imageGalleryAdapter;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenshotService.class);
@@ -150,13 +149,12 @@ public class ScreenshotService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        timer = new Timer();
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);
         if (externalFilesDir != null) {
             mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
             File storeDirectory = new File(mStoreDir);
-            Log.e(TAG, "Directory: " + mStoreDir);
+
             if (!storeDirectory.exists()) {
                 boolean success = storeDirectory.mkdirs();
                 if (!success) {
@@ -249,20 +247,13 @@ public class ScreenshotService extends Service {
         viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.screenshot_button, null);
         ImageButton captureButton = viewGroup.findViewById(R.id.screenshot_button);
         ImageButton stopButton = viewGroup.findViewById(R.id.screenshot_stop_button);
+        int LAYOUT_TYPE;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
             LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_TOAST;
         }
         floatWindowLayoutParam = new WindowManager.LayoutParams(
-                200,
-                400,
-                LAYOUT_TYPE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-        );
-
-        hiddenFloatWindowLayoutParam = new WindowManager.LayoutParams(
                 200,
                 400,
                 LAYOUT_TYPE,
@@ -284,11 +275,11 @@ public class ScreenshotService extends Service {
         captureButton.setOnClickListener((view) -> {
             windowManager.removeView(viewGroup);
             Handler handler = new Handler(Looper.getMainLooper());
-            // Delay after click capture button by 2 seconds
+            // Delay after click capture button by 1 seconds
             handler.postDelayed(() -> {
                     captureScreenshot();
                     windowManager.addView(viewGroup, floatWindowLayoutParam);
-            }, 2000);
+            }, 1000);
         });
 
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
@@ -299,11 +290,13 @@ public class ScreenshotService extends Service {
     /**
      * @author Dương Thành Luân
      * @date 14/08/2024
-     * @desc notice the lastest image which is sent by Media Projector
+     * @desc notice the latest image which is sent by Media Projector
      */
     private void captureScreenshot() {
         FileOutputStream fos = null;
         Bitmap bitmap = null;
+        String fileName = "";
+        imageGalleryAdapter = new ImageGalleryAdapter();
         try (Image image = mImageReader.acquireLatestImage()) {
             if (image != null) {
                 Image.Plane[] planes = image.getPlanes();
@@ -314,12 +307,16 @@ public class ScreenshotService extends Service {
                 // create bitmap
                 bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                 bitmap.copyPixelsFromBuffer(buffer);
+                // Set local date time
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    LocalDateTime localDateTime = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
+                }
                 // write bitmap to a file
-                fos = new FileOutputStream(mStoreDir + "/myscreen_" + IMAGES_PRODUCED + ".png");
+                fos = new FileOutputStream(fileName);
+                //imageGalleryAdapter.addItem(fileName);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-
-                IMAGES_PRODUCED++;
-                Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
             }
 
         } catch (Exception e) {
