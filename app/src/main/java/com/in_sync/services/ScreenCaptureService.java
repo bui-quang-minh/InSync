@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.WindowManager;
@@ -32,6 +33,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.core.util.Pair;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -53,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -100,6 +103,7 @@ public class ScreenCaptureService extends AccessibilityService {
     private List<com.in_sync.models.Action> flattenedActions;
 
     private com.in_sync.models.Action currentAction = null;
+    private boolean isExpanded = true;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
@@ -164,7 +168,6 @@ public class ScreenCaptureService extends AccessibilityService {
                     // clean up
                     if (mVirtualDisplay != null) mVirtualDisplay.release();
                     if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
-
                     // re-create virtual display depending on device width / height
                     createVirtualDisplay();
                 } catch (Exception e) {
@@ -240,6 +243,7 @@ public class ScreenCaptureService extends AccessibilityService {
         json = intent.getExtras().get("json").toString();
         steps = bindStep(json);
         showOverlay();
+        currentAction = null;
         Log.e(TAG, "onStartCommand Services started");
         action = new Action(getApplicationContext(), ScreenCaptureService.this);
         if (intent != null) {
@@ -264,9 +268,11 @@ public class ScreenCaptureService extends AccessibilityService {
     private void startProjection(int resultCode, Intent data) {
         MediaProjectionManager mpManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mMediaProjection = null;
         if (mMediaProjection == null) {
             mMediaProjection = mpManager.getMediaProjection(resultCode, data);
             if (mMediaProjection != null) {
+
                 // display metrics
                 mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -289,20 +295,19 @@ public class ScreenCaptureService extends AccessibilityService {
                 public void run() {
                     if (mMediaProjection != null) {
                         mMediaProjection.stop();
-                        //mMediaProjection = null; // Clear the reference
                     }
                     if (mVirtualDisplay != null) {
                         mVirtualDisplay.release();
-                        //mVirtualDisplay = null; // Clear the reference
+                        mVirtualDisplay = null; // Clear the reference
                     }
                     if (mImageReader != null) {
                         mImageReader.setOnImageAvailableListener(null, null);
                         mImageReader.close();
-                        //mImageReader = null; // Clear the reference
+                        mImageReader = null; // Clear the reference
                     }
                     if (mOrientationChangeCallback != null) {
                         mOrientationChangeCallback.disable();
-                        //mOrientationChangeCallback = null; // Clear the reference
+                        mOrientationChangeCallback = null; // Clear the reference
                     }
                 }
             });
@@ -320,6 +325,8 @@ public class ScreenCaptureService extends AccessibilityService {
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
                 mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
         mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
+        //log relevent information
+        Log.e(TAG, "createVirtualDisplay: " + mWidth + " " + mHeight + " " + mDensity);
     }
 
     private Step[] bindStep(String json) {
@@ -395,9 +402,42 @@ public class ScreenCaptureService extends AccessibilityService {
         params.y = 200;
 
         windowManager.addView(overlayView, params);
+        overlayView.setOnTouchListener(new View.OnTouchListener() {
+            private int initialX, initialY;
+            private float touchX, touchY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = params.x;
+                        initialY = params.y;
+                        touchX = event.getRawX();
+                        touchY = event.getRawY();
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        params.x = initialX + (int) (event.getRawX() - touchX);
+                        params.y = initialY + (int) (event.getRawY() - touchY);
+                        windowManager.updateViewLayout(overlayView, params);
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
         ImageView blinkingLight = overlayView.findViewById(R.id.blinking_light);
         AnimationDrawable animationDrawable = (AnimationDrawable) blinkingLight.getDrawable();
         animationDrawable.start();
+        ImageButton arrowButton = overlayView.findViewById(R.id.arrow_button);
+        arrowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleExpandCollapse();
+                windowManager.updateViewLayout(overlayView, params);
+            }
+        });
         ImageButton closeButton = overlayView.findViewById(R.id.stop_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -408,12 +448,30 @@ public class ScreenCaptureService extends AccessibilityService {
         imageView = overlayView.findViewById(R.id.screenshot_image_view);
     }
 
+    private void toggleExpandCollapse() {
+        LinearLayout content = overlayView.findViewById(R.id.overlay_content);
+        ImageButton arrowButton = overlayView.findViewById(R.id.arrow_button);
+
+        if (isExpanded) {
+            // Collapse
+            content.setVisibility(View.GONE);
+            arrowButton.setImageResource(R.drawable.baseline_keyboard_arrow_up_24);
+        } else {
+            // Expand
+            content.setVisibility(View.VISIBLE);
+            arrowButton.setImageResource(R.drawable.baseline_keyboard_arrow_down_24);
+        }
+
+        isExpanded = !isExpanded;
+    }
+
     private void removeOverlay() {
         if (overlayView != null) {
             windowManager.removeView(overlayView);
             stopProjection(); // Stop the MediaProjection and release resources
             // Call stopSelf to stop the service
             stopSelf();
+
         }
     }
 

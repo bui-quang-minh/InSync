@@ -4,7 +4,7 @@ package com.in_sync.receivers;
 import android.content.Context;
 import android.content.Intent;
 
-import com.in_sync.MainActivity;
+import com.in_sync.activities.MainActivity;
 
 public class BroadcastReceiver extends android.content.BroadcastReceiver {
     @Override

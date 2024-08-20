@@ -2,6 +2,7 @@ package com.in_sync.activities;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,7 @@ public class ImageDetailActivity extends AppCompatActivity {
     String imgPath;
     private ImageView imageView;
     private ScaleGestureDetector scaleGestureDetector;
+    private View deleteIcon;
 
     // on below line we are defining our scale factor.
     private float mScaleFactor = 1.0f;
@@ -32,10 +34,11 @@ public class ImageDetailActivity extends AppCompatActivity {
 
         // initializing our image view.
         imageView = findViewById(R.id.idIVImage);
+        deleteIcon = findViewById(R.id.delete_image_button);
 
         // on below line we are initializing our scale gesture detector for zoom in and out for our image.
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
-
+        catchEvent();
         // on below line we are getting our image file from its path.
         File imgFile = new File(imgPath);
 
@@ -44,6 +47,17 @@ public class ImageDetailActivity extends AppCompatActivity {
             Picasso.with(this).load(imgFile).placeholder(R.drawable.ic_launcher_background).into(imageView);
         }
     }
+
+    private void catchEvent() {
+        deleteIcon.setOnClickListener((view) -> {
+            File imgFile = new File(imgPath);
+            if (imgFile.exists()) {
+                imgFile.delete();
+                finish();
+            }
+        });
+    }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {

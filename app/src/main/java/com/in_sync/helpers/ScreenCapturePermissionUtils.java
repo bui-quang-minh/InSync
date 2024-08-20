@@ -43,6 +43,8 @@ public class ScreenCapturePermissionUtils {
         }
         Log.e("ScreenCapture", "Intent data: " + data);
         if (resultCode == Activity.RESULT_OK) {
+            Intent stopintent = ScreenCaptureService.getStopIntent(context);
+            context.stopService(stopintent);
             Intent intent = ScreenCaptureService.getStartIntent(context, resultCode, data);
             Bundle extras = data.getExtras();
             String json = extras.getString("json");

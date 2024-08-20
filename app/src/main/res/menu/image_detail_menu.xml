@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/delete_image_button"
+        android:icon="@drawable/display_trash_icon"
+        android:orderInCategory="200"
+        app:showAsAction="always"
+        android:title="Capture" />
+
+    <item
+        android:id="@+id/home_menu_info"
+        android:icon="@drawable/baseline_info_24"
+        android:orderInCategory="200"
+        app:showAsAction="always"
+        android:title="Information" />
+
+</menu>

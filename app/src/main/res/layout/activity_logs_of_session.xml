@@ -6,16 +6,17 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LogsOfSessionActivity">
+    tools:context=".activities.LogsOfSessionActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_log_session"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:title="Log in session"
+        app:title="Scenario Logs"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:titleTextAppearance="@style/ToolbarTitleText"/>
 
     <ProgressBar
         android:id="@+id/progress_bar_log"
@@ -27,14 +28,25 @@
         android:visibility="gone"
         android:indeterminate="true"/>
 
-
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="3dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardMaxElevation="12dp"
+        app:cardPreventCornerOverlap="true"
+        >
     <androidx.appcompat.widget.SearchView
         android:id="@+id/search_view"
-        android:layout_margin="10dp"
         android:hint="Enter key to search ..."
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
+    </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/log_session_recycle"
