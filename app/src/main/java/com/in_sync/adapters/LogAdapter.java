@@ -27,7 +27,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     private List<Log> logs;
     private Context context;
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy, HH:mm:ss");
     private OnItemClickLogListener onItemClickLogListener;
 
     public LogAdapter(Context context, List<Log> logs, OnItemClickLogListener onItemClickLogListener) {

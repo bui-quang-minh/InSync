@@ -99,7 +99,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
                 if(data == null){
                     finish();
                 }else{
-                    LogsOfSessionActivity.this.getSupportActionBar().setTitle("Log of Seession : " + data.getSession_name());
+                    LogsOfSessionActivity.this.getSupportActionBar().setTitle("Scenario: " + data.getSession_name());
                     Log.d(TAG, "onCallback: "+data.getSession_name());
                 }
                 progressBar.setVisibility(View.GONE);

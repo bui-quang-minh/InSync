@@ -1,5 +1,6 @@
 package com.in_sync.fragments;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -19,6 +21,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -51,7 +54,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     SearchView searchViewInToolBar;
     TextView notifyTextView;
     ImageView sort_icon;
-
+    View overlay;
     ScenarioSpinnerAdapter scenarioSpinnerAdapter;
     LogSessionAdapter sessionAdapter;
     FirebaseLogService service;
@@ -72,12 +75,14 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         View view = inflater.inflate(R.layout.fragment_log, container, false);
         setHasOptionsMenu(true);
         initView(view);
+
         return view;
     }
 
     // Phan Quang Huy
     // Initialize controls
     private void initView(View view) {
+        overlay = view.findViewById(R.id.overlay);
         service = new FirebaseLogService();
         toolbar = view.findViewById(R.id.toolbar_log);
         progressBar = view.findViewById(R.id.progress_bar);
@@ -126,20 +131,15 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                         switch (which) {
                             case 0:
                                searchSessionLog(sortOptions[0]);
-
                                 break;
                             case 1:
                                 searchSessionLog(sortOptions[1]);
-
                                 break;
                             case 2:
                                 searchSessionLog(sortOptions[2]);
-
                                 break;
-
                             case 3:
                                 searchSessionLog(sortOptions[3]);
-
                                 break;
                         }
                     }
@@ -158,8 +158,11 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         // Lấy SearchView từ menu và thiết lập sự kiện tìm kiếm
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchViewInToolBar = (SearchView) searchItem.getActionView();
-        searchViewInToolBar.setQueryHint("Enter key word to search...");
-
+        searchViewInToolBar.setQueryHint("Search...");
+        searchViewInToolBar.setIconified(false);
+        searchViewInToolBar.requestFocus();
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(searchViewInToolBar.findFocus(), InputMethodManager.SHOW_IMPLICIT);
         searchViewInToolBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -172,6 +175,11 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                 searchSessionLog(sortOptions[2]);
                 return true;
             }
+        });
+        searchViewInToolBar.setOnCloseListener(() -> {
+            // Hide keyboard when SearchView is closed
+            imm.hideSoftInputFromWindow(searchViewInToolBar.getWindowToken(), 0);
+            return false; // Return false to allow default behavior (collapse the SearchView)
         });
 
 
@@ -192,6 +200,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Phan Quang Huy
     // Get data for scenario spinner
     public void initDataForScenarioSpinner() {
+        overlay.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         service.getAllScenario(new FirebaseLogService.LogCallback<List<String>>() {
             @Override
@@ -203,6 +212,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                     scenarioSpinnerAdapter = new ScenarioSpinnerAdapter(getContext(), result);
                     scenarioSpinner.setAdapter(scenarioSpinnerAdapter);
                 }
+                overlay.setVisibility(View.GONE);
                 progressBar.setVisibility(View.GONE);
             }
         });

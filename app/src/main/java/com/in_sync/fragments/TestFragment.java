@@ -39,7 +39,6 @@ public class TestFragment extends Fragment {
                             // Add the json data to the intent before passing it to the handler
                             String json = inputEditText.getText().toString();
                             resultData.putExtra("json", json);
-
                             screenCaptureHelper.handleResult(result.getResultCode(), resultData);
                         }
                     }
