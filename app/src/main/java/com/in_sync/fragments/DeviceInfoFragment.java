@@ -1,7 +1,24 @@
 package com.in_sync.fragments;
 
+import static android.content.Context.ACTIVITY_SERVICE;
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
+import android.os.StatFs;
+import android.provider.Settings;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +30,21 @@ import androidx.fragment.app.Fragment;
 
 import com.in_sync.R;
 
+import java.io.File;
+import java.util.List;
+
 public class DeviceInfoFragment extends Fragment {
     private Context context;
-    private TextView tvWidth, tvHeight, tvManufacturer, tvDensity, tvOrientation, tvDeviceName, tvStorage, tvDeviceId, tvAvailableMemory;
+    private TextView tvWidth;
+    private TextView tvHeight;
+    private TextView tvManufacturer;
+    private TextView tvDensity;
+    private TextView tvOrientation;
+    private TextView tvDeviceName;
+    private TextView tvStorage;
+    private TextView tvDeviceId;
+    private TextView tvOtherInfo;
+    private TextView tvRam;
     private ImageView arrowWidth, arrowHeight;
 
     @Override
@@ -38,8 +67,9 @@ public class DeviceInfoFragment extends Fragment {
         tvOrientation = view.findViewById(R.id.orientation);
         tvDeviceName = view.findViewById(R.id.device_name);
         tvStorage = view.findViewById(R.id.storage_value);
+        tvRam = view.findViewById(R.id.ram_value);
         tvDeviceId = view.findViewById(R.id.device_id);
-        tvAvailableMemory = view.findViewById(R.id.available_memory);
+        tvOtherInfo = view.findViewById(R.id.other_info);
         arrowWidth = view.findViewById(R.id.arrow_width);
         arrowHeight = view.findViewById(R.id.arrow_height);
 
@@ -50,20 +80,75 @@ public class DeviceInfoFragment extends Fragment {
     }
 
     private void setDeviceInformation() {
-        // This is where you'd load your device information
-        // For example purposes, we're setting these statically
 
-        tvWidth.setText("1080 px");
-        tvHeight.setText("2214 px");
-        tvManufacturer.setText("Samsung Galaxy S20");
-        tvDensity.setText("Density: 420 dpi");
-        tvOrientation.setText("Orientation: Portrait");
-        tvDeviceName.setText("Samsung SPH-L710");
-        tvStorage.setText("14 / 41 GB");
-        tvDeviceId.setText("Device ID: f1733c58e2306eb2");
-        tvAvailableMemory.setText("Available Memory: 1971138560");
+        // Display Metrics
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        // For screen shape, arrows, etc., you can load relevant drawables if needed
-        // Example: screenShape.setImageResource(R.drawable.mobile_screen);
+        //Width and Height
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
+
+        // Screen Density
+        float densityDpi = getResources().getDisplayMetrics().densityDpi;
+
+        // Screen Orientation
+//        public static final int ORIENTATION_UNDEFINED = 0;
+//        public static final int ORIENTATION_PORTRAIT = 1;
+//        public static final int ORIENTATION_LANDSCAPE = 2;
+        int orientation = getResources().getConfiguration().orientation;
+        String orientationType = "Undefined";
+        if (orientation == 1) {
+            orientationType = "Portrait";
+        } else if (orientation == 2) {
+            orientationType = "Landscape";
+        }
+
+        // Device Model and Manufacturer
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+
+        // Storage Information
+        StatFs statFs = new StatFs(Environment.getDataDirectory().getPath());
+        long blockSize = statFs.getBlockSizeLong();
+        long totalBlocks = statFs.getBlockCountLong();
+        long availableBlocks = statFs.getAvailableBlocksLong();
+        long totalStorage = (totalBlocks * blockSize) / (1024 * 1024 * 1024);
+        long availableStorage = (availableBlocks * blockSize) / (1024 * 1024 * 1024);
+
+        // Available Memory (RAM)
+        ActivityManager activityManager = (ActivityManager) getActivity().getSystemService(ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
+        long totalRam = memoryInfo.totalMem / (1024 * 1024); // in MB
+        long availableRam = memoryInfo.availMem / (1024 * 1024); // in MB
+
+        // Android Version
+        String versionRelease = Build.VERSION.RELEASE;
+        String versionSdk = String.valueOf(Build.VERSION.SDK_INT);
+
+        // Other Information
+        // Battery Level
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = getActivity().registerReceiver(null, ifilter);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        float batteryPct = level / (float) scale * 100;
+
+        // Network Connectivity
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
+
+        tvWidth.setText(width + " px");
+        tvHeight.setText(height + " px");
+        tvManufacturer.setText(manufacturer +"\n"+ model);
+        tvDensity.setText("Density: " + densityDpi + "dpi");
+        tvOrientation.setText("Orientation: " + orientationType);
+        tvDeviceName.setText(manufacturer +" "+ model);
+        tvStorage.setText(availableStorage + "/" + totalStorage + " GB");
+        tvRam.setText(availableRam + "/" + totalRam + " MB");
+        tvDeviceId.setText("Version Release: " + versionRelease + "\nSDK: " + versionSdk);
+        tvOtherInfo.setText("Battery Level: " + batteryPct + "%\nNetwork Connected: " + isConnected);
     }
 }
