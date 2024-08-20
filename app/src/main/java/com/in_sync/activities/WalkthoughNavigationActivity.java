@@ -1,4 +1,4 @@
-package com.in_sync;
+package com.in_sync.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import com.in_sync.R;
 import com.in_sync.adapters.WalkthroughAdapter;
 
 public class WalkthoughNavigationActivity extends AppCompatActivity {

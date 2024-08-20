@@ -1,4 +1,4 @@
-package com.in_sync;
+package com.in_sync.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,9 +25,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.color.utilities.TonalPalette;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.in_sync.R;
 import com.in_sync.interfaces.VolleyArrayRequestCallback;
 import com.in_sync.interfaces.VolleyObjectRequestCallback;
 import com.in_sync.request.GetAllUserRequest;
@@ -35,7 +35,6 @@ import com.in_sync.request.GetUserListRequest;
 import com.in_sync.request.ValidatePasswordRequest;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;

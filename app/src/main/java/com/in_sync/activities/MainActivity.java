@@ -1,4 +1,4 @@
-package com.in_sync;
+package com.in_sync.activities;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -9,9 +9,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -22,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-import com.in_sync.daos.FirebaseLogService;
+import com.in_sync.R;
 import com.in_sync.fragments.ExploreFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
@@ -30,22 +28,6 @@ import com.in_sync.fragments.ProfileFragment;
 import com.in_sync.fragments.ScreenCaptureFragment;
 import com.in_sync.fragments.TestFragment;
 import com.in_sync.validates.PermissionValid;
-import com.in_sync.helpers.FileLogUtils;
-import com.in_sync.helpers.LogUtils;
-import com.in_sync.models.LogSession;
-import com.in_sync.services.ScreenCaptureService;
-import com.in_sync.validates.PermissionValid;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;

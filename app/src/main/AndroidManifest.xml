@@ -27,13 +27,13 @@
             android:exported="false"
             android:theme="@style/Theme.InSync" />
         <activity
-            android:name=".WalkthoughNavigationActivity"
+            android:name=".activities.WalkthoughNavigationActivity"
             android:exported="false" />
         <activity
-            android:name=".GetStartedActivity"
+            android:name=".activities.GetStartedActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,7 +42,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LogsOfSessionActivity"
+            android:name=".activities.LogsOfSessionActivity"
             android:exported="true">
         </activity>
 
@@ -65,7 +65,7 @@
             android:foregroundServiceType="mediaProjection" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="true" >
         </activity>

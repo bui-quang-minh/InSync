@@ -1,10 +1,9 @@
-package com.in_sync;
+package com.in_sync.activities;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -20,9 +19,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.in_sync.R;
 import com.in_sync.adapters.LogAdapter;
 import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.models.LogSession;

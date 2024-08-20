@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LogsOfSessionActivity">
+    tools:context=".activities.LogsOfSessionActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_log_session"

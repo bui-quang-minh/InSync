@@ -17,15 +17,13 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.helper.widget.Carousel;
 import androidx.fragment.app.Fragment;
 import android.widget.Button;
 import androidx.appcompat.widget.Toolbar;
 
 
-import com.in_sync.MainActivity;
 import com.in_sync.R;
-import com.in_sync.WalkthoughNavigationActivity;
+import com.in_sync.activities.WalkthoughNavigationActivity;
 
 public class HomeFragment extends Fragment {
     private TextView textView;

@@ -21,7 +21,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -33,7 +32,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.in_sync.LogsOfSessionActivity;
+import com.in_sync.activities.LogsOfSessionActivity;
 import com.in_sync.R;
 import com.in_sync.adapters.LogSessionAdapter;
 import com.in_sync.adapters.ScenarioSpinnerAdapter;
@@ -42,7 +41,6 @@ import com.in_sync.models.LogSession;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class LogFragment extends Fragment implements LogSessionAdapter.OnItemClickLogSessionListener {
