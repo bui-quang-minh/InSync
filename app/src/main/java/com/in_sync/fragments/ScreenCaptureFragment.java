@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class ScreenCaptureFragment extends Fragment implements Obser {
+public class ScreenCaptureFragment extends Fragment {
     private View captureButton;
     private Context context;
     private final String TAG = "SCREENCAPTURE";
