@@ -1,7 +1,8 @@
 package com.in_sync.fragments;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
-import static androidx.core.content.ContextCompat.getSystemService;
+import androidx.recyclerview.selection.SelectionTracker;
+
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,11 +14,14 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.recyclerview.selection.StableIdKeyProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.in_sync.R;
@@ -31,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class ScreenCaptureFragment extends Fragment {
+public class ScreenCaptureFragment extends Fragment implements Obser {
     private View captureButton;
     private Context context;
     private final String TAG = "SCREENCAPTURE";
@@ -57,29 +61,34 @@ public class ScreenCaptureFragment extends Fragment {
         imageList = getFileName();
     }
 
-
     private void catchEvent() {
         captureButton.setOnClickListener(v -> {
             startProjection();
         });
     }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
         catchEvent();
         prepareRecyclerView();
+        displayUploadButton();
     }
-
+    private void displayUploadButton() {
+        if (Ima.size() > 0) {
+            captureButton.setVisibility(View.VISIBLE);
+        } else {
+            captureButton.setVisibility(View.GONE);
+        }
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     private void prepareRecyclerView() {
         ImageGalleryAdapter imageRVAdapter = new ImageGalleryAdapter(context, imageList);
+        // Set the layout manager and adapter for the RecyclerView
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         imagesRV.setLayoutManager(manager);
         imagesRV.setAdapter(imageRVAdapter);
-
     }
 
     private List<String> getFileName() {

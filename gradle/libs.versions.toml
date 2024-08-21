@@ -20,6 +20,7 @@ viewpager2 = "1.1.0"
 volley = "1.2.1"
 navigationFragment = "2.6.0"
 navigationUi = "2.6.0"
+recyclerviewSelection = "1.1.0"
 
 [libraries]
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
@@ -41,6 +42,7 @@ viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpag
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
+recyclerview-selection = { group = "androidx.recyclerview", name = "recyclerview-selection", version.ref = "recyclerviewSelection" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

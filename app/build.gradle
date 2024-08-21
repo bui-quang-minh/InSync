@@ -47,6 +47,7 @@ dependencies {
     implementation libs.glide
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
+    implementation libs.recyclerview.selection
     compileOnly libs.lombok
     implementation libs.volley
     annotationProcessor libs.lombok.v11834
