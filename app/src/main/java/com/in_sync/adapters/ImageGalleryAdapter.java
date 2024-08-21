@@ -51,12 +51,12 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
     public void onBindViewHolder(@NonNull ImageGalleryHolder holder, @SuppressLint("RecyclerView") int position) {
         File imgFile = new File(imageList.get(position));
         Picasso.with(context).load(imgFile).into(holder.image);
-        holder.image.setOnClickListener(v -> {
-            Intent i = new Intent(context, ImageDetailActivity.class);
-            i.putExtra("imgPath", imageList.get(position));
-            context.startActivity(i);
-        });
-
+//        holder.image.setOnClickListener(v -> {
+//            Intent i = new Intent(context, ImageDetailActivity.class);
+//            i.putExtra("imgPath", imageList.get(position));
+//            context.startActivity(i);
+//        });
+        /*
         holder.image.setOnLongClickListener((v) -> {
             try {
                 if (holder.image.getBackground() != null) {
@@ -72,6 +72,7 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
             }
             return true;
         });
+         */
     }
 
     @Override

@@ -1,8 +1,7 @@
 package com.in_sync.fragments;
+
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
-import androidx.recyclerview.selection.SelectionTracker;
-
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,12 +19,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.recyclerview.selection.StableIdKeyProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.in_sync.R;
-import com.in_sync.activities.ScreenshotPermissionActivity;
+import com.in_sync.activities.ImageDetailActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.listener.RecyclerItemClickListener;
 import com.in_sync.services.ScreenshotService;
 
 import java.io.File;
@@ -43,7 +42,11 @@ public class ScreenCaptureFragment extends Fragment {
     private String FOLDER_PATH;
     private RecyclerView imagesRV;
     private List<String> imageList;
-    public ScreenCaptureFragment() {}
+    private List<String> selectedImages;
+
+    public ScreenCaptureFragment() {
+    }
+
     public ScreenCaptureFragment(Context context) {
         this.context = context;
     }
@@ -59,6 +62,7 @@ public class ScreenCaptureFragment extends Fragment {
         captureButton = view.findViewById(R.id.screen_capture_button);
         imagesRV = view.findViewById(R.id.image_gallery);
         imageList = getFileName();
+        selectedImages = new ArrayList<>();
     }
 
     private void catchEvent() {
@@ -66,6 +70,7 @@ public class ScreenCaptureFragment extends Fragment {
             startProjection();
         });
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -74,12 +79,9 @@ public class ScreenCaptureFragment extends Fragment {
         prepareRecyclerView();
         displayUploadButton();
     }
+
     private void displayUploadButton() {
-        if (Ima.size() > 0) {
-            captureButton.setVisibility(View.VISIBLE);
-        } else {
-            captureButton.setVisibility(View.GONE);
-        }
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -89,17 +91,45 @@ public class ScreenCaptureFragment extends Fragment {
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         imagesRV.setLayoutManager(manager);
         imagesRV.setAdapter(imageRVAdapter);
+        imagesRV.addOnItemTouchListener(
+                new RecyclerItemClickListener(context, imagesRV, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Intent i = new Intent(context, ImageDetailActivity.class);
+                        i.putExtra("imgPath", imageList.get(position));
+                        context.startActivity(i);
+                    }
+
+                    @Override
+                    public void onLongItemClick(View view, int position) {
+                        try {
+                            if (view.getBackground() != null) {
+                                view.setBackground(null);
+                                ImageGalleryAdapter.selectedImages.remove(imageList.get(position));
+                                selectedImages.remove(imageList.get(position));
+                                Log.e(TAG, "Removed: " + imageList.get(position) );
+                            } else {
+                                view.setBackground(context.getDrawable(R.drawable.border));
+                                ImageGalleryAdapter.selectedImages.add(imageList.get(position));
+                                selectedImages.add(imageList.get(position));
+                                Log.e(TAG, "Added: " + imageList.get(position) );
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(context, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }));
     }
 
     private List<String> getFileName() {
         List<String> filesName = new ArrayList<>();
         try {
             File folder = new File(FOLDER_PATH);
-            if(folder.exists() && folder.isDirectory()) {
+            if (folder.exists() && folder.isDirectory()) {
                 File[] files = folder.listFiles((file) -> file.getName().endsWith(".png"));
-                if(files != null) {
-                    for (File file: files) {
-                        if(file.length() > 0)
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.length() > 0)
                             filesName.add(FOLDER_PATH + file.getName());
                     }
                 }
