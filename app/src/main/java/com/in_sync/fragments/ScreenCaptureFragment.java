@@ -26,6 +26,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.in_sync.R;
 import com.in_sync.activities.ImageDetailActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.file.FileSystem;
 import com.in_sync.listener.RecyclerItemClickListener;
 import com.in_sync.services.ScreenshotService;
 
@@ -63,7 +64,7 @@ public class ScreenCaptureFragment extends Fragment {
         FOLDER_PATH = Objects.requireNonNull(context.getExternalFilesDir(null)).getAbsolutePath() + "/screenshots/";
         captureButton = view.findViewById(R.id.screen_capture_button);
         imagesRV = view.findViewById(R.id.image_gallery);
-        imageList = getFileName();
+        imageList = FileSystem.getFileName(context);
         uploadButton = view.findViewById(R.id.upload_button);
         selectedImages = new ArrayList<>();
         uploadButton.hide();
@@ -81,12 +82,8 @@ public class ScreenCaptureFragment extends Fragment {
         initView(view);
         catchEvent();
         prepareRecyclerView();
-        displayUploadButton();
     }
 
-    private void displayUploadButton() {
-
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private void prepareRecyclerView() {
@@ -108,7 +105,8 @@ public class ScreenCaptureFragment extends Fragment {
                     public void onLongItemClick(View view, int position) {
                         try {
                             //Catch hold action
-                            if (view.getBackground() != null && view.getBackground().getConstantState() == context.getDrawable(R.drawable.border).getConstantState()) {
+                            if (view.getBackground() != null
+                                    && view.getBackground().getConstantState() == context.getDrawable(R.drawable.border).getConstantState()) {
                                 view.setBackground(null);
                                 selectedImages.remove(imageList.get(position));
                                 Log.e(TAG, "Removed: " + imageList.get(position));
@@ -120,6 +118,7 @@ public class ScreenCaptureFragment extends Fragment {
                         } catch (Exception e) {
                             Toast.makeText(context, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
+                        // Set hide/unhidden upload button
                         if (!selectedImages.isEmpty()) {
                             uploadButton.show();
                         } else {
@@ -127,26 +126,6 @@ public class ScreenCaptureFragment extends Fragment {
                         }
                     }
                 }));
-    }
-
-    private List<String> getFileName() {
-        List<String> filesName = new ArrayList<>();
-        try {
-            File folder = new File(FOLDER_PATH);
-            if (folder.exists() && folder.isDirectory()) {
-                File[] files = folder.listFiles((file) -> file.getName().endsWith(".png"));
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.length() > 0)
-                            filesName.add(FOLDER_PATH + file.getName());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Toast.makeText(context, "ERROR: CAN NOT READ IMAGE FOLDER", Toast.LENGTH_SHORT).show();
-        }
-
-        return filesName;
     }
 
 

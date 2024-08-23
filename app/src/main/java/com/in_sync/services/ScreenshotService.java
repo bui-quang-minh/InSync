@@ -38,6 +38,7 @@ import androidx.core.util.Pair;
 import com.in_sync.R;
 import com.in_sync.activities.ScreenshotPermissionActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.file.FileSystem;
 import com.in_sync.helpers.NotificationUtils;
 
 import java.io.File;
@@ -47,6 +48,7 @@ import java.nio.ByteBuffer;
 import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -75,6 +77,7 @@ public class ScreenshotService extends Service {
     private ViewGroup viewGroup;
     private OrientationChangeCallback mOrientationChangeCallback;
     private ImageGalleryAdapter imageGalleryAdapter;
+    private List<String> images;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenshotService.class);
@@ -166,6 +169,9 @@ public class ScreenshotService extends Service {
             Log.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
             stopSelf();
         }
+
+        images = FileSystem.getFileName(this);
+        imageGalleryAdapter = new ImageGalleryAdapter(this, images);
 
         // start capture handling thread
         new Thread() {
@@ -295,7 +301,6 @@ public class ScreenshotService extends Service {
         FileOutputStream fos = null;
         Bitmap bitmap = null;
         String fileName = "";
-        imageGalleryAdapter = new ImageGalleryAdapter();
         try (Image image = mImageReader.acquireLatestImage()) {
             if (image != null) {
                 Image.Plane[] planes = image.getPlanes();
@@ -311,7 +316,10 @@ public class ScreenshotService extends Service {
                     LocalDateTime localDateTime = LocalDateTime.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
+                    images.add(fileName);
+                    imageGalleryAdapter.setImages(images);
                 }
+
                 // write bitmap to a file
                 fos = new FileOutputStream(fileName);
                 //imageGalleryAdapter.addItem(fileName);
