@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.in_sync.R;
 import com.in_sync.activities.ImageDetailActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
@@ -36,6 +37,7 @@ import java.util.Objects;
 
 public class ScreenCaptureFragment extends Fragment {
     private View captureButton;
+    private FloatingActionButton uploadButton;
     private Context context;
     private final String TAG = "SCREENCAPTURE";
     private static final int REQUEST_CODE = 100;
@@ -62,7 +64,9 @@ public class ScreenCaptureFragment extends Fragment {
         captureButton = view.findViewById(R.id.screen_capture_button);
         imagesRV = view.findViewById(R.id.image_gallery);
         imageList = getFileName();
+        uploadButton = view.findViewById(R.id.upload_button);
         selectedImages = new ArrayList<>();
+        uploadButton.hide();
     }
 
     private void catchEvent() {
@@ -103,19 +107,23 @@ public class ScreenCaptureFragment extends Fragment {
                     @Override
                     public void onLongItemClick(View view, int position) {
                         try {
-                            if (view.getBackground() != null) {
+                            //Catch hold action
+                            if (view.getBackground() != null && view.getBackground().getConstantState() == context.getDrawable(R.drawable.border).getConstantState()) {
                                 view.setBackground(null);
-                                ImageGalleryAdapter.selectedImages.remove(imageList.get(position));
                                 selectedImages.remove(imageList.get(position));
-                                Log.e(TAG, "Removed: " + imageList.get(position) );
+                                Log.e(TAG, "Removed: " + imageList.get(position));
                             } else {
                                 view.setBackground(context.getDrawable(R.drawable.border));
-                                ImageGalleryAdapter.selectedImages.add(imageList.get(position));
                                 selectedImages.add(imageList.get(position));
-                                Log.e(TAG, "Added: " + imageList.get(position) );
+                                Log.e(TAG, "Added: " + imageList.get(position));
                             }
                         } catch (Exception e) {
                             Toast.makeText(context, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                        if (!selectedImages.isEmpty()) {
+                            uploadButton.show();
+                        } else {
+                            uploadButton.hide();
                         }
                     }
                 }));

@@ -31,7 +31,6 @@ import lombok.NoArgsConstructor;
 public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapter.ImageGalleryHolder> {
     private Context context;
     private List<String> imageList;
-    public static List<String> selectedImages = new ArrayList<>();
     private final String TAG = "IMAGE_GALLERY_ADAPTER";
 
     public ImageGalleryAdapter(Context context, List<String> imageList) {
