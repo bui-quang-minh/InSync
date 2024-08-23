@@ -204,6 +204,7 @@ public class ScreenshotService extends Service {
         if (mMediaProjection == null) {
             mMediaProjection = mpManager.getMediaProjection(resultCode, data);
             if (mMediaProjection != null) {
+                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
                 // display metrics
                 mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -218,8 +219,6 @@ public class ScreenshotService extends Service {
                     mOrientationChangeCallback.enable();
                 }
 
-                // register media projection stop callback
-                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
             }
         }
     }
