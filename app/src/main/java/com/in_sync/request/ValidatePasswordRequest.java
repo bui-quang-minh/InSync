@@ -25,7 +25,6 @@ public class ValidatePasswordRequest {
         // Create a new json
         JSONObject jsonObject = new JSONObject();
         try{
-
             jsonObject.put("password", password);
         }catch (JSONException e){
             Log.e("ValidatePassword: ", "Error creating JSON object");

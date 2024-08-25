@@ -21,8 +21,4 @@ public class Action
     public boolean logResult;
     public int duration;
     public int tries;
-    public String conditionType;
-    public String condition;
-    public List<Action> isTrue;
-    public List<Action> isFalse;
 }

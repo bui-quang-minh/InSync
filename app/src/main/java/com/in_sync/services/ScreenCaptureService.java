@@ -100,8 +100,6 @@ public class ScreenCaptureService extends AccessibilityService {
     private int ACCURACY_POINT;
     private Coordinate prev_point = new Coordinate(0, 0);
     private AccessibilityNodeInfo source;
-    private List<com.in_sync.models.Action> flattenedActions;
-
     private com.in_sync.models.Action currentAction = null;
     private boolean isExpanded = true;
 
@@ -137,7 +135,7 @@ public class ScreenCaptureService extends AccessibilityService {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            com.in_sync.models.Action newAction = action.actionHandler(steps, reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction, flattenedActions);
+            com.in_sync.models.Action newAction = action.actionHandler(reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction);
             if (newAction.getIndex() == -1) {
                 currentAction = newAction;
                 Log.e(TAG, "onImageAvailable: StopProjection");
@@ -146,6 +144,7 @@ public class ScreenCaptureService extends AccessibilityService {
                 currentAction = newAction;
             }
             try (Image image = mImageReader.acquireLatestImage()) {
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -197,18 +196,6 @@ public class ScreenCaptureService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         appOpened = event.getText().toString().trim();
         source = event.getSource();
-        Log.e(TAG, "onAccessibilityEvent: this open::: " + appOpened);
-        if (currentAction != null && currentAction.getConditionType() != null && currentAction.getActionType() != null) {
-            if (currentAction.getConditionType().toString().equals("FIND_SOURCE") && currentAction.getActionType().toString().equals("IF")) {
-                if (appOpened.equals("[" + currentAction.getCondition() + "]")) {
-                    Log.e("Action", "FIND_SOURCE Condition is true");
-                    currentAction = sequence.traverseAction(true, currentAction);
-                } else {
-                    Log.e("Action", "FIND_SOURCE Condition is false");
-                    currentAction = sequence.traverseAction(false, currentAction);
-                }
-            }
-        }
         Log.e(TAG, "onAccessibilityEvent: " + appOpened);
     }
 
@@ -240,16 +227,20 @@ public class ScreenCaptureService extends AccessibilityService {
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
         info.notificationTimeout = 100;
         this.setServiceInfo(info);
-        json = intent.getExtras().get("json").toString();
-        steps = bindStep(json);
+//        json = intent.getExtras().get("json").toString();
+//        bindStep(json);
+        if (intent != null) {
+            json = intent.getExtras().get("json").toString();
+            bindStep(json);
+        }
         showOverlay();
         currentAction = null;
         Log.e(TAG, "onStartCommand Services started");
         action = new Action(getApplicationContext(), ScreenCaptureService.this);
-        if (intent != null) {
-            json = intent.getExtras().get("json").toString();
-            steps = bindStep(json);
-        }
+//        if (intent != null) {
+//            json = intent.getExtras().get("json").toString();
+//            bindStep(json);
+//        }
         if (isStartCommand(intent)) {
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
             startForeground(notification.first, notification.second);
@@ -329,61 +320,14 @@ public class ScreenCaptureService extends AccessibilityService {
         Log.e(TAG, "createVirtualDisplay: " + mWidth + " " + mHeight + " " + mDensity);
     }
 
-    private Step[] bindStep(String json) {
+    private void bindStep(String json) {
         Gson gson = new Gson();
-        Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {
-        }.getType();
-        List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);
-        flattenedActions = new ArrayList<com.in_sync.models.Action>();
-        com.in_sync.models.Action startAction = new com.in_sync.models.Action();
-        startAction.setIndex(0);
-        flattenedActions.add(startAction);
-        for (com.in_sync.models.Action action : flattenActions(actionsList)) {
-            flattenedActions.add(action);
-        }
-        TreeNode root = buildTree(flattenedActions);
-        sequence = new Sequence(actionsList, flattenedActions, root);
-        return gson.fromJson(json, Step[].class);
-    }
-
-    private static TreeNode buildTree(List<com.in_sync.models.Action> actions) {
-        Map<Integer, TreeNode> nodeMap = new HashMap<>();
-        TreeNode root = null;
-
-        // Create nodes and map them by index
-        for (com.in_sync.models.Action action : actions) {
-            TreeNode node = new TreeNode(action);
-            nodeMap.put(action.index, node);
-        }
-        TreeNode rootNode = new TreeNode(new com.in_sync.models.Action());
-        root = rootNode;
-        nodeMap.put(0, rootNode);
-        // Establish parent-child relationships
-        for (TreeNode node : nodeMap.values()) {
-            com.in_sync.models.Action action = node.action;
-            if (action.index != 0) {
-                TreeNode parentNode = nodeMap.get(action.parent);
-                if (parentNode != null) {
-                    parentNode.addChild(node);
-                }
-            }
-        }
-
-        return root;
+        Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {}.getType();
+        List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);;
+        sequence = new Sequence(actionsList);
     }
 
 
-    private static List<com.in_sync.models.Action> flattenActions(List<com.in_sync.models.Action> actions) {
-        return actions.stream()
-                .flatMap(action -> Stream.concat(
-                        Stream.of(action),
-                        Stream.concat(
-                                action.isTrue != null ? flattenActions(action.isTrue).stream() : Stream.empty(),
-                                action.isFalse != null ? flattenActions(action.isFalse).stream() : Stream.empty()
-                        )
-                ))
-                .collect(Collectors.toList());
-    }
 
     private void showOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);

@@ -68,14 +68,13 @@ public class Action extends ActionDef {
         },null);
         Log.e(TAG, "Gesture Result: " + result);
     }
-    public com.in_sync.models.Action actionHandler(Step[] steps, ImageReader mImageReader, AccessibilityService accessibilityService, int mWidth, int mHeight,
+    public com.in_sync.models.Action actionHandler(ImageReader mImageReader, AccessibilityService accessibilityService, int mWidth, int mHeight,
                                                    android.widget.ImageView imageView, String appOpened, AccessibilityNodeInfo source, Sequence sequence,
-                                                   com.in_sync.models.Action currentAction, List<com.in_sync.models.Action> flattenedAction){
+                                                   com.in_sync.models.Action currentAction){
 
         if (currentAction == null) {
             currentAction = new com.in_sync.models.Action();
-            currentAction.setIndex(0);
-            currentAction = sequence.traverseAction(true, currentAction);
+            currentAction = sequence.getFirstAction();
             return currentAction;
         } else if (currentAction.getIndex() == -1) {
             Log.e(TAG, "All actions have been executed. Projection Stop");
@@ -83,8 +82,6 @@ public class Action extends ActionDef {
         }
         else{
             switch (currentAction.getActionType()) {
-                case "IF":
-                    break;
                 case Action.CLICK:
                     Bitmap bitmap = null;
                     try (Image image = mImageReader.acquireLatestImage()) {
@@ -101,7 +98,10 @@ public class Action extends ActionDef {
                             Bitmap bmp = getBitmapFromURL(currentAction.getOn());
                             Mat template = createMatFromBitmap(bmp);
                             Utils.bitmapToMat(bmp, template);
-                            imageView.setImageBitmap(bmp);
+                            imageView.post(() -> {
+                                // Update UI elements here, e.g.:
+                                imageView.setImageBitmap(bmp);
+                            });
                             //
                             //PERFORM TEMPLATE MATCHING
                             //
@@ -112,10 +112,11 @@ public class Action extends ActionDef {
                             //
                             Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
                             Point matchLoc = new Point();
-                            return processTemplateMatchingResult(mmr, mat, template, imageView, bmp, index, steps, accessibilityService, matchLoc, currentAction, sequence);
+                            return processTemplateMatchingResult(mmr, mat, template, imageView, bmp, index , accessibilityService, matchLoc, currentAction, sequence);
 
                         }
                     } catch (Exception e) {
+                        sequence.traverseAction(false, currentAction);
                         e.printStackTrace();
                     }
                     break;
@@ -166,8 +167,8 @@ public class Action extends ActionDef {
         Log.e("Error", String.format("AccessibilityNodeInfoCompat.ACTION_PASTE %1$s supported", isSupported ? "is" : "is NOT"));
 
     }
-    public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template,  android.widget.ImageView imageView, Bitmap bmp , int index, Step[] steps, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
-        if (mmr.maxVal >= 0.75) {
+    public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template,  android.widget.ImageView imageView, Bitmap bmp , int index, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
+        if (mmr.maxVal >= 0.60) {
             if (Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF || Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF_NORMED) {
                 matchLoc = mmr.minLoc;
             } else {
