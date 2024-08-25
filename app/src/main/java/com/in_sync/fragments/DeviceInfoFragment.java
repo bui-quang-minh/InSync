@@ -1,8 +1,6 @@
 package com.in_sync.fragments;
 
-import static android.content.Context.ACTIVITY_SERVICE;
-import static androidx.core.content.ContextCompat.getSystemService;
-
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -13,16 +11,12 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.storage.StorageManager;
-import android.os.storage.StorageVolume;
 import android.os.StatFs;
-import android.provider.Settings;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,22 +24,22 @@ import androidx.fragment.app.Fragment;
 
 import com.in_sync.R;
 
-import java.io.File;
-import java.util.List;
-
 public class DeviceInfoFragment extends Fragment {
     private Context context;
-    private TextView tvWidth;
-    private TextView tvHeight;
-    private TextView tvManufacturer;
+    private TextView tvDeviceName;
+    private ProgressBar prStorage;
+    private ProgressBar prRam;
+    private ProgressBar prBattery;
+    private TextView tvStorageProgress;
+    private TextView tvRamProgress;
+    private TextView tvBatteryProgress;
+    private TextView tvSize;
     private TextView tvDensity;
     private TextView tvOrientation;
-    private TextView tvDeviceName;
-    private TextView tvStorage;
-    private TextView tvDeviceId;
-    private TextView tvOtherInfo;
-    private TextView tvRam;
-    private ImageView arrowWidth, arrowHeight;
+    private TextView tvAndroidVersion;
+    private TextView tvSDK;
+    private TextView tvConnectToCharge;
+    private TextView tvConnectToInternet;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -60,32 +54,39 @@ public class DeviceInfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_device_information, container, false);
 
         // Initialize views
-        tvWidth = view.findViewById(R.id.width_value);
-        tvHeight = view.findViewById(R.id.height_value);
-        tvManufacturer = view.findViewById(R.id.manufacturer_info);
-        tvDensity = view.findViewById(R.id.density);
-        tvOrientation = view.findViewById(R.id.orientation);
-        tvDeviceName = view.findViewById(R.id.device_name);
-        tvStorage = view.findViewById(R.id.storage_value);
-        tvRam = view.findViewById(R.id.ram_value);
-        tvDeviceId = view.findViewById(R.id.device_id);
-        tvOtherInfo = view.findViewById(R.id.other_info);
-        arrowWidth = view.findViewById(R.id.arrow_width);
-        arrowHeight = view.findViewById(R.id.arrow_height);
+        tvDeviceName = view.findViewById(R.id.tv_device_name);
+        prStorage = view.findViewById(R.id.progress_storage);
+        prRam = view.findViewById(R.id.progress_ram);
+        prBattery = view.findViewById(R.id.progress_battery);
+        tvSize = view.findViewById(R.id.tv_device_size);
+        tvStorageProgress = view.findViewById(R.id.tv_storage);
+        tvRamProgress = view.findViewById(R.id.tv_ram);
+        tvBatteryProgress = view.findViewById(R.id.tv_battery);
+        tvDensity = view.findViewById(R.id.tv_device_density);
+        tvOrientation = view.findViewById(R.id.tv_device_orientation);
+        tvAndroidVersion = view.findViewById(R.id.tv_android_version);
+        tvSDK = view.findViewById(R.id.tv_SDK);
+        tvConnectToCharge = view.findViewById(R.id.tv_connect_to_charge);
+        tvConnectToInternet = view.findViewById(R.id.tv_connect_to_internet);
 
         // Load and set device information
         setDeviceInformation();
 
+        // Handle connectivity status
+        handleConnectivityStatus(view);
+
         return view;
     }
 
+    @SuppressLint("DefaultLocale")
     private void setDeviceInformation() {
-
         // Display Metrics
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        if (getActivity() != null) {
+            getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        }
 
-        //Width and Height
+        // Width and Height
         int width = displayMetrics.widthPixels;
         int height = displayMetrics.heightPixels;
 
@@ -93,9 +94,6 @@ public class DeviceInfoFragment extends Fragment {
         float densityDpi = getResources().getDisplayMetrics().densityDpi;
 
         // Screen Orientation
-//        public static final int ORIENTATION_UNDEFINED = 0;
-//        public static final int ORIENTATION_PORTRAIT = 1;
-//        public static final int ORIENTATION_LANDSCAPE = 2;
         int orientation = getResources().getConfiguration().orientation;
         String orientationType = "Undefined";
         if (orientation == 1) {
@@ -113,13 +111,15 @@ public class DeviceInfoFragment extends Fragment {
         long blockSize = statFs.getBlockSizeLong();
         long totalBlocks = statFs.getBlockCountLong();
         long availableBlocks = statFs.getAvailableBlocksLong();
-        long totalStorage = (totalBlocks * blockSize) / (1024 * 1024 * 1024);
-        long availableStorage = (availableBlocks * blockSize) / (1024 * 1024 * 1024);
+        long totalStorage = (totalBlocks * blockSize) / (1024 * 1024 * 1024); // GB
+        long availableStorage = (availableBlocks * blockSize) / (1024 * 1024 * 1024); // GB
 
         // Available Memory (RAM)
-        ActivityManager activityManager = (ActivityManager) getActivity().getSystemService(ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-        activityManager.getMemoryInfo(memoryInfo);
+        if (activityManager != null) {
+            activityManager.getMemoryInfo(memoryInfo);
+        }
         long totalRam = memoryInfo.totalMem / (1024 * 1024); // in MB
         long availableRam = memoryInfo.availMem / (1024 * 1024); // in MB
 
@@ -127,28 +127,65 @@ public class DeviceInfoFragment extends Fragment {
         String versionRelease = Build.VERSION.RELEASE;
         String versionSdk = String.valueOf(Build.VERSION.SDK_INT);
 
-        // Other Information
         // Battery Level
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = getActivity().registerReceiver(null, ifilter);
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        float batteryPct = level / (float) scale * 100;
+        Intent batteryStatus = context.registerReceiver(null, ifilter);
+        int level = -1;
+        int scale = -1;
+        if (batteryStatus != null) {
+            level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        }
+        float batteryPct = (level != -1 && scale != -1) ? (level / (float) scale) * 100 : 0;
 
-        // Network Connectivity
+        // Set device information to TextViews and ProgressBars
+        tvDeviceName.setText(manufacturer + " " + model);
+
+        // Set progress and max for storage, RAM, and battery
+        prStorage.setMax((int) totalStorage);
+        prStorage.setProgress((int) availableStorage);
+
+        prRam.setMax((int) totalRam);
+        prRam.setProgress((int) availableRam);
+
+        prBattery.setMax(100); // Battery percentage max is always 100
+        prBattery.setProgress((int) batteryPct);
+
+        tvStorageProgress.setText(availableStorage + " / " + totalStorage + " GB");
+        tvRamProgress.setText(availableRam + " / " + totalRam + " MB");
+        tvBatteryProgress.setText("Battery Level: " + (int) batteryPct + "%");
+
+        tvSize.setText(String.format("Size: %d px x %d px", width, height));
+        tvDensity.setText("Density: " + densityDpi + " dpi");
+        tvOrientation.setText("Orientation: " + orientationType);
+        tvAndroidVersion.setText("Version Release: " + versionRelease);
+        tvSDK.setText("SDK: " + versionSdk);
+    }
+
+    private void handleConnectivityStatus(View view) {
+        // Battery Connection Status
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = getActivity().registerReceiver(null, ifilter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        // Network Connection Status
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
+        boolean isConnectedToInternet = activeNetwork != null && activeNetwork.isConnected();
 
-        tvWidth.setText(width + " px");
-        tvHeight.setText(height + " px");
-        tvManufacturer.setText(manufacturer +"\n"+ model);
-        tvDensity.setText("Density: " + densityDpi + "dpi");
-        tvOrientation.setText("Orientation: " + orientationType);
-        tvDeviceName.setText(manufacturer +" "+ model);
-        tvStorage.setText(availableStorage + "/" + totalStorage + " GB");
-        tvRam.setText(availableRam + "/" + totalRam + " MB");
-        tvDeviceId.setText("Version Release: " + versionRelease + "\nSDK: " + versionSdk);
-        tvOtherInfo.setText("Battery Level: " + batteryPct + "%\nNetwork Connected: " + isConnected);
+        // Set visibility based on status
+        if (isCharging) {
+            tvConnectToCharge.setVisibility(View.VISIBLE);
+        } else {
+            tvConnectToCharge.setVisibility(View.GONE);
+        }
+
+        if (isConnectedToInternet) {
+            tvConnectToInternet.setVisibility(View.VISIBLE);
+        } else {
+            tvConnectToInternet.setVisibility(View.GONE);
+        }
     }
 }
