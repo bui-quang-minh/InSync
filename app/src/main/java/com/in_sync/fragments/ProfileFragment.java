@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -12,8 +13,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
 import com.in_sync.R;
@@ -31,6 +35,8 @@ public class ProfileFragment extends Fragment {
     private TextView tvUserPhone;
     private TextView tvDeviceName;
 
+    private DrawerLayout drawerLayout;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -42,6 +48,10 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = setInformation(inflater, container);
+
+        drawerLayout = view.findViewById(R.id.drawer_layout);
+        setupToolbar(view);
+
         return view;
     }
 
@@ -108,7 +118,7 @@ public class ProfileFragment extends Fragment {
                 tvDeviceName.setText(deviceName);
                 ImageView avatarImageView = view.findViewById(R.id.avatar);
                 Glide.with(context)
-                        .load("https://unsplash.com/fr/photos/un-tas-de-ballons-en-forme-de-courrier-electronique-7NT4EDSI5Ok")
+                        .load(avatarUrl)
                         .error(R.drawable.profile_avatar_placeholder)
                         .placeholder(R.drawable.profile_avatar_placeholder)
                         .into(avatarImageView);
@@ -132,5 +142,25 @@ public class ProfileFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void setupToolbar(View view) {
+        Toolbar toolbar = view.findViewById(R.id.toolbar_profile);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.settings_icon) {
+                    openRightDrawer();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void openRightDrawer() {
+        if (drawerLayout != null && !drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.openDrawer(GravityCompat.END);
+        }
     }
 }
