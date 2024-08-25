@@ -92,6 +92,7 @@ public class ScreenCaptureFragment extends Fragment {
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         imagesRV.setLayoutManager(manager);
         imagesRV.setAdapter(imageRVAdapter);
+        // Catch event when item is clicked or long clicked
         imagesRV.addOnItemTouchListener(
                 new RecyclerItemClickListener(context, imagesRV, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
@@ -101,6 +102,7 @@ public class ScreenCaptureFragment extends Fragment {
                         context.startActivity(i);
                     }
 
+                    @SuppressLint("UseCompatLoadingForDrawables")
                     @Override
                     public void onLongItemClick(View view, int position) {
                         try {
