@@ -317,7 +317,7 @@ public class ScreenshotService extends Service {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
                     images.add(fileName);
-                    imageGalleryAdapter.setImages(images);
+                    //imageGalleryAdapter.setImages(images);
                 }
 
                 // write bitmap to a file

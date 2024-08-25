@@ -64,7 +64,7 @@ public class ScreenCaptureFragment extends Fragment {
         FOLDER_PATH = Objects.requireNonNull(context.getExternalFilesDir(null)).getAbsolutePath() + "/screenshots/";
         captureButton = view.findViewById(R.id.screen_capture_button);
         imagesRV = view.findViewById(R.id.image_gallery);
-        imageList = FileSystem.getFileName(context);
+        //imageList = FileSystem.getFileName(context);
         uploadButton = view.findViewById(R.id.upload_button);
         selectedImages = new ArrayList<>();
         uploadButton.hide();
@@ -81,9 +81,20 @@ public class ScreenCaptureFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
         catchEvent();
-        prepareRecyclerView();
     }
 
+    /*
+        * onResume() method is called when the activity will start interacting with the user.
+        * So when start app again the image list will be updated.
+        * The sequence of lifecycle methods is: onCreate() -> onStart() -> onResume()
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume: Calling");
+        imageList = FileSystem.getFileName(context);
+        prepareRecyclerView();
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     private void prepareRecyclerView() {
@@ -100,6 +111,7 @@ public class ScreenCaptureFragment extends Fragment {
                         Intent i = new Intent(context, ImageDetailActivity.class);
                         i.putExtra("imgPath", imageList.get(position));
                         context.startActivity(i);
+
                     }
 
                     @SuppressLint("UseCompatLoadingForDrawables")
@@ -108,7 +120,7 @@ public class ScreenCaptureFragment extends Fragment {
                         try {
                             //Catch hold action
                             if (view.getBackground() != null
-                                    && view.getBackground().getConstantState() == context.getDrawable(R.drawable.border).getConstantState()) {
+                                    && view.getBackground().getConstantState() == Objects.requireNonNull(context.getDrawable(R.drawable.border)).getConstantState()) {
                                 view.setBackground(null);
                                 selectedImages.remove(imageList.get(position));
                                 Log.e(TAG, "Removed: " + imageList.get(position));

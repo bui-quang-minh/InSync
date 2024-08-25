@@ -51,11 +51,6 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
         Picasso.with(context).load(imgFile).into(holder.image);
     }
 
-    public void setImages(List<String> imageList) {
-        this.imageList = imageList;
-        notifyDataSetChanged();
-    }
-
     @Override
     public int getItemCount() {
         return imageList.size();
