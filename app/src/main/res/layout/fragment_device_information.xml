@@ -23,15 +23,34 @@
                 android:contentDescription="Device Icon"
                 android:layout_gravity="center_vertical"/>
 
-            <TextView
-                android:id="@+id/tv_device_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_gravity="center_vertical"
-                android:text="Device Name"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tv_device_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="Device Name"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tv_connect_to_charge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• Connected to charge"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tv_connect_to_internet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• Connected to internet"
+                    android:visibility="gone"/>
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -125,7 +144,6 @@
             android:progress="50"
             android:progressDrawable="@drawable/progress_battery_drawable"/>
 
-
         <!-- Size -->
         <TextView
             android:id="@+id/tv_device_size"
@@ -161,27 +179,5 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="SDK: ____"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
-
-            <!-- Connectivity Status TextView 1 -->
-            <TextView
-                android:id="@+id/tv_connect_to_charge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="• Connected to charge"
-                android:visibility="gone"/>
-
-            <!-- Connectivity Status TextView 2 -->
-            <TextView
-                android:id="@+id/tv_connect_to_internet"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="• Connected to internet"
-                android:visibility="gone"/>
-        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

@@ -25,6 +25,8 @@ import com.in_sync.R;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class ProfileFragment extends Fragment {
 
     private TextView textView;
@@ -108,7 +110,10 @@ public class ProfileFragment extends Fragment {
                 //}
 
                 // Extract device name
-                String deviceName = Build.MANUFACTURER + Build.MODEL;
+                // Device Model and Manufacturer
+                String manufacturer = Build.MANUFACTURER.toUpperCase(Locale.ROOT);
+                String model = Build.MODEL.toUpperCase(Locale.ROOT);
+                String deviceName = manufacturer + " " + model;
 
                 // Set the extracted values to TextViews
                 tvFullName.setText(fullName);
@@ -124,8 +129,8 @@ public class ProfileFragment extends Fragment {
                         .into(avatarImageView);
 
 
-                TextView tvU = view.findViewById(R.id.device_infomic);
-                tvU.setText(userInfo);
+//                TextView tvU = view.findViewById(R.id.device_infomic);
+//                tvU.setText(userInfo);
             }
         } catch (Exception e) {
             e.printStackTrace();

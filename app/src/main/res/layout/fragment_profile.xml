@@ -28,7 +28,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/toolbar_profile">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -44,8 +44,7 @@
         app:cardPreventCornerOverlap="true"
         android:layout_margin="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_profile">
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:id="@+id/user_info_layout"
@@ -55,8 +54,7 @@
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/avatar_name_layout"
@@ -148,8 +146,7 @@
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toBottomOf="@id/email_section">
+                android:focusable="true">
 
                 <ImageView
                     android:id="@+id/device_icon"
@@ -164,12 +161,12 @@
                     android:layout_marginStart="8dp"
                     android:text="Samsung Galaxy S21" />
             </LinearLayout>
-            <TextView
-                android:id="@+id/device_infomic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Samsung Galaxy S21" />
+<!--            <TextView-->
+<!--                android:id="@+id/device_infomic"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:text="Samsung Galaxy S21" />-->
 
         </LinearLayout>
 
@@ -189,6 +186,6 @@
         app:layout_constraintTop_toBottomOf="@+id/cv_information_section">
     </androidx.cardview.widget.CardView>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

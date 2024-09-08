@@ -22,7 +22,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.in_sync.R;
+import com.in_sync.helpers.DeviceInfoUtils;
+
+import java.util.Locale;
 
 public class DeviceInfoFragment extends Fragment {
     private Context context;
@@ -103,16 +107,8 @@ public class DeviceInfoFragment extends Fragment {
         }
 
         // Device Model and Manufacturer
-        String manufacturer = Build.MANUFACTURER;
-        String model = Build.MODEL;
-
-        // Storage Information
-        StatFs statFs = new StatFs(Environment.getDataDirectory().getPath());
-        long blockSize = statFs.getBlockSizeLong();
-        long totalBlocks = statFs.getBlockCountLong();
-        long availableBlocks = statFs.getAvailableBlocksLong();
-        long totalStorage = (totalBlocks * blockSize) / (1024 * 1024 * 1024); // GB
-        long availableStorage = (availableBlocks * blockSize) / (1024 * 1024 * 1024); // GB
+        String manufacturer = Build.MANUFACTURER.toUpperCase(Locale.ROOT);
+        String model = Build.MODEL.toUpperCase(Locale.ROOT);
 
         // Available Memory (RAM)
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -120,8 +116,8 @@ public class DeviceInfoFragment extends Fragment {
         if (activityManager != null) {
             activityManager.getMemoryInfo(memoryInfo);
         }
-        long totalRam = memoryInfo.totalMem / (1024 * 1024); // in MB
-        long availableRam = memoryInfo.availMem / (1024 * 1024); // in MB
+        long totalRam = memoryInfo.totalMem / (1000 * 1000); // in MB
+        long availableRam = memoryInfo.availMem / (1000 * 1000); // in MB
 
         // Android Version
         String versionRelease = Build.VERSION.RELEASE;
@@ -142,8 +138,9 @@ public class DeviceInfoFragment extends Fragment {
         tvDeviceName.setText(manufacturer + " " + model);
 
         // Set progress and max for storage, RAM, and battery
-        prStorage.setMax((int) totalStorage);
-        prStorage.setProgress((int) availableStorage);
+        DeviceInfoUtils.StorageInfo storageInfo = DeviceInfoUtils.getStorageDetails(context);
+        prStorage.setMax((int) storageInfo.getTotalStorage());
+        prStorage.setProgress((int) storageInfo.getUsedStorage());
 
         prRam.setMax((int) totalRam);
         prRam.setProgress((int) availableRam);
@@ -151,7 +148,8 @@ public class DeviceInfoFragment extends Fragment {
         prBattery.setMax(100); // Battery percentage max is always 100
         prBattery.setProgress((int) batteryPct);
 
-        tvStorageProgress.setText(availableStorage + " / " + totalStorage + " GB");
+
+        tvStorageProgress.setText(storageInfo.getUsedStorage() + " / " + storageInfo.getTotalStorage() + " GB");
         tvRamProgress.setText(availableRam + " / " + totalRam + " MB");
         tvBatteryProgress.setText("Battery Level: " + (int) batteryPct + "%");
 
