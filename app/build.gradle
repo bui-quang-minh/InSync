@@ -58,6 +58,7 @@ dependencies {
     implementation libs.constraintlayout
     implementation project(':opencv')
     implementation libs.firebase.database
+    implementation libs.firebase.auth
     implementation libs.picasso
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

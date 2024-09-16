@@ -21,6 +21,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import com.in_sync.R;
+import com.in_sync.daos.AddData;
+import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.fragments.ExploreFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
@@ -28,6 +30,8 @@ import com.in_sync.fragments.ProfileFragment;
 import com.in_sync.fragments.ScreenCaptureFragment;
 import com.in_sync.fragments.TestFragment;
 import com.in_sync.validates.PermissionValid;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;
@@ -47,8 +51,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
-
+        AddData add = new AddData();
+        add.addDataScenario2();
+        add.addDataScenario3();
+        add.addDataScenario4();
+        add.addDataScenario5();
 
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {

@@ -7,6 +7,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -14,6 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.in_sync.common.Settings;
 import com.in_sync.models.LogSession;
 
 import java.text.ParseException;
@@ -49,6 +55,7 @@ public class FirebaseLogService {
     public static final String SORT_A_Z = "Sort A-Z", SORT_Z_A = "Sort Z-A", SORT_BY_NEWEST = "Sort by Newest", SORT_BY_OLDEST = "Sort by Oldest";
 
     private DatabaseReference databaseReference;
+    FirebaseAuth auth;
 
     //Phan Quang Huy
     //Constructor initialization of Firebase Realtime Database
@@ -58,7 +65,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Add a logging session and list the logs of that session
+//Add a logging session and list the logs of that session
     public void addLogSessionWithLogs(String scenarioId, LogSession logSession, List<com.in_sync.models.Log> logs, LogCallback<Boolean> callback) {
 
         // Tạo bản đồ để cập nhật các giá trị của log
@@ -67,9 +74,9 @@ public class FirebaseLogService {
         // path of new session in firebase
         String logSessionPath = SCENARIOS_PATH + "/" + scenarioId + "/" + LOG_SESSIONS_PATH + "/" + logSession.getSession_id();
 
-        List<com.in_sync.models.Log> logFails = logs.stream().filter(l-> !l.isStatus())
+        List<com.in_sync.models.Log> logFails = logs.stream().filter(l -> !l.isStatus())
                 .collect(Collectors.toList());
-        if(logFails.size()>0){
+        if (logFails.size() > 0) {
             logSession.setNeedResolve(true);
         }
 
@@ -102,7 +109,7 @@ public class FirebaseLogService {
                 });
     }
 
-    //    public void getLogSessionsByScenarioIdOneTime(String scenarioId, LogCallback<List<LogSession>> callback) {
+//    public void getLogSessionsByScenarioIdOneTime(String scenarioId, LogCallback<List<LogSession>> callback) {
 //        DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
 //                .child(scenarioId)
 //                .child(LOG_SESSIONS_PATH);
@@ -126,8 +133,8 @@ public class FirebaseLogService {
 //    }
 
     //Phan Quang Huy
-    //Get all log sessions of a specific scenario
-    public void getLogSessionsByScenarioId(String scenarioId,String sortBy, LogCallback<List<LogSession>> callback) {
+//Get all log sessions of a specific scenario
+    public void getLogSessionsByScenarioId(String scenarioId, String sortBy, LogCallback<List<LogSession>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
                 .child(LOG_SESSIONS_PATH);
@@ -156,7 +163,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Get a specific log session by its ID
+//Get a specific log session by its ID
     public void getLogSessionsById(String scenarioId, String sessionId, LogCallback<LogSession> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -185,7 +192,7 @@ public class FirebaseLogService {
 
 
     //Phan Quang Huy
-    //Get all scenario
+//Get all scenario
     public void getAllScenario(LogCallback<List<String>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH);
         logSessionsRef.addValueEventListener(new ValueEventListener() {
@@ -211,8 +218,8 @@ public class FirebaseLogService {
 
 
     //Phan Quang Huy
-    //Get all log sessions of a specific scenario
-    public void getLogSessionsByScenarioIdAndDate(String scenarioId, Date dateFrom, Date dateTo, String keySearch,String sortBy, LogCallback<List<LogSession>> callback) {
+//Get all log sessions of a specific scenario
+    public void getLogSessionsByScenarioIdAndDate(String scenarioId, Date dateFrom, Date dateTo, String keySearch, String sortBy, LogCallback<List<LogSession>> callback) {
         DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
                 .child(LOG_SESSIONS_PATH);
@@ -263,7 +270,7 @@ public class FirebaseLogService {
                         }
                     }
                 }
-                logSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2,sortBy));
+                logSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2, sortBy));
                 Log.d(TAG, "Log sessions retrieved successfully: " + logSessions.size());
                 callback.onCallback(logSessions);
             }
@@ -278,8 +285,8 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Get all log sessions of a list scenario
-    public void getLogSessionsByListScenarioIdAndDate(List<String> scenarioIds, Date dateFrom, Date dateTo, String keySearch,String sortBy, LogCallback<List<LogSession>> callback) {
+//Get all log sessions of a list scenario
+    public void getLogSessionsByListScenarioIdAndDate(List<String> scenarioIds, Date dateFrom, Date dateTo, String keySearch, String sortBy, LogCallback<List<LogSession>> callback) {
 
         List<LogSession> allLogSessions = new ArrayList<>();
         // Sử dụng Calendar để thiết lập thời gian bắt đầu và kết thúc cho khoảng thời gian
@@ -330,7 +337,7 @@ public class FirebaseLogService {
                     // Nếu đây là lần truy cập cuối cùng, gọi callback để trả về kết quả
                     if (scenarioId.equals(scenarioIds.get(scenarioIds.size() - 1))) {
                         Log.d(TAG, "All log sessions retrieved successfully: " + allLogSessions.size());
-                        allLogSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2,sortBy));
+                        allLogSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2, sortBy));
                         callback.onCallback(allLogSessions);
                     }
                 }
@@ -345,14 +352,14 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Sort log sessions
+//Sort log sessions
     public int LogSessionSortWithOption(LogSession object1, LogSession object2, String sortBy) {
 
-        if(sortBy.equalsIgnoreCase(SORT_A_Z)){
+        if (sortBy.equalsIgnoreCase(SORT_A_Z)) {
             return object1.getSession_name().compareTo(object2.getSession_name());
-        }else if (sortBy.equalsIgnoreCase(SORT_Z_A)){
+        } else if (sortBy.equalsIgnoreCase(SORT_Z_A)) {
             return object2.getSession_name().compareTo(object1.getSession_name());
-        }else if(sortBy.equalsIgnoreCase(SORT_BY_NEWEST)){
+        } else if (sortBy.equalsIgnoreCase(SORT_BY_NEWEST)) {
             try {
                 LocalDateTime date1 = LocalDateTime.parse(object1.getDate_created(), DATE_TIME_FORMATTER_2);
                 LocalDateTime date2 = LocalDateTime.parse(object2.getDate_created(), DATE_TIME_FORMATTER_2);
@@ -361,7 +368,7 @@ public class FirebaseLogService {
                 Log.e(TAG, "Failed to parse date_created", e);
                 return 0;
             }
-        }else if(sortBy.equalsIgnoreCase(SORT_BY_OLDEST)){
+        } else if (sortBy.equalsIgnoreCase(SORT_BY_OLDEST)) {
             try {
                 LocalDateTime date1 = LocalDateTime.parse(object1.getDate_created(), DATE_TIME_FORMATTER_2);
                 LocalDateTime date2 = LocalDateTime.parse(object2.getDate_created(), DATE_TIME_FORMATTER_2);
@@ -371,7 +378,7 @@ public class FirebaseLogService {
                 return 0;
             }
         }
-       return 0;
+        return 0;
     }
 
     //Phan Quang Huy
@@ -387,8 +394,8 @@ public class FirebaseLogService {
 
 
     //Phan Quang Huy
-    //Get all logs of a specific log session
-    public void getLogsByScenarioIdAndSessionId(String scenarioId, String sessionId,String keySearch, LogCallback<List<com.in_sync.models.Log>> callback) {
+//Get all logs of a specific log session
+    public void getLogsByScenarioIdAndSessionId(String scenarioId, String sessionId, String keySearch, LogCallback<List<com.in_sync.models.Log>> callback) {
 
         DatabaseReference logsRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -420,7 +427,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Update log session
+//Update log session
     public void updateLogSession(String scenarioId, String sessionId, LogSession updatedLogSession, LogCallback<Boolean> callback) {
         DatabaseReference sessionRef = databaseReference.child(SCENARIOS_PATH)
                 .child(scenarioId)
@@ -449,7 +456,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Delete log session
+//Delete log session
     public void deleteLogSession(String scenarioId, String sessionId, LogCallback<Boolean> callback) {
         DatabaseReference sessionRef = databaseReference
                 .child(SCENARIOS_PATH)
@@ -470,8 +477,8 @@ public class FirebaseLogService {
     }
 
     // action relative to log
-    //Phan Quang Huy
-    //Add log to session
+//Phan Quang Huy
+//Add log to session
     public void addLogToSession(String scenarioId, String sessionId, com.in_sync.models.Log log, LogCallback<Boolean> callback) {
 
         DatabaseReference logsRef = databaseReference
@@ -494,7 +501,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Add logs to session
+//Add logs to session
     public void addLogsToSession(String scenarioId, String sessionId, List<com.in_sync.models.Log> logs, LogCallback<Boolean> callback) {
 
         Map<String, Object> updates_log = new HashMap<>();
@@ -516,7 +523,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Update log in session
+//Update log in session
     public void updateLogInSession(String scenarioId, String sessionId, String logId, com.in_sync.models.Log updatedLog, LogCallback<Boolean> callback) {
 
         DatabaseReference logRef = databaseReference.child(SCENARIOS_PATH)
@@ -547,7 +554,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Delete log from session
+//Delete log from session
     public void deleteLogFromLogSession(String scenarioId, String sessionId, String logId, LogCallback<Boolean> callback) {
 
         DatabaseReference logRef = databaseReference.child(SCENARIOS_PATH)
@@ -569,7 +576,7 @@ public class FirebaseLogService {
     }
 
     //Phan Quang Huy
-    //Callback interface
+//Callback interface
     public interface LogCallback<T> {
         void onCallback(T data);
     }
