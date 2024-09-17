@@ -37,6 +37,7 @@ import com.in_sync.R;
 import com.in_sync.adapters.LogSessionAdapter;
 import com.in_sync.adapters.ScenarioSpinnerAdapter;
 import com.in_sync.daos.FirebaseLogService;
+import com.in_sync.daos.LogsFirebaseService;
 import com.in_sync.models.LogSession;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     View overlay;
     ScenarioSpinnerAdapter scenarioSpinnerAdapter;
     LogSessionAdapter sessionAdapter;
-    FirebaseLogService service;
+    LogsFirebaseService service;
     private static final String TAG = "LogFragment";
     private static final String All_SCENARIO = "All Scenario";
     private static final  String[] sortOptions = {FirebaseLogService.SORT_A_Z, FirebaseLogService.SORT_Z_A, FirebaseLogService.SORT_BY_NEWEST, FirebaseLogService.SORT_BY_OLDEST};
@@ -81,7 +82,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Initialize controls
     private void initView(View view) {
         overlay = view.findViewById(R.id.overlay);
-        service = new FirebaseLogService();
+        service = new LogsFirebaseService();
         toolbar = view.findViewById(R.id.toolbar_log);
         progressBar = view.findViewById(R.id.progress_bar);
         logSessionRecyclerView = view.findViewById(R.id.log_session_recycle);
@@ -200,7 +201,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     public void initDataForScenarioSpinner() {
         overlay.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
-        service.getAllScenario(new FirebaseLogService.LogCallback<List<String>>() {
+        service.getAllScenario(new LogsFirebaseService.LogCallback<List<String>>() {
             @Override
             public void onCallback(List<String> data) {
                 List<String> result = new ArrayList<>();
@@ -238,7 +239,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Get all log session of a scenario
     public void GetAllLogSessionOfScenario(String scenarioId, String search, String sortBy) {
         progressBar.setVisibility(View.VISIBLE);
-        service.getLogSessionsByScenarioIdAndDate(scenarioId, null, null, search, sortBy,new FirebaseLogService.LogCallback<List<LogSession>>() {
+        service.getLogSessionsByScenarioIdAndDate(scenarioId, null, null, search, sortBy,new LogsFirebaseService.LogCallback<List<LogSession>>() {
             @Override
             public void onCallback(List<LogSession> data) {
                 List<LogSession> result = new ArrayList<>();
@@ -261,13 +262,13 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Get all log session of all scenario
     public void GetAllLogSessionOfAllScenario(String search, String sortBy) {
         progressBar.setVisibility(View.VISIBLE);
-        service.getAllScenario(new FirebaseLogService.LogCallback<List<String>>() {
+        service.getAllScenario(new LogsFirebaseService.LogCallback<List<String>>() {
             @Override
             public void onCallback(List<String> data) {
                 if(data == null){
                     return;
                 }else{
-                    service.getLogSessionsByListScenarioIdAndDate(data, null, null, search, sortBy,new FirebaseLogService.LogCallback<List<LogSession>>() {
+                    service.getLogSessionsByListScenarioIdAndDate(data, null, null, search, sortBy,new LogsFirebaseService.LogCallback<List<LogSession>>() {
                         @Override
                         public void onCallback(List<LogSession> data) {
                             List<LogSession> result = new ArrayList<>();
@@ -323,7 +324,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                 Toast.makeText(getContext(), "Can't find the right", Toast.LENGTH_SHORT).show();
             }
             String logSessionId = logSession.getSession_id();
-            service.deleteLogSession(scenarioId, logSessionId, new FirebaseLogService.LogCallback<Boolean>() {
+            service.deleteLogSession(logSessionId, new LogsFirebaseService.LogCallback<Boolean>() {
 
                 @Override
                 public void onCallback(Boolean data) {

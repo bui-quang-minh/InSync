@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.in_sync.R;
 import com.in_sync.adapters.LogAdapter;
 import com.in_sync.daos.FirebaseLogService;
+import com.in_sync.daos.LogsFirebaseService;
 import com.in_sync.models.LogSession;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
     private RecyclerView logsRecycleView;
     private LogAdapter logAdapter;
     private String scenarioId ,logSessionId;
-    private FirebaseLogService service;
+    private LogsFirebaseService service;
 
 
     @Override
@@ -60,7 +61,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
 
 
     private void initData() {
-        service = new FirebaseLogService();
+        service = new LogsFirebaseService();
         scenarioId = getIntent().getStringExtra("scenarioId");
         logSessionId = getIntent().getStringExtra("logSessionId");
         SetTitleForToolbar();
@@ -72,7 +73,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
 
     public void searchLog(String keySearch){
         notify_no_log.setVisibility(View.VISIBLE);
-        service.getLogsByScenarioIdAndSessionId(scenarioId, logSessionId,keySearch, new FirebaseLogService.LogCallback<List<com.in_sync.models.Log>>() {
+        service.getLogsByScenarioIdAndSessionId( logSessionId,keySearch, new LogsFirebaseService.LogCallback<List<com.in_sync.models.Log>>() {
             @Override
             public void onCallback(List<com.in_sync.models.Log> data) {
                 List<com.in_sync.models.Log> result = new ArrayList<>();
@@ -92,7 +93,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
     }
     public void SetTitleForToolbar(){
         progressBar.setVisibility(View.VISIBLE);
-        service.getLogSessionsById(scenarioId, logSessionId, new FirebaseLogService.LogCallback<LogSession>() {
+        service.getLogSessionsById(scenarioId, logSessionId, new LogsFirebaseService.LogCallback<LogSession>() {
             @Override
             public void onCallback(LogSession data) {
                 if(data == null){

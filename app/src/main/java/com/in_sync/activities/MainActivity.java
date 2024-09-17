@@ -51,11 +51,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        AddData add = new AddData();
-        add.addDataScenario2();
-        add.addDataScenario3();
-        add.addDataScenario4();
-        add.addDataScenario5();
 
         // Send request to enable accessibility service
         if (!PermissionValid.isAccessibilitySettingsOn(this, getPackageName())) {
