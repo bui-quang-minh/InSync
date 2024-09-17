@@ -40,7 +40,7 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
     private SearchView searchView;
     private RecyclerView logsRecycleView;
     private LogAdapter logAdapter;
-    private String scenarioId ,logSessionId;
+    private String logSessionId;
     private LogsFirebaseService service;
 
 
@@ -62,12 +62,9 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
 
     private void initData() {
         service = new LogsFirebaseService();
-        scenarioId = getIntent().getStringExtra("scenarioId");
         logSessionId = getIntent().getStringExtra("logSessionId");
         SetTitleForToolbar();
         searchLog("");
-
-        Log.d(TAG, "initData: "+scenarioId);
         Log.d(TAG, "initData: "+logSessionId);
     }
 
@@ -93,13 +90,13 @@ public class LogsOfSessionActivity extends AppCompatActivity implements LogAdapt
     }
     public void SetTitleForToolbar(){
         progressBar.setVisibility(View.VISIBLE);
-        service.getLogSessionsById(scenarioId, logSessionId, new LogsFirebaseService.LogCallback<LogSession>() {
+        service.getLogSessionsById(logSessionId, new LogsFirebaseService.LogCallback<LogSession>() {
             @Override
             public void onCallback(LogSession data) {
                 if(data == null){
                     finish();
                 }else{
-                    LogsOfSessionActivity.this.getSupportActionBar().setTitle("Scenario: " + data.getSession_name());
+                    LogsOfSessionActivity.this.getSupportActionBar().setTitle("Session: " + data.getSession_name());
                     Log.d(TAG, "onCallback: "+data.getSession_name());
                 }
                 progressBar.setVisibility(View.GONE);

@@ -123,7 +123,7 @@ public class LogsFirebaseService {
 
     //Phan Quang Huy
 //Get a specific log session by its ID
-    public void getLogSessionsById(String scenarioId, String sessionId, LogsFirebaseService.LogCallback<LogSession> callback) {
+    public void getLogSessionsById(String sessionId, LogsFirebaseService.LogCallback<LogSession> callback) {
         DatabaseReference logSessionsRef = databaseReference
                 .child(LOG_SESSIONS_PATH)
                 .child(sessionId);
@@ -294,10 +294,9 @@ public class LogsFirebaseService {
         Calendar finalCalTo = calTo;
 
         for (String scenarioId : scenarioIds) {
-            DatabaseReference logSessionsRef = databaseReference.child(SCENARIOS_PATH)
-                    .child(scenarioId)
+            DatabaseReference logSessionsRef = databaseReference
                     .child(LOG_SESSIONS_PATH);
-            logSessionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            logSessionsRef.orderByChild("scenario_id").equalTo(scenarioId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot sessionSnapshot : snapshot.getChildren()) {

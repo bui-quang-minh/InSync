@@ -300,9 +300,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
             Toast.makeText(getContext(), "Can't find the right session please try again", Toast.LENGTH_SHORT).show();
         }
         String logSessionId = logSession.getSession_id();
-        String scenarioId = logSession.getScenario_id();
         Intent intent = new Intent(getContext(), LogsOfSessionActivity.class);
-        intent.putExtra("scenarioId", scenarioId);
         intent.putExtra("logSessionId", logSessionId);
         startActivity(intent);
 
