@@ -29,10 +29,23 @@ public class Sequence {
                     allExecutedActions.add(currentAction.getIndex());
                     return actions.get(index + 1);
                 }
+                break;
+
+            case "WAITING":
+                if (conditionResult) {
+                    allExecutedActions.add(currentAction.getIndex());
+                    Log.e("Chuyển step", "Chuyển step thành công");
+                    return actions.get(index + 1);
+
+                }
+                break;
         }
         return currentAction;
     }
 
+    public com.in_sync.models.Action getActionByIndex(int index){
+        return actions.get(index);
+    }
     public Action getFirstAction() {
         return actions.get(0);
     }

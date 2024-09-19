@@ -57,23 +57,23 @@ public class TestFragment extends Fragment {
                 "  {\n" +
                 "    \"index\": 0,\n" +
                 "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1724590469/3_miqoqr.jpg\",\n" +
+                "    \"on\": \"https://res.cloudinary.com/dbluixcuo/image/upload/v1726756308/646b26c0b8c91e9747d8_dtukzq.jpg\",\n" +
                 "    \"logResult\": true,\n" +
                 "    \"duration\": 100,\n" +
                 "    \"tries\": 1\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"index\": 1,\n" +
-                "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1724590495/2_xy3ti7.jpg\",\n" +
+                "    \"actionType\": \"WAITING\",\n" +
+                "    \"on\": \"\",\n" +
                 "    \"logResult\": true,\n" +
-                "    \"duration\": 100,\n" +
+                "    \"duration\": 10000,\n" +
                 "    \"tries\": 1\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"index\": 2,\n" +
                 "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1724590503/1_kkzzhm.jpg\",\n" +
+                "    \"on\": \"https://res.cloudinary.com/dbluixcuo/image/upload/v1726754938/431e2359f050560e0f41_if0d0u.jpg\",\n" +
                 "    \"logResult\": true,\n" +
                 "    \"duration\": 100,\n" +
                 "    \"tries\": 1\n" +

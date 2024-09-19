@@ -1,7 +1,7 @@
 package com.in_sync.actions.definition;
 
 public abstract class ActionDef {
-public static final String
+    public static final String
             CLICK = "CLICK",
             PASTE = "PASTE",
             SWIPE = "SWIPE",
@@ -13,7 +13,8 @@ public static final String
             ZOOM = "ZOOM",
             ROTATE = "ROTATE",
             TAP = "TAP",
-    IF = "IF",
-    FOR = "FOR",
+            WAITING = "WAITING",
+            IF = "IF",
+            FOR = "FOR",
             OPEN_APP = "OPEN_APP";
 }
