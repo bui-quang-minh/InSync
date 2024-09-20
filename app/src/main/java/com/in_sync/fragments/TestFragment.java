@@ -64,7 +64,7 @@ public class TestFragment extends Fragment {
                 "  },\n" +
                 "  {\n" +
                 "    \"index\": 1,\n" +
-                "    \"actionType\": \"WAITING\",\n" +
+                "    \"actionType\": \"DELAY\",\n" +
                 "    \"on\": \"\",\n" +
                 "    \"logResult\": true,\n" +
                 "    \"duration\": 10000,\n" +

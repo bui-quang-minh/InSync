@@ -41,8 +41,7 @@ public class Action extends ActionDef {
     private Context context;
     public static String appOpenedResend;
     private AccessibilityService accessibilityService;
-    private boolean isWaiting = false; // Biến cờ để kiểm soát việc chờ đợi
-    private com.in_sync.models.Action nextActionAfterWaiting = null;
+    private boolean isDelay = false; // Biến cờ để kiểm soát việc chờ đợi
 
     public Action(Context context, AccessibilityService accessibilityService) {
         this.context = context;
@@ -122,8 +121,8 @@ public class Action extends ActionDef {
                         e.printStackTrace();
                     }
                     break;
-                case ActionDef.WAITING:
-                    handleWaitingAction(currentAction, sequence);
+                case ActionDef.DELAY:
+                    handleDelayAction(currentAction, sequence);
                     return sequence.getActionByIndex(index);
 
             }
@@ -176,7 +175,7 @@ public class Action extends ActionDef {
 
     public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template, android.widget.ImageView imageView, Bitmap bmp, int index, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
         Log.e(TAG, mmr.maxVal + "  sfasdf");
-        if (mmr.maxVal >= 0.20) {
+        if (mmr.maxVal >= 0.60) {
             if (Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF || Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF_NORMED) {
                 matchLoc = mmr.minLoc;
             } else {
@@ -219,19 +218,19 @@ public class Action extends ActionDef {
         return sequence.traverseAction(false, currentAction);
     }
 
-    private void handleWaitingAction(com.in_sync.models.Action currentAction, Sequence sequence) {
-        Log.e(TAG, "Trạng thái chờ: " + isWaiting);
-        if (!isWaiting) {
-            isWaiting = true;
-            int waitTime = currentAction.getDuration(); // Giả sử getDuration() trả về thời gian chờ bằng mili giây
+    private void handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
+        Log.e(TAG, "Trạng thái chờ: " + isDelay);
+        if (!isDelay) {
+            isDelay = true;
+            int delayTime = currentAction.getDuration(); // Giả sử getDuration() trả về thời gian chờ bằng mili giây
 
             // Tạo một Handler để xử lý việc chờ
             new Handler().postDelayed(() -> {
                 // Gọi sequence.traverseAction và nhận giá trị trả về
                 com.in_sync.models.Action resultAction = sequence.traverseAction(true, currentAction);
                 // Sau khi chờ xong, cập nhật trạng thái và trả về kết quả qua callback
-                isWaiting = false;
-                Log.e(TAG, "Cập nhật trạng thái chờ đợi: " + isWaiting);
+                isDelay = false;
+                Log.e(TAG, "Cập nhật trạng thái chờ đợi: " + isDelay);
                 int tempIndex = resultAction.getIndex();
                 if(tempIndex > index) {
                  while(tempIndex > index){
@@ -243,7 +242,7 @@ public class Action extends ActionDef {
                     }
                 }
 
-            }, waitTime);
+            }, delayTime);
         }
 
     }

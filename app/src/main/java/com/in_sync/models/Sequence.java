@@ -2,6 +2,8 @@ package com.in_sync.models;
 
 import android.util.Log;
 
+import com.in_sync.actions.definition.ActionDef;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,17 +26,16 @@ public class Sequence {
             return currentAction;
         }
         switch(actionType){
-            case "CLICK":
+            case ActionDef.CLICK:
                 if (conditionResult){
                     allExecutedActions.add(currentAction.getIndex());
                     return actions.get(index + 1);
                 }
                 break;
 
-            case "WAITING":
+            case ActionDef.DELAY:
                 if (conditionResult) {
                     allExecutedActions.add(currentAction.getIndex());
-                    Log.e("Chuyển step", "Chuyển step thành công");
                     return actions.get(index + 1);
 
                 }

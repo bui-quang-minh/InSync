@@ -13,7 +13,7 @@ public abstract class ActionDef {
             ZOOM = "ZOOM",
             ROTATE = "ROTATE",
             TAP = "TAP",
-            WAITING = "WAITING",
+            DELAY = "DELAY",
             IF = "IF",
             FOR = "FOR",
             OPEN_APP = "OPEN_APP";
