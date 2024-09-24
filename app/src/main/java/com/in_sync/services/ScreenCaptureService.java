@@ -200,6 +200,7 @@ public class ScreenCaptureService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         appOpened = event.getText().toString().trim();
         source = event.getSource();
+        // If = action = paste, then paste the content from the clipboard
         Log.e(TAG, "onAccessibilityEvent: " + appOpened);
     }
 
