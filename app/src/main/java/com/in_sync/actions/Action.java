@@ -174,8 +174,8 @@ public class Action extends ActionDef {
     }
 
     public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template, android.widget.ImageView imageView, Bitmap bmp, int index, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
-        Log.e(TAG, mmr.maxVal + "  sfasdf");
-        if (mmr.maxVal >= 0.60) {
+        Log.e(TAG, mmr.maxVal + " accurate value");
+        if (mmr.maxVal >= 0.70) {
             if (Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF || Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF_NORMED) {
                 matchLoc = mmr.minLoc;
             } else {
@@ -184,33 +184,20 @@ public class Action extends ActionDef {
             Imgproc.rectangle(mat, matchLoc, new Point(matchLoc.x + template.cols(), matchLoc.y + template.rows()), new Scalar(255, 0, 0), 2);
             Bitmap outputBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(mat, outputBitmap);
+            Action.clickAction((float) matchLoc.x + (float) bmp.getWidth() / 2,
+                    (float) matchLoc.y + (float) bmp.getHeight() / 2,
+                    currentAction.getDuration(),
+                    currentAction.getTries(),
+                    accessibilityService);
+            ACCURACY_POINT = 0;
+            IMAGES_PRODUCED = 0;
 
-            IMAGES_PRODUCED++;
-            if (IMAGES_PRODUCED == 1 || (prev_point.getX() == (float) matchLoc.x && prev_point.getY() == (float) matchLoc.y)) {
-                ACCURACY_POINT++;
-                prev_point.setX((float) matchLoc.x);
-                prev_point.setY((float) matchLoc.y);
-            }
-            if ((prev_point.getX() != (float) matchLoc.x || prev_point.getY() != (float) matchLoc.y)) {
-                ACCURACY_POINT = 0;
-                prev_point.setX((float) matchLoc.x);
-                prev_point.setY((float) matchLoc.y);
-            }
-            if (ACCURACY_POINT >= 3) {
-                Action.clickAction((float) matchLoc.x + (float) bmp.getWidth() / 2,
-                        (float) matchLoc.y + (float) bmp.getHeight() / 2,
-                        currentAction.getDuration(),
-                        currentAction.getTries(),
-                        accessibilityService);
-                ACCURACY_POINT = 0;
-                IMAGES_PRODUCED = 0;
+            Log.e("Source", "click condition is true");
+            com.in_sync.models.Action resultAction = sequence.traverseAction(true, currentAction);
+            this.index = resultAction.getIndex();
+            Log.e("No image match found", this.index + " ");
+            return resultAction;
 
-                Log.e("Source", "click condition is true");
-                com.in_sync.models.Action resultAction = sequence.traverseAction(true, currentAction);
-                this.index = resultAction.getIndex();
-                Log.e("No image match found", this.index + " ");
-                return resultAction;
-            }
         } else {
             Log.e(TAG, "No image match found");
         }

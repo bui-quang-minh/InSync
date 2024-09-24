@@ -57,7 +57,7 @@ public class TestFragment extends Fragment {
                 "  {\n" +
                 "    \"index\": 0,\n" +
                 "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dbluixcuo/image/upload/v1726756308/646b26c0b8c91e9747d8_dtukzq.jpg\",\n" +
+                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1726843049/oljthjfswvxxgtpyzxhv.jpg\",\n" +
                 "    \"logResult\": true,\n" +
                 "    \"duration\": 100,\n" +
                 "    \"tries\": 1\n" +
@@ -67,13 +67,45 @@ public class TestFragment extends Fragment {
                 "    \"actionType\": \"DELAY\",\n" +
                 "    \"on\": \"\",\n" +
                 "    \"logResult\": true,\n" +
-                "    \"duration\": 10000,\n" +
+                "    \"duration\": 500,\n" +
                 "    \"tries\": 1\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"index\": 2,\n" +
                 "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dbluixcuo/image/upload/v1726754938/431e2359f050560e0f41_if0d0u.jpg\",\n" +
+                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1726844127/i3jjo1kgdkphcaxqfmz3.jpg\",\n" +
+                "    \"logResult\": true,\n" +
+                "    \"duration\": 100,\n" +
+                "    \"tries\": 1\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"index\": 3,\n" +
+                "    \"actionType\": \"DELAY\",\n" +
+                "    \"on\": \"\",\n" +
+                "    \"logResult\": true,\n" +
+                "    \"duration\": 500,\n" +
+                "    \"tries\": 1\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"index\": 4,\n" +
+                "    \"actionType\": \"CLICK\",\n" +
+                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727146525/ku4cg606fmmtoxrskui6.jpg\",\n" +
+                "    \"logResult\": true,\n" +
+                "    \"duration\": 100,\n" +
+                "    \"tries\": 1\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"index\": 5,\n" +
+                "    \"actionType\": \"DELAY\",\n" +
+                "    \"on\": \"\",\n" +
+                "    \"logResult\": true,\n" +
+                "    \"duration\": 500,\n" +
+                "    \"tries\": 1\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"index\": 6,\n" +
+                "    \"actionType\": \"CLICK\",\n" +
+                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727146533/ix8z0pdknnkztoj2qysu.jpg\",\n" +
                 "    \"logResult\": true,\n" +
                 "    \"duration\": 100,\n" +
                 "    \"tries\": 1\n" +
