@@ -227,8 +227,6 @@ public class ScreenCaptureService extends AccessibilityService {
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
         info.notificationTimeout = 100;
         this.setServiceInfo(info);
-//        json = intent.getExtras().get("json").toString();
-//        bindStep(json);
         if (intent != null) {
             json = intent.getExtras().get("json").toString();
             bindStep(json);
@@ -237,10 +235,6 @@ public class ScreenCaptureService extends AccessibilityService {
         currentAction = null;
         Log.e(TAG, "onStartCommand Services started");
         action = new Action(getApplicationContext(), ScreenCaptureService.this);
-//        if (intent != null) {
-//            json = intent.getExtras().get("json").toString();
-//            bindStep(json);
-//        }
         if (isStartCommand(intent)) {
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
             startForeground(notification.first, notification.second);

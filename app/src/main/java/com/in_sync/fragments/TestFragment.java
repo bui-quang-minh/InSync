@@ -54,62 +54,87 @@ public class TestFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_test, container, false);
         inputEditText = view.findViewById(R.id.inputEditText);
         inputEditText.setText("[\n" +
-                "  {\n" +
-                "    \"index\": 0,\n" +
-                "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1726843049/oljthjfswvxxgtpyzxhv.jpg\",\n" +
-                "    \"logResult\": true,\n" +
-                "    \"duration\": 100,\n" +
-                "    \"tries\": 1\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"index\": 1,\n" +
-                "    \"actionType\": \"DELAY\",\n" +
-                "    \"on\": \"\",\n" +
-                "    \"logResult\": true,\n" +
-                "    \"duration\": 500,\n" +
-                "    \"tries\": 1\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"index\": 2,\n" +
-                "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1726844127/i3jjo1kgdkphcaxqfmz3.jpg\",\n" +
-                "    \"logResult\": true,\n" +
-                "    \"duration\": 100,\n" +
-                "    \"tries\": 1\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"index\": 3,\n" +
-                "    \"actionType\": \"DELAY\",\n" +
-                "    \"on\": \"\",\n" +
-                "    \"logResult\": true,\n" +
-                "    \"duration\": 500,\n" +
-                "    \"tries\": 1\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"index\": 4,\n" +
-                "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727146525/ku4cg606fmmtoxrskui6.jpg\",\n" +
-                "    \"logResult\": true,\n" +
-                "    \"duration\": 100,\n" +
-                "    \"tries\": 1\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"index\": 5,\n" +
-                "    \"actionType\": \"DELAY\",\n" +
-                "    \"on\": \"\",\n" +
-                "    \"logResult\": true,\n" +
-                "    \"duration\": 500,\n" +
-                "    \"tries\": 1\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"index\": 6,\n" +
-                "    \"actionType\": \"CLICK\",\n" +
-                "    \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727146533/ix8z0pdknnkztoj2qysu.jpg\",\n" +
-                "    \"logResult\": true,\n" +
-                "    \"duration\": 100,\n" +
-                "    \"tries\": 1\n" +
-                "  }\n" +
+                "    {\n" +
+                "        \"index\": 0,\n" +
+                "        \"actionType\": \"CLICK\",\n" +
+                "        \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1726843049/oljthjfswvxxgtpyzxhv.jpg\",\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 100,\n" +
+                "        \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"index\": 1,\n" +
+                "        \"actionType\": \"DELAY\",\n" +
+                "        \"on\": \"\",\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 500,\n" +
+                "        \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"index\": 2,\n" +
+                "        \"actionType\": \"CLICK\",\n" +
+                "        \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1726844127/i3jjo1kgdkphcaxqfmz3.jpg\",\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 100,\n" +
+                "        \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"index\": 3,\n" +
+                "        \"actionType\": \"FOR\",\n" +
+                "        \"do\": [\n" +
+                "            {\n" +
+                "                \"index\": 4,\n" +
+                "                \"actionType\": \"DELAY\",\n" +
+                "                \"on\": \"\",\n" +
+                "                \"logResult\": true,\n" +
+                "                \"duration\": 500,\n" +
+                "                \"tries\": 1\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"index\": 5,\n" +
+                "                \"actionType\": \"CLICK\",\n" +
+                "                \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727182935/dzaoq0zfrfnuvmjqqgky.jpg\",\n" +
+                "                \"logResult\": true,\n" +
+                "                \"duration\": 100,\n" +
+                "                \"tries\": 1\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"index\": 6,\n" +
+                "                \"actionType\": \"DELAY\",\n" +
+                "                \"on\": \"\",\n" +
+                "                \"logResult\": true,\n" +
+                "                \"duration\": 500,\n" +
+                "                \"tries\": 1\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"index\": 7,\n" +
+                "                \"actionType\": \"CLICK\",\n" +
+                "                \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727182947/ajzgz5fjgfxbdunsivbj.jpg\",\n" +
+                "                \"logResult\": true,\n" +
+                "                \"duration\": 100,\n" +
+                "                \"tries\": 1\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 500,\n" +
+                "        \"tries\": 3\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"index\": 8,\n" +
+                "        \"actionType\": \"DELAY\",\n" +
+                "        \"on\": \"\",\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 500,\n" +
+                "        \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"index\": 9,\n" +
+                "        \"actionType\": \"CLICK\",\n" +
+                "        \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727183150/calprkydbyd3a8qehpxm.jpg\",\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 100,\n" +
+                "        \"tries\": 1\n" +
+                "    }\n" +
                 "]");
         onViewStart(view);
         eventHandling();
@@ -136,8 +161,5 @@ public class TestFragment extends Fragment {
 //        intent.putExtra("json", inputEditText.getText()) ;
 //        startActivity(intent);
         screenCaptureHelper.startProjection();
-
-
-
     }
 }
