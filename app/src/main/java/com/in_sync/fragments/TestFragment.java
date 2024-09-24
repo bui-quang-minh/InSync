@@ -81,7 +81,7 @@ public class TestFragment extends Fragment {
                 "    {\n" +
                 "        \"index\": 3,\n" +
                 "        \"actionType\": \"FOR\",\n" +
-                "        \"do\": [\n" +
+                "        \"executeActions\": [\n" +
                 "            {\n" +
                 "                \"index\": 4,\n" +
                 "                \"actionType\": \"DELAY\",\n" +

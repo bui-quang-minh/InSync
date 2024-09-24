@@ -6,11 +6,12 @@ import com.in_sync.actions.definition.ActionDef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class Sequence {
-    private List<Action> actions;
+    private Queue<Action> actions;
     private List<Integer> allExecutedActions = new ArrayList<Integer>();
-    public Sequence(List<Action>actions){
+    public Sequence(Queue<Action>actions){
         this.actions = actions;
         Log.d("Sequence", "Sequence created");
         for (Action action : actions){
@@ -18,36 +19,28 @@ public class Sequence {
         }
     }
     public Action traverseAction(boolean conditionResult, Action currentAction){
-        int index = currentAction.getIndex();
-        String actionType = currentAction.getActionType();
-        if (currentAction.getIndex() == actions.get(actions.size()-1).getIndex() && conditionResult){
-            Log.e("Sequence", "All actions have been executed");
-            currentAction.setIndex(-1);
-            return currentAction;
-        }
-        switch(actionType){
+        switch(currentAction.getActionType()){
             case ActionDef.CLICK:
                 if (conditionResult){
-                    allExecutedActions.add(currentAction.getIndex());
-                    return actions.get(index + 1);
+                    Log.e("Seq", "traverseAction: Click Poll" );
+                    return actions.poll();
                 }
                 break;
 
             case ActionDef.DELAY:
-                if (conditionResult) {
-                    allExecutedActions.add(currentAction.getIndex());
-                    return actions.get(index + 1);
-
+                if (conditionResult){
+                    Log.e("Seq", "traverseAction: Delay Poll" );
+                    return actions.poll();
                 }
                 break;
         }
         return currentAction;
     }
 
-    public com.in_sync.models.Action getActionByIndex(int index){
-        return actions.get(index);
+    public com.in_sync.models.Action peekQueue(){
+        return actions.peek();
     }
     public Action getFirstAction() {
-        return actions.get(0);
+        return actions.poll();
     }
 }

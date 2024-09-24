@@ -18,6 +18,7 @@ public class Action
     public String action;
     public String actionType;
     public String on;
+    public List<com.in_sync.models.Action> executeActions;
     public boolean logResult;
     public int duration;
     public int tries;

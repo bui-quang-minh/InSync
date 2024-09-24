@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 
 public class Action extends ActionDef {
     private int index = 0;
+    private int count = 0;
     private static int IMAGES_PRODUCED;
     private int ACCURACY_POINT;
     private Coordinate prev_point = new Coordinate(0, 0);
@@ -42,6 +43,8 @@ public class Action extends ActionDef {
     public static String appOpenedResend;
     private AccessibilityService accessibilityService;
     private boolean isDelay = false; // Biến cờ để kiểm soát việc chờ đợi
+
+
 
     public Action(Context context, AccessibilityService accessibilityService) {
         this.context = context;
@@ -74,14 +77,16 @@ public class Action extends ActionDef {
                                                    android.widget.ImageView imageView, String appOpened, AccessibilityNodeInfo source, Sequence sequence,
                                                    com.in_sync.models.Action currentAction) {
 
-        if (currentAction == null) {
+       if (currentAction == null) {
             currentAction = new com.in_sync.models.Action();
             currentAction = sequence.getFirstAction();
             return currentAction;
-        } else if (currentAction.getIndex() == -1) {
-            Log.e(TAG, "All actions have been executed. Projection Stop");
-            return currentAction;
-        } else {
+        }
+//       else if (currentAction == null) {
+//            Log.e(TAG, "All actions have been executed. Projection Stop");
+//            return currentAction;
+//        }
+       else {
             switch (currentAction.getActionType()) {
                 case Action.CLICK:
                     Bitmap bitmap = null;
@@ -122,9 +127,7 @@ public class Action extends ActionDef {
                     }
                     break;
                 case ActionDef.DELAY:
-                    handleDelayAction(currentAction, sequence);
-                    return sequence.getActionByIndex(index);
-
+                    return handleDelayAction(currentAction, sequence);
             }
         }
         return currentAction;
@@ -205,33 +208,24 @@ public class Action extends ActionDef {
         return sequence.traverseAction(false, currentAction);
     }
 
-    private void handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
-        Log.e(TAG, "Trạng thái chờ: " + isDelay);
+    private com.in_sync.models.Action handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
+        Log.e(TAG, "Trạng thái chờ: "+ currentAction.getIndex() +" Status: index" +" " + isDelay);
         if (!isDelay) {
             isDelay = true;
             int delayTime = currentAction.getDuration(); // Giả sử getDuration() trả về thời gian chờ bằng mili giây
-
             // Tạo một Handler để xử lý việc chờ
             new Handler().postDelayed(() -> {
-                // Gọi sequence.traverseAction và nhận giá trị trả về
-                com.in_sync.models.Action resultAction = sequence.traverseAction(true, currentAction);
-                // Sau khi chờ xong, cập nhật trạng thái và trả về kết quả qua callback
+                count ++;
                 isDelay = false;
                 Log.e(TAG, "Cập nhật trạng thái chờ đợi: " + isDelay);
-                int tempIndex = resultAction.getIndex();
-                if(tempIndex > index) {
-                 while(tempIndex > index){
-                     index++;
-                 }
-                }else{
-                    while(tempIndex < index){
-                        index--;
-                    }
-                }
-
             }, delayTime);
         }
-
+        if (count != 0){
+            count=0;
+            return sequence.traverseAction(true, currentAction);
+        }else {
+            return sequence.traverseAction(false, currentAction);
+        }
     }
 
 

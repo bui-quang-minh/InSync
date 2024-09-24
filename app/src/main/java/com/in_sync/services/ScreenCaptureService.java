@@ -52,9 +52,11 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,6 +64,7 @@ import java.util.stream.Stream;
 import com.google.gson.reflect.TypeToken;
 import com.in_sync.R;
 import com.in_sync.actions.Action;
+import com.in_sync.actions.definition.ActionDef;
 import com.in_sync.helpers.NotificationUtils;
 import com.in_sync.models.Coordinate;
 import com.in_sync.models.Sequence;
@@ -102,6 +105,7 @@ public class ScreenCaptureService extends AccessibilityService {
     private AccessibilityNodeInfo source;
     private com.in_sync.models.Action currentAction = null;
     private boolean isExpanded = true;
+    private Queue<com.in_sync.models.Action> actionQueue = new LinkedList<>();
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
@@ -136,7 +140,7 @@ public class ScreenCaptureService extends AccessibilityService {
         @Override
         public void onImageAvailable(ImageReader reader) {
             com.in_sync.models.Action newAction = action.actionHandler(reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction);
-            if (newAction.getIndex() == -1) {
+            if (newAction == null) {
                 currentAction = newAction;
                 Log.e(TAG, "onImageAvailable: StopProjection");
                 removeOverlay();
@@ -317,8 +321,26 @@ public class ScreenCaptureService extends AccessibilityService {
     private void bindStep(String json) {
         Gson gson = new Gson();
         Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {}.getType();
-        List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);;
-        sequence = new Sequence(actionsList);
+        List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);
+        actionQueue.clear();
+        tranferListToQueue(actionsList);
+        Log.e(TAG, "QUEUE SIZE: " + actionQueue.size());
+        for (com.in_sync.models.Action action: actionQueue) {
+            Log.e(TAG, "QUEUE DATA: "+action.getIndex()+ " ACTION:" + action.getActionType());
+        }
+        sequence = new Sequence(actionQueue);
+    }
+
+    public  void tranferListToQueue (List<com.in_sync.models.Action> actions){
+        for (com.in_sync.models.Action singleAction:actions) {
+            if(singleAction.getActionType().equals(ActionDef.FOR)) {
+                for (int i = 0; i < singleAction.getTries(); i++) {
+                    tranferListToQueue(singleAction.getExecuteActions());
+                }
+            }else{
+                actionQueue.add(singleAction);
+            }
+        }
     }
 
 
