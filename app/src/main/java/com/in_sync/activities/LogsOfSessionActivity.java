@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.in_sync.R;
 import com.in_sync.adapters.LogAdapter;
-import com.in_sync.daos.FirebaseLogService;
 import com.in_sync.daos.LogsFirebaseService;
 import com.in_sync.models.LogSession;
 

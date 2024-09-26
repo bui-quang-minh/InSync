@@ -36,7 +36,7 @@ import com.in_sync.activities.LogsOfSessionActivity;
 import com.in_sync.R;
 import com.in_sync.adapters.LogSessionAdapter;
 import com.in_sync.adapters.ScenarioSpinnerAdapter;
-import com.in_sync.daos.FirebaseLogService;
+
 import com.in_sync.daos.LogsFirebaseService;
 import com.in_sync.models.LogSession;
 
@@ -59,7 +59,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     LogsFirebaseService service;
     private static final String TAG = "LogFragment";
     private static final String All_SCENARIO = "All Scenario";
-    private static final  String[] sortOptions = {FirebaseLogService.SORT_A_Z, FirebaseLogService.SORT_Z_A, FirebaseLogService.SORT_BY_NEWEST, FirebaseLogService.SORT_BY_OLDEST};
+    private static final  String[] sortOptions = {LogsFirebaseService.SORT_A_Z, LogsFirebaseService.SORT_Z_A, LogsFirebaseService.SORT_BY_NEWEST, LogsFirebaseService.SORT_BY_OLDEST};
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -118,7 +118,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Show sort options dialog
     private void showSortOptionsDialog() {
         // Các tùy chọn sắp xếp
-        String[] sortOptions = {FirebaseLogService.SORT_A_Z, FirebaseLogService.SORT_Z_A, FirebaseLogService.SORT_BY_NEWEST, FirebaseLogService.SORT_BY_OLDEST};
+        String[] sortOptions = {LogsFirebaseService.SORT_A_Z, LogsFirebaseService.SORT_Z_A, LogsFirebaseService.SORT_BY_NEWEST, LogsFirebaseService.SORT_BY_OLDEST};
 
         // Tạo AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -162,6 +162,21 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         searchViewInToolBar.requestFocus();
         InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(searchViewInToolBar.findFocus(), InputMethodManager.SHOW_IMPLICIT);
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                // Expand the search view to take full width
+                expandSearchView(searchViewInToolBar);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                // Reset to normal size when collapsed
+                resetSearchView(searchViewInToolBar);
+                return true;
+            }
+        });
         searchViewInToolBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -182,6 +197,15 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         });
 
 
+    }
+    // Method to expand the search view to full width
+    private void expandSearchView(SearchView searchView) {
+        searchView.setMaxWidth(Integer.MAX_VALUE);  // Set to max width
+    }
+
+    // Method to reset search view width when collapsed
+    private void resetSearchView(SearchView searchView) {
+        searchView.setMaxWidth(-1);  // Reset to default width
     }
 
     // Phan Quang Huy

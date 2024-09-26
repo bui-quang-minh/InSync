@@ -21,9 +21,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import com.in_sync.R;
-import com.in_sync.daos.AddData;
-import com.in_sync.daos.FirebaseLogService;
-import com.in_sync.fragments.ExploreFragment;
+import com.in_sync.fragments.ProjectFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
 import com.in_sync.fragments.ProfileFragment;
@@ -31,15 +29,13 @@ import com.in_sync.fragments.ScreenCaptureFragment;
 import com.in_sync.fragments.TestFragment;
 import com.in_sync.validates.PermissionValid;
 
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "MainActivity";
     private BottomNavigationView bottomNavigationView;
     private HomeFragment homeFragment;
     private LogFragment logFragment;
-    private ExploreFragment exploreFragment;
+    private ProjectFragment projectFragment;
     private TestFragment testFragment;
     private ProfileFragment profileFragment;
     private ScreenCaptureFragment screenCaptureFragment;
@@ -77,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, logFragment).commit();
                     return true;
-                } else if (item.getItemId() == R.id.explore) {
+                } else if (item.getItemId() == R.id.project) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, exploreFragment).commit();
+                            .replace(R.id.container, projectFragment).commit();
                     return true;
                 } else if (item.getItemId() == R.id.test) {
                     getSupportFragmentManager().beginTransaction().
@@ -129,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         homeFragment = new HomeFragment();
         logFragment = new LogFragment();
-        exploreFragment = new ExploreFragment();
+        projectFragment = new ProjectFragment();
         testFragment = new TestFragment();
         profileFragment = new ProfileFragment();
         screenCaptureFragment = new ScreenCaptureFragment(this);

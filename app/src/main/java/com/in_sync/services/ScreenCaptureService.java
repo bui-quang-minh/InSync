@@ -5,6 +5,7 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -65,6 +66,7 @@ import com.google.gson.reflect.TypeToken;
 import com.in_sync.R;
 import com.in_sync.actions.Action;
 import com.in_sync.actions.definition.ActionDef;
+import com.in_sync.activities.MainActivity;
 import com.in_sync.helpers.NotificationUtils;
 import com.in_sync.models.Coordinate;
 import com.in_sync.models.Sequence;
@@ -107,11 +109,14 @@ public class ScreenCaptureService extends AccessibilityService {
     private boolean isExpanded = true;
     private Queue<com.in_sync.models.Action> actionQueue = new LinkedList<>();
 
+    private static Context contexts;
+
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
         intent.putExtra(RESULT_CODE, resultCode);
         intent.putExtra(DATA, data);
+        contexts = context;
         return intent;
     }
 
@@ -167,12 +172,39 @@ public class ScreenCaptureService extends AccessibilityService {
             final int rotation = mDisplay.getRotation();
             if (rotation != mRotation) {
                 mRotation = rotation;
+
                 try {
-                    // clean up
-                    if (mVirtualDisplay != null) mVirtualDisplay.release();
-                    if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
-                    // re-create virtual display depending on device width / height
-                    createVirtualDisplay();
+                    // Clean up existing virtual display and image reader
+                    if (mVirtualDisplay != null) {
+                        mVirtualDisplay.release();
+                        mVirtualDisplay = null;
+                    }
+
+                    if (mImageReader != null) {
+                        mImageReader.setOnImageAvailableListener(null, null);
+                        mImageReader = null;
+                    }
+
+                    // Delay recreation slightly to avoid rapid re-triggering
+                    mHandler.postDelayed(() -> {
+                        try {
+                            createVirtualDisplay();
+                        } catch (Exception e) {
+                            // Use the Activity context for the AlertDialog
+
+                            removeOverlay();
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                AlertDialog alertDialog = new AlertDialog.Builder(contexts)
+                                        .setTitle("Warning")
+                                        .setMessage("Detect orientation change! Please restart the service.")
+                                        .setNeutralButton("OK", (dialog, which) -> {
+                                            dialog.dismiss();
+                                        })
+                                        .create();
+                                alertDialog.show();
+                            });
+                        }
+                    }, 50);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -273,6 +305,7 @@ public class ScreenCaptureService extends AccessibilityService {
                 if (mOrientationChangeCallback.canDetectOrientation()) {
                     mOrientationChangeCallback.enable();
                 }
+
                 mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
             }
         }

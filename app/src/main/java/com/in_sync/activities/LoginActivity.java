@@ -168,8 +168,11 @@ public class LoginActivity extends AppCompatActivity {
                                     break;
                                 }
                             }
-                            if (list.isEmpty())
+                            if (list.isEmpty()){
                                 Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                                loginButton.setEnabled(true);
+                                loginWithGoogleButton.setEnabled(true);
+                            }
                         }catch (Exception e){
                             e.printStackTrace();
                         }
@@ -178,6 +181,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
+                        loginButton.setEnabled(true);
+                        loginWithGoogleButton.setEnabled(true);
                     }
                 });
             }
@@ -267,6 +272,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(String error) {
                 usernameLayout.setError("Invalid username");
+                loginButton.setEnabled(true);
+                loginWithGoogleButton.setEnabled(true);
             }
         });
     }
