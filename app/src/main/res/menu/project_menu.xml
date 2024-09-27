@@ -3,19 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <!-- Item SearchView -->
     <item
-        android:id="@+id/action_search"
+        android:id="@+id/action_search_project"
         android:icon="@drawable/baseline_search_24"
         android:title="Search"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView"
         android:focusable="true"
         android:focusableInTouchMode="true"/>
-
     <!-- Item khác -->
     <item
-        android:id="@+id/action_sort"
+        android:id="@+id/action_add_project"
+        android:title="Add Project"
+        android:icon="@drawable/baseline_add_box_24"
+        app:title="Sort"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_sort_project"
         android:title="Sort"
         android:icon="@drawable/baseline_sort_24"
-        app:title="Settings"
+        app:title="Sort"
         app:showAsAction="ifRoom" />
 </menu>

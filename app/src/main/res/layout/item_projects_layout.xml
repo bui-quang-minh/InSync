@@ -13,7 +13,7 @@
     app:cardPreventCornerOverlap="true"
 
     >
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -34,27 +34,33 @@
                 android:layout_width="0dip"
                 android:padding="10dp"
                 android:layout_height="wrap_content">
+
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_marginBottom="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     >
-
                     <TextView
-                        android:id="@+id/session_name_tv"
-                        android:text="Project Name 1"
-                        android:textSize="14sp"
+                        android:id="@+id/project_name_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        />
+                        android:text="Project Name 1"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                    <ImageView
+                        android:padding="5dp"
+                        android:layout_gravity="center"
+                        android:id="@+id/status_project"
+                        android:src="@drawable/publishing"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"/>
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:layout_weight="1" />
                     <TextView
-                        android:id="@+id/date_created_tv"
+                        android:id="@+id/date_updated_tv"
                         android:text="Project Date 1"
                         android:textSize="14sp"
                         android:layout_width="wrap_content"
@@ -91,7 +97,7 @@
                     android:layout_height="wrap_content">
                     <TextView
                         android:text="Descriptions"
-                        android:id="@+id/system_description"
+                        android:id="@+id/project_description_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/neutral_500"
@@ -103,17 +109,26 @@
                     android:orientation="horizontal"
                     android:gravity="start">
                     <Button
-                        android:id="@+id/view_log_btn"
+                        android:id="@+id/view_scenario_btn"
                         android:text="View"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="10dp"
                         />
                     <Button
-                        android:id="@+id/delete_session_btn"
+                        android:id="@+id/delete_project_btn"
                         android:text="Delete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:text="10 hours ago "
+                        android:id="@+id/updated_time_tv"
+                       android:layout_marginLeft="100dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/neutral_500"
+                        android:textSize="14sp"/>
                 </LinearLayout>
             </LinearLayout>
 

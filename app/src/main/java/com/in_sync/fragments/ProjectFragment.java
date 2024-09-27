@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,12 +26,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.in_sync.R;
 import com.in_sync.adapters.LogSessionAdapter;
+import com.in_sync.adapters.ProjectAdapter;
 import com.in_sync.adapters.ScenarioSpinnerAdapter;
 import com.in_sync.api.APIProject;
+import com.in_sync.api.ResponsePaging;
 import com.in_sync.common.ApiClient;
 import com.in_sync.daos.LogsFirebaseService;
 import com.in_sync.models.Project;
@@ -42,27 +46,26 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class ProjectFragment extends Fragment {
-
+public class ProjectFragment extends Fragment implements
+        ProjectAdapter.OnItemClickProjectListener {
+    private static final String[] sortOptions = {LogsFirebaseService.SORT_A_Z, LogsFirebaseService.SORT_Z_A, LogsFirebaseService.SORT_BY_NEWEST, LogsFirebaseService.SORT_BY_OLDEST};
     Toolbar toolbar;
     ProgressBar progressBar;
-
-    RecyclerView logSessionRecyclerView;
-    Spinner scenarioSpinner;
+    RecyclerView projectRecyclerView;
     SearchView searchViewInToolBar;
+    ProjectAdapter projectAdapter;
     TextView notifyTextView;
     ImageView sort_icon;
 
     APIProject apiProject;
-
     View overlay;
-    ScenarioSpinnerAdapter scenarioSpinnerAdapter;
-    LogSessionAdapter sessionAdapter;
-    LogsFirebaseService service;
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         handlerEvent();
+        //Init data
+        searchProject(sortOptions[2]);
     }
 
     private void handlerEvent() {
@@ -77,39 +80,17 @@ public class ProjectFragment extends Fragment {
         String model = Build.MODEL;
         setHasOptionsMenu(true);
         initView(rootView);
-        apiProject = ApiClient.getRetrofitInstance(com.in_sync.common.Settings.BASE_SYSTEM_API_URL).create(APIProject.class);
-        Call<ArrayList<Project>> callProject = apiProject.getAllProjects();
-
-        callProject.enqueue(new Callback<ArrayList<Project>>() {
-            @Override
-            public void onResponse(Call<ArrayList<Project>> call, Response<ArrayList<Project>> response) {
-                if(response.isSuccessful()){
-                    ArrayList<Project> projects = response.body();
-                    for(Project project: projects){
-                        Log.e("Project", project.getProjectName());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ArrayList<Project>> call, Throwable t) {
-                int i = 0;
-            }
-        });
-
         return rootView;
     }
 
     private void initView(View rootView) {
-
         overlay = rootView.findViewById(R.id.overlay);
-        //service = new LogsFirebaseService();
         toolbar = rootView.findViewById(R.id.toolbar_project);
         progressBar = rootView.findViewById(R.id.progress_bar);
-        logSessionRecyclerView = rootView.findViewById(R.id.log_session_recycle);
-        scenarioSpinner = rootView.findViewById(R.id.scenario_sp);
-        notifyTextView = rootView.findViewById(R.id.notify_no_session);
-
+        projectRecyclerView = rootView.findViewById(R.id.project_recycle);
+        notifyTextView = rootView.findViewById(R.id.notify_no_project);
+        // api
+        apiProject = ApiClient.getRetrofitInstance().create(APIProject.class);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
             activity.setSupportActionBar(toolbar);
@@ -120,12 +101,12 @@ public class ProjectFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         // Inflate menu vào ActionBar
-        inflater.inflate(R.menu.log_menu, menu);
+        inflater.inflate(R.menu.project_menu, menu);
 
         // Lấy SearchView từ menu và thiết lập sự kiện tìm kiếm
-        MenuItem searchItem = menu.findItem(R.id.action_search);
+        MenuItem searchItem = menu.findItem(R.id.action_search_project);
         searchViewInToolBar = (SearchView) searchItem.getActionView();
-        searchViewInToolBar.setQueryHint("Search...");
+        searchViewInToolBar.setQueryHint("Enter key word to search project...");
         searchViewInToolBar.setIconified(false);
         searchViewInToolBar.requestFocus();
         InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -134,27 +115,27 @@ public class ProjectFragment extends Fragment {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 // Expand the search view to take full width
-                expandSearchView(searchViewInToolBar);
+                expandSearchView();
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 // Reset to normal size when collapsed
-                resetSearchView(searchViewInToolBar);
+                resetSearchView();
                 return true;
             }
         });
         searchViewInToolBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                //searchSessionLog(sortOptions[2]);
+                searchProject(sortOptions[2]);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                //searchSessionLog(sortOptions[2]);
+                searchProject(sortOptions[2]);
                 return true;
             }
         });
@@ -163,17 +144,16 @@ public class ProjectFragment extends Fragment {
             imm.hideSoftInputFromWindow(searchViewInToolBar.getWindowToken(), 0);
             return false; // Return false to allow default behavior (collapse the SearchView)
         });
-
-
     }
+
     // Method to expand the search view to full width
-    private void expandSearchView(SearchView searchView) {
-        searchView.setMaxWidth(Integer.MAX_VALUE);  // Set to max width
+    private void expandSearchView() {
+        searchViewInToolBar.setMaxWidth(Integer.MAX_VALUE);  // Set to max width
     }
 
     // Method to reset search view width when collapsed
-    private void resetSearchView(SearchView searchView) {
-        searchView.setMaxWidth(-1);  // Reset to default width
+    private void resetSearchView() {
+        searchViewInToolBar.setMaxWidth(-1);  // Reset to default width
     }
 
     // Phan Quang Huy
@@ -181,16 +161,18 @@ public class ProjectFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // Xử lý sự kiện khi người dùng chọn mục trong ActionBar
-        if (item.getItemId() == R.id.action_sort) {
+        if (item.getItemId() == R.id.action_sort_project) {
             showSortOptionsDialog();
+            return true;
+        } else if (item.getItemId() == R.id.action_add_project) {
+            Toast.makeText(getContext(), "Add project", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void showSortOptionsDialog() {
         // Các tùy chọn sắp xếp
-        String[] sortOptions = {LogsFirebaseService.SORT_A_Z, LogsFirebaseService.SORT_Z_A, LogsFirebaseService.SORT_BY_NEWEST, LogsFirebaseService.SORT_BY_OLDEST};
-
         // Tạo AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Choose Sort Option")
@@ -200,21 +182,85 @@ public class ProjectFragment extends Fragment {
                         // Xử lý khi người dùng chọn một tùy chọn
                         switch (which) {
                             case 0:
-                                //searchSessionLog(sortOptions[0]);
+                                searchProject(sortOptions[0]);
                                 break;
                             case 1:
-                                //searchSessionLog(sortOptions[1]);
+                                searchProject(sortOptions[1]);
                                 break;
                             case 2:
-                                //searchSessionLog(sortOptions[2]);
+                                searchProject(sortOptions[2]);
                                 break;
                             case 3:
-                                //searchSessionLog(sortOptions[3]);
+                                searchProject(sortOptions[3]);
                                 break;
                         }
                     }
                 });
         // Hiển thị dialog
         builder.show();
+    }
+
+    private void searchProject(String sort) {
+        String keySearch = "";
+        if (searchViewInToolBar != null) {
+            keySearch = searchViewInToolBar.getQuery().toString();
+        }
+
+        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjects(keySearch);
+        callProject.enqueue(new Callback<ResponsePaging<ArrayList<Project>>>() {
+            @Override
+            public void onResponse(Call<ResponsePaging<ArrayList<Project>>> call, Response<ResponsePaging<ArrayList<Project>>> response) {
+                if (response.isSuccessful()) {
+                    ResponsePaging<ArrayList<Project>> responsePaging = response.body();
+                    ArrayList<Project> projects = responsePaging.getData();
+
+                    switch (sort) {
+                        case LogsFirebaseService.SORT_A_Z:
+                            projects.sort((o1, o2) -> o1.getProjectName().compareTo(o2.getProjectName()));
+                            break;
+                        case LogsFirebaseService.SORT_Z_A:
+                            projects.sort((o1, o2) -> o2.getProjectName().compareTo(o1.getProjectName()));
+                            break;
+                        case LogsFirebaseService.SORT_BY_NEWEST:
+                            projects.sort((o1, o2) -> o2.getDateCreated().compareTo(o1.getDateCreated()));
+                            break;
+                        case LogsFirebaseService.SORT_BY_OLDEST:
+                            projects.sort((o1, o2) -> o1.getDateCreated().compareTo(o2.getDateCreated()));
+                            break;
+                    }
+                    projectAdapter = new ProjectAdapter(getContext(), projects, ProjectFragment.this);
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                    projectRecyclerView.setAdapter(projectAdapter);
+                    projectRecyclerView.setLayoutManager(layoutManager);
+
+                    if (projects == null || projects.isEmpty()) {
+                        notifyTextView.setVisibility(View.VISIBLE);
+                        return;
+                    } else {
+                        notifyTextView.setVisibility(View.GONE);
+                        return;
+                    }
+
+                } else {
+                    Toast.makeText(getContext(), "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponsePaging<ArrayList<Project>>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onViewClick(View view, int position) {
+
+    }
+
+    @Override
+    public void onDeleteClick(View view, int position) {
+
     }
 }
