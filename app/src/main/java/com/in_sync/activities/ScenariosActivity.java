@@ -1,118 +1,131 @@
-package com.in_sync.fragments;
+package com.in_sync.activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.in_sync.R;
-import com.in_sync.activities.ScenariosActivity;
-import com.in_sync.adapters.LogSessionAdapter;
 import com.in_sync.adapters.ProjectAdapter;
 import com.in_sync.adapters.ScenarioAdapter;
-import com.in_sync.adapters.ScenarioSpinnerAdapter;
 import com.in_sync.api.APIProject;
+import com.in_sync.api.APIScenario;
 import com.in_sync.api.ResponsePaging;
 import com.in_sync.common.ApiClient;
 import com.in_sync.daos.LogsFirebaseService;
+import com.in_sync.fragments.ProjectFragment;
 import com.in_sync.models.Project;
+import com.in_sync.models.Scenario;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class ProjectFragment extends Fragment implements
-        ProjectAdapter.OnItemClickProjectListener {
+public class ScenariosActivity extends AppCompatActivity implements ScenarioAdapter.OnItemClickScenarioListener{
+
     private static final String[] sortOptions = {LogsFirebaseService.SORT_A_Z, LogsFirebaseService.SORT_Z_A, LogsFirebaseService.SORT_BY_NEWEST, LogsFirebaseService.SORT_BY_OLDEST};
     Toolbar toolbar;
     ProgressBar progressBar;
-    RecyclerView projectRecyclerView;
+    RecyclerView scenarioRecyclerView;
     SearchView searchViewInToolBar;
-    ProjectAdapter projectAdapter;
+    ScenarioAdapter scenarioAdapter;
     TextView notifyTextView;
-    ImageView sort_icon;
-
+    TextView projectNameTextView;
+    APIScenario apiScenario;
     APIProject apiProject;
+    UUID projectUUID;
+    String projectName;
+
     View overlay;
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_scenarios);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        Intent intent = getIntent();
+        String projectId = intent.getStringExtra("projectId");
+        projectName = intent.getStringExtra("projectName");
+        if(projectId == null){
+            finish();
+        }
+        projectUUID = UUID.fromString(projectId);
+        initView();
+        initData();
         handlerEvent();
-        //Init data
-        searchProject(sortOptions[2]);
+    }
+
+    private void initData() {
+        projectNameTextView.setText(projectName);
+        searchScenario(sortOptions[2]);
     }
 
     private void handlerEvent() {
+
+
     }
 
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_project, container, false);
-        String model = Build.MODEL;
-        setHasOptionsMenu(true);
-        initView(rootView);
-        return rootView;
-    }
-
-    private void initView(View rootView) {
-        overlay = rootView.findViewById(R.id.overlay);
-        toolbar = rootView.findViewById(R.id.toolbar_project);
-        progressBar = rootView.findViewById(R.id.progress_bar);
-        projectRecyclerView = rootView.findViewById(R.id.project_recycle);
-        notifyTextView = rootView.findViewById(R.id.notify_no_project);
+    private void initView() {
+        overlay = findViewById(R.id.overlay_scenario);
+        toolbar = findViewById(R.id.toolbar_scenario);
+        progressBar = findViewById(R.id.progress_bar_scenario);
+        scenarioRecyclerView = findViewById(R.id.scenario_recycle);
+        notifyTextView = findViewById(R.id.notify_no_scenario);
+        projectNameTextView = findViewById(R.id.project_name_of_scenario);
         // api
+        apiScenario = ApiClient.getRetrofitInstance().create(APIScenario.class);
         apiProject = ApiClient.getRetrofitInstance().create(APIProject.class);
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
-        if (activity != null) {
-            activity.setSupportActionBar(toolbar);
-        }
-        //initDataForScenarioSpinner();
-    }
+        this.setSupportActionBar(toolbar);
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
+    }
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         // Inflate menu vào ActionBar
-        inflater.inflate(R.menu.project_menu, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.scenario_menu, menu);
 
         // Lấy SearchView từ menu và thiết lập sự kiện tìm kiếm
-        MenuItem searchItem = menu.findItem(R.id.action_search_project);
+        MenuItem searchItem = menu.findItem(R.id.action_search_scenario);
         searchViewInToolBar = (SearchView) searchItem.getActionView();
-        searchViewInToolBar.setQueryHint("Enter key word to search project...");
+        searchViewInToolBar.setQueryHint("Enter key word to search scenarios...");
         searchViewInToolBar.setIconified(false);
         searchViewInToolBar.requestFocus();
-        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(searchViewInToolBar.findFocus(), InputMethodManager.SHOW_IMPLICIT);
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
@@ -132,13 +145,13 @@ public class ProjectFragment extends Fragment implements
         searchViewInToolBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                searchProject(sortOptions[2]);
+                searchScenario(sortOptions[2]);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchProject(sortOptions[2]);
+                searchScenario(sortOptions[2]);
                 return true;
             }
         });
@@ -147,6 +160,8 @@ public class ProjectFragment extends Fragment implements
             imm.hideSoftInputFromWindow(searchViewInToolBar.getWindowToken(), 0);
             return false; // Return false to allow default behavior (collapse the SearchView)
         });
+
+        return true;
     }
 
     // Method to expand the search view to full width
@@ -164,20 +179,22 @@ public class ProjectFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         // Xử lý sự kiện khi người dùng chọn mục trong ActionBar
-        if (item.getItemId() == R.id.action_sort_project) {
+        if (item.getItemId() == R.id.action_sort_scenario) {
             showSortOptionsDialog();
             return true;
         } else if (item.getItemId() == R.id.action_add_project) {
-            Toast.makeText(getContext(), "Add project", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScenariosActivity.this, "Add project", Toast.LENGTH_SHORT).show();
+            return true;
+        }else if (item.getItemId() == android.R.id.home) {
+            this.onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
     private void showSortOptionsDialog() {
         // Các tùy chọn sắp xếp
         // Tạo AlertDialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(ScenariosActivity.this);
         builder.setTitle("Choose Sort Option")
                 .setItems(sortOptions, new DialogInterface.OnClickListener() {
                     @Override
@@ -185,60 +202,63 @@ public class ProjectFragment extends Fragment implements
                         // Xử lý khi người dùng chọn một tùy chọn
                         switch (which) {
                             case 0:
-                                searchProject(sortOptions[0]);
+                                searchScenario(sortOptions[0]);
                                 break;
                             case 1:
-                                searchProject(sortOptions[1]);
+                                searchScenario(sortOptions[1]);
                                 break;
                             case 2:
-                                searchProject(sortOptions[2]);
+                                searchScenario(sortOptions[2]);
                                 break;
                             case 3:
-                                searchProject(sortOptions[3]);
+                                searchScenario(sortOptions[3]);
                                 break;
                         }
                     }
+
                 });
         // Hiển thị dialog
         builder.show();
     }
-
-    private void searchProject(String sort) {
+    private void searchScenario(String sortOption) {
         String keySearch = "";
         if (searchViewInToolBar != null) {
             keySearch = searchViewInToolBar.getQuery().toString();
         }
-
+        UUID projectId = UUID.fromString("F521DE50-6E6F-4EF8-99A6-20BB15F7AB8B");
+        String userIdClerk = "flasdflx.jlfasdfal_sdlfajs";
         progressBar.setVisibility(View.VISIBLE);
-        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjects(keySearch);
-        callProject.enqueue(new Callback<ResponsePaging<ArrayList<Project>>>() {
+        overlay.setVisibility(View.VISIBLE);
+        Call<ResponsePaging<ArrayList<Scenario>>> call = apiScenario.getAllScenaroOfProject(projectId, userIdClerk, keySearch, 0, Integer.MAX_VALUE);
+        call.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
-            public void onResponse(Call<ResponsePaging<ArrayList<Project>>> call, Response<ResponsePaging<ArrayList<Project>>> response) {
+            public void onResponse(Call<ResponsePaging<ArrayList<Scenario>>> call, Response<ResponsePaging<ArrayList<Scenario>>> response) {
                 progressBar.setVisibility(View.GONE);
+                overlay.setVisibility(View.GONE);
                 if (response.isSuccessful()) {
-                    ResponsePaging<ArrayList<Project>> responsePaging = response.body();
-                    ArrayList<Project> projects = responsePaging.getData();
+                    ResponsePaging<ArrayList<Scenario>> responsePaging = response.body();
+                    ArrayList<Scenario> scenarios = responsePaging.getData();
 
-                    switch (sort) {
+                    switch (sortOption) {
                         case LogsFirebaseService.SORT_A_Z:
-                            projects.sort((o1, o2) -> o1.getProjectName().compareTo(o2.getProjectName()));
+                            scenarios.sort((o1, o2) -> o1.getTitle().compareTo(o2.getTitle()));
                             break;
                         case LogsFirebaseService.SORT_Z_A:
-                            projects.sort((o1, o2) -> o2.getProjectName().compareTo(o1.getProjectName()));
+                            scenarios.sort((o1, o2) -> o2.getTitle().compareTo(o1.getTitle()));
                             break;
                         case LogsFirebaseService.SORT_BY_NEWEST:
-                            projects.sort((o1, o2) -> o2.getDateCreated().compareTo(o1.getDateCreated()));
+                            scenarios.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
                             break;
                         case LogsFirebaseService.SORT_BY_OLDEST:
-                            projects.sort((o1, o2) -> o1.getDateCreated().compareTo(o2.getDateCreated()));
+                            scenarios.sort((o1, o2) -> o1.getCreatedAt().compareTo(o2.getCreatedAt()));
                             break;
                     }
-                    projectAdapter = new ProjectAdapter(getContext(), projects, ProjectFragment.this);
-                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-                    projectRecyclerView.setAdapter(projectAdapter);
-                    projectRecyclerView.setLayoutManager(layoutManager);
+                    scenarioAdapter = new ScenarioAdapter(ScenariosActivity.this, scenarios, ScenariosActivity.this);
+                    RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(ScenariosActivity.this, LinearLayoutManager.VERTICAL, false);
+                    scenarioRecyclerView.setAdapter(scenarioAdapter);
+                    scenarioRecyclerView.setLayoutManager(layoutManager);
 
-                    if (projects == null || projects.isEmpty()) {
+                    if (scenarios == null || scenarios.isEmpty()) {
                         notifyTextView.setVisibility(View.VISIBLE);
                         return;
                     } else {
@@ -248,31 +268,23 @@ public class ProjectFragment extends Fragment implements
                     }
 
                 } else {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ScenariosActivity.this, "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
                 }
 
             }
 
             @Override
-            public void onFailure(Call<ResponsePaging<ArrayList<Project>>> call, Throwable t) {
+            public void onFailure(Call<ResponsePaging<ArrayList<Scenario>>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
+                overlay.setVisibility(View.GONE);
+                Toast.makeText(ScenariosActivity.this, "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+
     @Override
-    public void onViewClick(View view, int position) {
-        Project project = projectAdapter.getItem(position);
-        if(project == null){
-            Toast.makeText(getContext(), "Project information is not correct.", Toast.LENGTH_SHORT).show();
-        }else{
-            Intent intent = new Intent(getActivity(), ScenariosActivity.class);
-            intent.putExtra("projectId", project.getId().toString());
-            intent.putExtra("projectName", project.getProjectName());
-            startActivity(intent);
-        }
+    public void onRunClick(View view, int position) {
 
     }
 

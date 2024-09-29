@@ -30,10 +30,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     private ProjectAdapter.OnItemClickProjectListener onItemClickProjectListener;
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
-    public ProjectAdapter(Context context, List<Project> projects, ProjectAdapter.OnItemClickProjectListener onItemClickLogSessionListener) {
+    public ProjectAdapter(Context context, List<Project> projects, ProjectAdapter.OnItemClickProjectListener onItemClickProjectListener) {
         this.context = context;
         this.projects = projects;
-        this.onItemClickProjectListener = onItemClickLogSessionListener;
+        this.onItemClickProjectListener = onItemClickProjectListener;
     }
 
     @NonNull
