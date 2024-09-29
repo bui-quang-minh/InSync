@@ -3,6 +3,7 @@ package com.in_sync.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +31,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.in_sync.R;
+import com.in_sync.activities.LoginActivity;
 import com.in_sync.activities.ScenariosActivity;
 import com.in_sync.adapters.LogSessionAdapter;
 import com.in_sync.adapters.ProjectAdapter;
@@ -41,6 +44,9 @@ import com.in_sync.api.ResponsePaging;
 import com.in_sync.common.ApiClient;
 import com.in_sync.daos.LogsFirebaseService;
 import com.in_sync.models.Project;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -62,6 +68,7 @@ public class ProjectFragment extends Fragment implements
 
     APIProject apiProject;
     View overlay;
+    String userIdClerk = "";
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -82,9 +89,34 @@ public class ProjectFragment extends Fragment implements
         View rootView = inflater.inflate(R.layout.fragment_project, container, false);
         String model = Build.MODEL;
         setHasOptionsMenu(true);
+        getInformationUserLogin();
+        checkUserLogin();
         initView(rootView);
         return rootView;
     }
+
+    private void getInformationUserLogin() {
+        SharedPreferences sharedPreferences = this.getContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        String userInfo = sharedPreferences.getString("UserInfo", "User");
+        Log.d("UserInfo", userInfo);
+
+        try {
+            JSONArray userArray = new JSONArray(userInfo);
+            if (userArray.length() > 0) {
+                JSONObject user = userArray.getJSONObject(0);
+                userIdClerk = user.getString("id");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    private void checkUserLogin(){
+        if(userIdClerk.equals("")){
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(intent);
+        }
+    }
+
 
     private void initView(View rootView) {
         overlay = rootView.findViewById(R.id.overlay);
@@ -210,7 +242,7 @@ public class ProjectFragment extends Fragment implements
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjects(keySearch);
+        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk,keySearch);
         callProject.enqueue(new Callback<ResponsePaging<ArrayList<Project>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Project>>> call, Response<ResponsePaging<ArrayList<Project>>> response) {
@@ -265,9 +297,9 @@ public class ProjectFragment extends Fragment implements
     @Override
     public void onViewClick(View view, int position) {
         Project project = projectAdapter.getItem(position);
-        if(project == null){
+        if (project == null) {
             Toast.makeText(getContext(), "Project information is not correct.", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Intent intent = new Intent(getActivity(), ScenariosActivity.class);
             intent.putExtra("projectId", project.getId().toString());
             intent.putExtra("projectName", project.getProjectName());

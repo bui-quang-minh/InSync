@@ -12,8 +12,8 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface APIProject {
-    @GET("/api/projects/pagination")
-    Call<ResponsePaging<ArrayList<Project>>> getAllProjects(@Query("keySearch") String keySearch);
+    @GET("/api/projects/project-user-clerk-is-publish/{userIdClerk}")
+    Call<ResponsePaging<ArrayList<Project>>> getAllProjectsOfUser(@Path("userIdClerk")String userIdClerk,@Query("keySearch") String keySearch);
     @GET("/api/projects/{id}")
     Call<Project> GetProject(@Path("id") UUID id);
 }

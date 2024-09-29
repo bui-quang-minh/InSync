@@ -125,12 +125,15 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         searchViewInToolBar.setQueryHint("Enter key word to search scenarios...");
         searchViewInToolBar.setIconified(false);
         searchViewInToolBar.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(searchViewInToolBar.findFocus(), InputMethodManager.SHOW_IMPLICIT);
+//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.showSoftInput(searchViewInToolBar.findFocus(), InputMethodManager.SHOW_IMPLICIT);
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 // Expand the search view to take full width
+                searchViewInToolBar.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(searchViewInToolBar, InputMethodManager.SHOW_IMPLICIT);
                 expandSearchView();
                 return true;
             }
@@ -155,11 +158,13 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
                 return true;
             }
         });
-        searchViewInToolBar.setOnCloseListener(() -> {
-            // Hide keyboard when SearchView is closed
-            imm.hideSoftInputFromWindow(searchViewInToolBar.getWindowToken(), 0);
-            return false; // Return false to allow default behavior (collapse the SearchView)
-        });
+
+
+//        searchViewInToolBar.setOnCloseListener(() -> {
+//            // Hide keyboard when SearchView is closed
+//            imm.hideSoftInputFromWindow(searchViewInToolBar.getWindowToken(), 0);
+//            return false; // Return false to allow default behavior (collapse the SearchView)
+//        });
 
         return true;
     }
@@ -182,7 +187,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         if (item.getItemId() == R.id.action_sort_scenario) {
             showSortOptionsDialog();
             return true;
-        } else if (item.getItemId() == R.id.action_add_project) {
+        } else if (item.getItemId() == R.id.action_add_scenario) {
             Toast.makeText(ScenariosActivity.this, "Add project", Toast.LENGTH_SHORT).show();
             return true;
         }else if (item.getItemId() == android.R.id.home) {
@@ -228,13 +233,12 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         UUID projectId = UUID.fromString("F521DE50-6E6F-4EF8-99A6-20BB15F7AB8B");
         String userIdClerk = "flasdflx.jlfasdfal_sdlfajs";
         progressBar.setVisibility(View.VISIBLE);
-        overlay.setVisibility(View.VISIBLE);
         Call<ResponsePaging<ArrayList<Scenario>>> call = apiScenario.getAllScenaroOfProject(projectId, userIdClerk, keySearch, 0, Integer.MAX_VALUE);
         call.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Scenario>>> call, Response<ResponsePaging<ArrayList<Scenario>>> response) {
                 progressBar.setVisibility(View.GONE);
-                overlay.setVisibility(View.GONE);
+
                 if (response.isSuccessful()) {
                     ResponsePaging<ArrayList<Scenario>> responsePaging = response.body();
                     ArrayList<Scenario> scenarios = responsePaging.getData();
@@ -263,7 +267,6 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
                         return;
                     } else {
                         notifyTextView.setVisibility(View.GONE);
-
                         return;
                     }
 
@@ -276,7 +279,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
             @Override
             public void onFailure(Call<ResponsePaging<ArrayList<Scenario>>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                overlay.setVisibility(View.GONE);
+
                 Toast.makeText(ScenariosActivity.this, "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
             }
         });
