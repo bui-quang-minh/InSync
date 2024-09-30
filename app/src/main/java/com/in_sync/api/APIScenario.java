@@ -15,5 +15,7 @@ public interface APIScenario {
     @GET("/api/scenarios/scenarios-project-useridclerk/{projectId}")
     Call<ResponsePaging<ArrayList<Scenario>>> getAllScenaroOfProject(@Path("projectId") UUID projectId, @Query("userIdClerk")String userIdClerk, @Query("keySearch") String keySearch, @Query("index") int index, @Query("size") int size);
 
+    @GET("/api/scenarios/scenarios-user-clerk/{userIdClerk}")
+    Call<ResponsePaging<ArrayList<Scenario>>> getAllScenaroOfUserClerk(@Path("userIdClerk") String userIdClerk, @Query("keySearch") String keySearch, @Query("index") int index, @Query("size") int size);
 
 }
