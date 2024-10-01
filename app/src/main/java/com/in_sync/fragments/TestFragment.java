@@ -52,6 +52,7 @@ public class TestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_test, container, false);
+
         inputEditText = view.findViewById(R.id.inputEditText);
         inputEditText.setText("[\n" +
                 "    {\n" +

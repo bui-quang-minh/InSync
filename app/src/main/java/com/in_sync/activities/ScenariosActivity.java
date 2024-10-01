@@ -3,8 +3,12 @@ package com.in_sync.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,11 +38,17 @@ import com.in_sync.adapters.ScenarioAdapter;
 import com.in_sync.api.APIProject;
 import com.in_sync.api.APIScenario;
 import com.in_sync.api.ResponsePaging;
+import com.in_sync.api.ResponseSuccess;
 import com.in_sync.common.ApiClient;
 import com.in_sync.daos.LogsFirebaseService;
 import com.in_sync.fragments.ProjectFragment;
+import com.in_sync.fragments.TestFragment;
+import com.in_sync.models.LogSession;
 import com.in_sync.models.Project;
 import com.in_sync.models.Scenario;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -48,7 +58,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class ScenariosActivity extends AppCompatActivity implements ScenarioAdapter.OnItemClickScenarioListener{
+public class ScenariosActivity extends AppCompatActivity implements ScenarioAdapter.OnItemClickScenarioListener {
 
     private static final String[] sortOptions = {LogsFirebaseService.SORT_A_Z, LogsFirebaseService.SORT_Z_A, LogsFirebaseService.SORT_BY_NEWEST, LogsFirebaseService.SORT_BY_OLDEST};
     Toolbar toolbar;
@@ -62,6 +72,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
     APIProject apiProject;
     UUID projectUUID;
     String projectName;
+    String userIdClerk;
 
     View overlay;
 
@@ -78,11 +89,13 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         Intent intent = getIntent();
         String projectId = intent.getStringExtra("projectId");
         projectName = intent.getStringExtra("projectName");
-        if(projectId == null){
+        if (projectId == null) {
             finish();
         }
         projectUUID = UUID.fromString(projectId);
         initView();
+        getInformationUserLogin();
+        checkUserLogin();
         initData();
         handlerEvent();
     }
@@ -113,6 +126,30 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
 
 
     }
+
+    private void getInformationUserLogin() {
+        SharedPreferences sharedPreferences = ScenariosActivity.this.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        String userInfo = sharedPreferences.getString("UserInfo", "User");
+        Log.d("UserInfo", userInfo);
+
+        try {
+            JSONArray userArray = new JSONArray(userInfo);
+            if (userArray.length() > 0) {
+                JSONObject user = userArray.getJSONObject(0);
+                userIdClerk = user.getString("id");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void checkUserLogin() {
+        if (userIdClerk.equals("")) {
+            Intent intent = new Intent(ScenariosActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         // Inflate menu vào ActionBar
@@ -190,12 +227,13 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         } else if (item.getItemId() == R.id.action_add_scenario) {
             Toast.makeText(ScenariosActivity.this, "Add project", Toast.LENGTH_SHORT).show();
             return true;
-        }else if (item.getItemId() == android.R.id.home) {
+        } else if (item.getItemId() == android.R.id.home) {
             this.onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void showSortOptionsDialog() {
         // Các tùy chọn sắp xếp
         // Tạo AlertDialog
@@ -225,15 +263,16 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         // Hiển thị dialog
         builder.show();
     }
+
     private void searchScenario(String sortOption) {
         String keySearch = "";
         if (searchViewInToolBar != null) {
             keySearch = searchViewInToolBar.getQuery().toString();
         }
-        UUID projectId = UUID.fromString("F521DE50-6E6F-4EF8-99A6-20BB15F7AB8B");
-        String userIdClerk = "flasdflx.jlfasdfal_sdlfajs";
+
+
         progressBar.setVisibility(View.VISIBLE);
-        Call<ResponsePaging<ArrayList<Scenario>>> call = apiScenario.getAllScenaroOfProject(projectId, userIdClerk, keySearch, 0, Integer.MAX_VALUE);
+        Call<ResponsePaging<ArrayList<Scenario>>> call = apiScenario.getAllScenaroOfProject(projectUUID, userIdClerk, keySearch, 0, Integer.MAX_VALUE);
         call.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Scenario>>> call, Response<ResponsePaging<ArrayList<Scenario>>> response) {
@@ -288,11 +327,72 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
 
     @Override
     public void onRunClick(View view, int position) {
-
+        Scenario scenario = scenarioAdapter.getItem(position);
+        if (scenario == null) {
+           showDialogNotification("Error Notification", "Can't find the scenario.", 1000);
+            return;
+        }
+        Intent intent = new Intent(ScenariosActivity.this, RunScenarioActivity.class);
+        intent.putExtra("scenarioId", scenario.getId().toString());
+        intent.putExtra("scenarioName", scenario.getTitle());
+        intent.putExtra("projectId", projectUUID.toString());
+        intent.putExtra("projectName", projectName);
+        intent.putExtra("android_json_string", scenario.getStepsAndroid());
+        startActivity(intent);
     }
 
     @Override
     public void onDeleteClick(View view, int position) {
+        Scenario scenario = scenarioAdapter.getItem(position);
+        if (scenario == null) {
+            Toast.makeText(ScenariosActivity.this, "Can't find the scenario.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(ScenariosActivity.this);
+        builder.setTitle("Notification delele scenario");
+        builder.setMessage("Are you sure you want to delete this scenario?");
+        builder.setIcon(R.drawable.alert);
+        builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+            Call<ResponseSuccess> deleteScenario = apiScenario.deleteScenario(scenario.getId());
+            deleteScenario.enqueue(new Callback<ResponseSuccess>() {
+                @Override
+                public void onResponse(Call<ResponseSuccess> call, Response<ResponseSuccess> response) {
+                    if (response.isSuccessful()) {
+                        showDialogNotification("Notification", "Delete scenario successfully!", 1000);
+                        searchScenario(sortOptions[2]);
+                    } else {
+                        showDialogNotification("Error Notification", "Delete scenario fail!", 1000);
+                    }
+                }
 
+                @Override
+                public void onFailure(Call<ResponseSuccess> call, Throwable t) {
+                    showDialogNotification("Error Notification", "Delete scenario fail!", 1000);
+                }
+            });
+
+        });
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
+
+        });
+        builder.create().show();
     }
+
+    public void showDialogNotification(String title, String message, int timeShow) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (alertDialog.isShowing()) {
+                    alertDialog.dismiss();
+                }
+            }
+        }, timeShow);
+    }
+
 }

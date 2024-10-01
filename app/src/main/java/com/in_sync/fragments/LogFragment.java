@@ -435,7 +435,6 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         builder.setMessage("Are you sure you want to delete this session?");
         builder.setIcon(R.drawable.alert);
         builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-            String scenarioId = (String) scenarioSpinner.getSelectedItem();
             LogSession logSession = sessionAdapter.getItem(position);
             if (logSession == null) {
                 Toast.makeText(getContext(), "Can't find the right", Toast.LENGTH_SHORT).show();

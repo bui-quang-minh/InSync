@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,6 +30,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,8 +44,12 @@ import com.in_sync.adapters.ScenarioAdapter;
 import com.in_sync.adapters.ScenarioSpinnerAdapter;
 import com.in_sync.api.APIProject;
 import com.in_sync.api.ResponsePaging;
+import com.in_sync.api.ResponseSuccess;
 import com.in_sync.common.ApiClient;
 import com.in_sync.daos.LogsFirebaseService;
+import com.in_sync.dialogs.AddProjectDialog;
+import com.in_sync.dialogs.UpdateProjectDialog;
+import com.in_sync.models.LogSession;
 import com.in_sync.models.Project;
 
 import org.json.JSONArray;
@@ -56,7 +63,8 @@ import retrofit2.Response;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class ProjectFragment extends Fragment implements
-        ProjectAdapter.OnItemClickProjectListener {
+        ProjectAdapter.OnItemClickProjectListener, AddProjectDialog.AddProjectDialogListener
+        , UpdateProjectDialog.UpdateProjectDialogListener {
     private static final String[] sortOptions = {LogsFirebaseService.SORT_A_Z, LogsFirebaseService.SORT_Z_A, LogsFirebaseService.SORT_BY_NEWEST, LogsFirebaseService.SORT_BY_OLDEST};
     Toolbar toolbar;
     ProgressBar progressBar;
@@ -67,7 +75,6 @@ public class ProjectFragment extends Fragment implements
     ImageView sort_icon;
 
     APIProject apiProject;
-    View overlay;
     String userIdClerk = "";
 
     @Override
@@ -75,6 +82,7 @@ public class ProjectFragment extends Fragment implements
         super.onViewCreated(view, savedInstanceState);
         handlerEvent();
         //Init data
+
         searchProject(sortOptions[2]);
     }
 
@@ -110,8 +118,9 @@ public class ProjectFragment extends Fragment implements
             ex.printStackTrace();
         }
     }
-    private void checkUserLogin(){
-        if(userIdClerk.equals("")){
+
+    private void checkUserLogin() {
+        if (userIdClerk.equals("")) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
@@ -119,7 +128,7 @@ public class ProjectFragment extends Fragment implements
 
 
     private void initView(View rootView) {
-        overlay = rootView.findViewById(R.id.overlay);
+
         toolbar = rootView.findViewById(R.id.toolbar_project);
         progressBar = rootView.findViewById(R.id.progress_bar);
         projectRecyclerView = rootView.findViewById(R.id.project_recycle);
@@ -200,7 +209,9 @@ public class ProjectFragment extends Fragment implements
             showSortOptionsDialog();
             return true;
         } else if (item.getItemId() == R.id.action_add_project) {
-            Toast.makeText(getContext(), "Add project", Toast.LENGTH_SHORT).show();
+            FragmentManager fm = getParentFragmentManager();
+            AddProjectDialog addProjectDialog = new AddProjectDialog(getContext(), ProjectFragment.this);
+            addProjectDialog.show(fm, "AddProjectDialog");
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -242,7 +253,7 @@ public class ProjectFragment extends Fragment implements
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk,keySearch);
+        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk, keySearch);
         callProject.enqueue(new Callback<ResponsePaging<ArrayList<Project>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Project>>> call, Response<ResponsePaging<ArrayList<Project>>> response) {
@@ -309,7 +320,84 @@ public class ProjectFragment extends Fragment implements
     }
 
     @Override
-    public void onDeleteClick(View view, int position) {
+    public void onUpdateClick(View view, int position) {
+        Project project = projectAdapter.getItem(position);
+        if (project == null) {
 
+            return;
+        }
+        FragmentManager fm = getParentFragmentManager();
+        UpdateProjectDialog dialogFragment = new UpdateProjectDialog(getContext(), ProjectFragment.this);
+        Bundle args = new Bundle();
+        args.putSerializable("projectUpdate", project);
+        dialogFragment.setArguments(args);
+
+        dialogFragment.show(fm, "popup_update_topic");
+    }
+
+    @Override
+    public void onDeleteClick(View view, int position) {
+        Project project = projectAdapter.getItem(position);
+        if (project == null) {
+            showDialogNotification("Error", "Project information is not correct.", 1000);
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Notification delele project.");
+            builder.setMessage("Are you sure you want to delete this project?");
+            builder.setIcon(R.drawable.alert);
+            builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+
+                Call<ResponseSuccess> callDeleteProject = apiProject.DeleteProject(project.getId());
+                progressBar.setVisibility(View.VISIBLE);
+                callDeleteProject.enqueue(new Callback<ResponseSuccess>() {
+                    @Override
+                    public void onResponse(Call<ResponseSuccess> call, Response<ResponseSuccess> response) {
+                        ResponseSuccess responseSuccess = response.body();
+                        progressBar.setVisibility(View.GONE);
+                        if (response.isSuccessful()) {
+                            showDialogNotification("Delete success", responseSuccess.getMessage(), 1000);
+                            searchProject(sortOptions[2]);
+                        } else {
+                            showDialogNotification("Delete failed", "Project information is not correct.", 1000);
+                        }
+
+                    }
+                    @Override
+                    public void onFailure(Call<ResponseSuccess> call, Throwable t) {
+                        showDialogNotification("Error", "Project information is not correct.", 1000);
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+
+            });
+            builder.setNegativeButton("No", (dialogInterface, i) -> {
+
+            });
+            builder.create().show();
+        }
+
+
+    }
+
+    public void showDialogNotification(String title, String message, int timeShow) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setIcon(R.drawable.alert);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (alertDialog.isShowing()) {
+                    alertDialog.dismiss();
+                }
+            }
+        }, timeShow);
+    }
+
+    @Override
+    public void onAddDialogClosed() {
+        searchProject(sortOptions[2]);
     }
 }

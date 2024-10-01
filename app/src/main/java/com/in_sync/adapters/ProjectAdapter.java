@@ -75,6 +75,9 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
     public String calculateTimeDifference(LocalDateTime now, LocalDateTime specificDateTime) {
         // Tính khoảng thời gian giữa hai thời điểm
+        if (specificDateTime == null) {
+            return "not updated";
+        }
         Duration duration = Duration.between(specificDateTime, now);
         long second = duration.getSeconds();
         if (second < 60) {
@@ -118,7 +121,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         TextView projectDesciptionTextView;
         TextView updatedTimeTextView;
         ImageView projectStatus;
-        Button viewScenario, deleteProject;
+        Button viewScenario,updateProject, deleteProject;
 
         public ProjectViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -128,12 +131,15 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             dateUpdatedTextView = itemView.findViewById(R.id.date_updated_tv);
             viewScenario = itemView.findViewById(R.id.view_scenario_btn);
             deleteProject = itemView.findViewById(R.id.delete_project_btn);
+            updateProject = itemView.findViewById(R.id.update_project_btn);
             projectStatus = itemView.findViewById(R.id.status_project);
             updatedTimeTextView = itemView.findViewById(R.id.updated_time_tv);
 
 
+
             viewScenario.setOnClickListener(v -> onItemClickProjectListener.onViewClick(v, getAdapterPosition()));
             deleteProject.setOnClickListener(v -> onItemClickProjectListener.onDeleteClick(v, getAdapterPosition()));
+            updateProject.setOnClickListener(v -> onItemClickProjectListener.onUpdateClick(v, getAdapterPosition()));
         }
     }
 
@@ -141,6 +147,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         void onViewClick(View view, int position);
 
         void onDeleteClick(View view, int position);
+        void onUpdateClick(View view, int position);
     }
 
 }

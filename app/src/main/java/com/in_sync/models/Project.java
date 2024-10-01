@@ -4,6 +4,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -19,7 +20,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class Project {
+
+public class Project implements Serializable {
     private UUID id;
     private String projectName;
     private String description;
