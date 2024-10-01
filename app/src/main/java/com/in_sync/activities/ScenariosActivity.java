@@ -67,6 +67,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
     SearchView searchViewInToolBar;
     ScenarioAdapter scenarioAdapter;
     TextView notifyTextView;
+    ImageView box_empty;
     TextView projectNameTextView;
     APIScenario apiScenario;
     APIProject apiProject;
@@ -74,7 +75,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
     String projectName;
     String userIdClerk;
 
-    View overlay;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +113,6 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
 
 
     private void initView() {
-        overlay = findViewById(R.id.overlay_scenario);
         toolbar = findViewById(R.id.toolbar_scenario);
         progressBar = findViewById(R.id.progress_bar_scenario);
         scenarioRecyclerView = findViewById(R.id.scenario_recycle);
@@ -303,9 +303,11 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
 
                     if (scenarios == null || scenarios.isEmpty()) {
                         notifyTextView.setVisibility(View.VISIBLE);
+                        box_empty.setVisibility(View.VISIBLE);
                         return;
                     } else {
                         notifyTextView.setVisibility(View.GONE);
+                        box_empty.setVisibility(View.GONE);
                         return;
                     }
 

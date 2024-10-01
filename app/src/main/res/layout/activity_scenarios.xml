@@ -41,15 +41,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:id="@+id/notify_no_scenario"
-            android:text="You do not have any scenario yet"
-            android:gravity="center_horizontal"
-            android:visibility="gone"
-            android:padding="10dp"
-            android:textStyle="italic"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-        <TextView
             android:id="@+id/project_name_of_scenario"
             android:text="Project Name"
             android:textSize="20dp"
@@ -59,6 +50,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
+        <ImageView
+            android:id="@+id/empty_box"
+            android:padding="10dp"
+            android:layout_margin="10dp"
+            android:src="@drawable/empty_box"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:alpha="0.5"
+            android:layout_width="200dp"
+            android:layout_height="200dp"/>
+        <TextView
+            android:id="@+id/notify_no_scenario"
+            android:text="You do not have any scenario yet"
+            android:gravity="center_horizontal"
+            android:visibility="gone"
+            android:padding="10dp"
+            android:textStyle="italic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/scenario_recycle"

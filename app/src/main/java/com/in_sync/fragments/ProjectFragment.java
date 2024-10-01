@@ -72,7 +72,7 @@ public class ProjectFragment extends Fragment implements
     SearchView searchViewInToolBar;
     ProjectAdapter projectAdapter;
     TextView notifyTextView;
-    ImageView sort_icon;
+    ImageView empty_box;
 
     APIProject apiProject;
     String userIdClerk = "";
@@ -133,6 +133,7 @@ public class ProjectFragment extends Fragment implements
         progressBar = rootView.findViewById(R.id.progress_bar);
         projectRecyclerView = rootView.findViewById(R.id.project_recycle);
         notifyTextView = rootView.findViewById(R.id.notify_no_project);
+        empty_box = rootView.findViewById(R.id.empty_box);
         // api
         apiProject = ApiClient.getRetrofitInstance().create(APIProject.class);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -283,9 +284,11 @@ public class ProjectFragment extends Fragment implements
 
                     if (projects == null || projects.isEmpty()) {
                         notifyTextView.setVisibility(View.VISIBLE);
+                        empty_box.setVisibility(View.VISIBLE);
                         return;
                     } else {
                         notifyTextView.setVisibility(View.GONE);
+                        empty_box.setVisibility(View.GONE);
 
                         return;
                     }
