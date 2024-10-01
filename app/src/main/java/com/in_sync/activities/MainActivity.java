@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } else if (item.getItemId() == R.id.screen_capture) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, profileFragment).commit();
+                            .replace(R.id.container, screenCaptureFragment).commit();
                     return true;
                 }
                 return false;

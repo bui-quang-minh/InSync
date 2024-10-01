@@ -17,17 +17,6 @@ public class ScreenshotPermissionActivity extends AppCompatActivity {
         startProjection();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Intent intent = ScreenshotService.getStartIntent(this, resultCode, data);
-                startService(intent);
-            }
-
-        }
-    }
     private void startProjection() {
         MediaProjectionManager mProjectionManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);

@@ -2,6 +2,7 @@ package com.in_sync.services;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
@@ -25,6 +26,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.View;
@@ -38,6 +40,7 @@ import androidx.core.util.Pair;
 import com.in_sync.R;
 import com.in_sync.activities.ScreenshotPermissionActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.file.FileSystem;
 import com.in_sync.helpers.NotificationUtils;
 
 import java.io.File;
@@ -47,6 +50,7 @@ import java.nio.ByteBuffer;
 import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -72,15 +76,19 @@ public class ScreenshotService extends Service {
     private int mRotation;
     private WindowManager windowManager;
     private WindowManager.LayoutParams floatWindowLayoutParam;
-    private ViewGroup viewGroup;
+    private View viewGroup;
     private OrientationChangeCallback mOrientationChangeCallback;
     private ImageGalleryAdapter imageGalleryAdapter;
-
+    private List<String> images;
+    private static Context contexts;
+    private Intent startIntent;
+    private Context startContext;
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenshotService.class);
         intent.putExtra(ACTION, START);
         intent.putExtra(RESULT_CODE, resultCode);
         intent.putExtra(DATA, data);
+        contexts = context;
         return intent;
     }
 
@@ -103,6 +111,12 @@ public class ScreenshotService extends Service {
         return DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     }
 
+    private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
+        @Override
+        public void onImageAvailable(ImageReader reader) {
+        }
+    }
+
     private class OrientationChangeCallback extends OrientationEventListener {
 
         OrientationChangeCallback(Context context) {
@@ -114,13 +128,38 @@ public class ScreenshotService extends Service {
             final int rotation = mDisplay.getRotation();
             if (rotation != mRotation) {
                 mRotation = rotation;
-                try {
-                    // clean up
-                    if (mVirtualDisplay != null) mVirtualDisplay.release();
-                    if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
 
-                    // re-create virtual display depending on device width / height
-                    createVirtualDisplay();
+                try {
+                    // Clean up existing virtual display and image reader
+                    if (mVirtualDisplay != null) {
+                        mVirtualDisplay.release();
+                        mVirtualDisplay = null;
+                    }
+
+                    if (mImageReader != null) {
+                        mImageReader.setOnImageAvailableListener(null, null);
+                        mImageReader = null;
+                    }
+
+                    // Delay recreation slightly to avoid rapid re-triggering
+                    mHandler.postDelayed(() -> {
+                        try {
+                            newProjection(startIntent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED), startIntent.getParcelableExtra(DATA));
+                        } catch (Exception e) {
+                            // Use the Activity context for the AlertDialog
+                            removeOverlay();
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                AlertDialog alertDialog = new AlertDialog.Builder(contexts)
+                                        .setTitle("Warning")
+                                        .setMessage("Detect orientation change! Please restart the service.")
+                                        .setNeutralButton("OK", (dialog, which) -> {
+                                            dialog.dismiss();
+                                        })
+                                        .create();
+                                alertDialog.show();
+                            });
+                        }
+                    }, 500);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -132,11 +171,14 @@ public class ScreenshotService extends Service {
         @Override
         public void onStop() {
             Log.e(TAG, "stopping projection.");
-            boolean post = mHandler.post(() -> {
-                if (mVirtualDisplay != null) mVirtualDisplay.release();
-                if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
-                if (mOrientationChangeCallback != null) mOrientationChangeCallback.disable();
-                mMediaProjection.unregisterCallback(MediaProjectionStopCallback.this);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mVirtualDisplay != null) mVirtualDisplay.release();
+                    if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
+                    if (mOrientationChangeCallback != null) mOrientationChangeCallback.disable();
+                    mMediaProjection.unregisterCallback(ScreenshotService.MediaProjectionStopCallback.this);
+                }
             });
         }
     }
@@ -167,6 +209,9 @@ public class ScreenshotService extends Service {
             stopSelf();
         }
 
+        images = FileSystem.getFileName(this);
+        imageGalleryAdapter = new ImageGalleryAdapter(this, images);
+
         // start capture handling thread
         new Thread() {
             @Override
@@ -180,6 +225,7 @@ public class ScreenshotService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        showOverlay();
         if (isStartCommand(intent)) {
             // create notification
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
@@ -187,9 +233,9 @@ public class ScreenshotService extends Service {
             // start projection
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
             Intent data = intent.getParcelableExtra(DATA);
+            startIntent = intent;
             startProjection(resultCode, data);
         } else if (isStopCommand(intent)) {
-            stopProjection();
             stopSelf();
         } else {
             stopSelf();
@@ -199,35 +245,74 @@ public class ScreenshotService extends Service {
     }
 
     private void startProjection(int resultCode, Intent data) {
+        startContext = this;
         MediaProjectionManager mpManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mMediaProjection = null;
         if (mMediaProjection == null) {
             mMediaProjection = mpManager.getMediaProjection(resultCode, data);
             if (mMediaProjection != null) {
-                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
                 // display metrics
                 mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                 mDisplay = windowManager.getDefaultDisplay();
+                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
 
-                // create virtual display depending on device width / height
-                createVirtualDisplay();
-
-                // register orientation change callback
                 mOrientationChangeCallback = new OrientationChangeCallback(this);
                 if (mOrientationChangeCallback.canDetectOrientation()) {
                     mOrientationChangeCallback.enable();
                 }
-
+                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
+                createVirtualDisplay();
             }
         }
     }
 
+
+    private void newProjection(int resultCode, Intent data) {
+        startContext = this;
+        MediaProjectionManager mpManager =
+                (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mMediaProjection = null;
+        if (mMediaProjection == null) {
+            mMediaProjection = mpManager.getMediaProjection(resultCode, data);
+            if (mMediaProjection != null) {
+                // display metrics
+                mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
+                WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+                mDisplay = windowManager.getDefaultDisplay();
+                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
+
+                mOrientationChangeCallback = new OrientationChangeCallback(this);
+                if (mOrientationChangeCallback.canDetectOrientation()) {
+                    mOrientationChangeCallback.enable();
+                }
+                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
+                createVirtualDisplay();
+            }
+        }
+    }
     private void stopProjection() {
         if (mHandler != null) {
-            mHandler.post(() -> {
-                if (mMediaProjection != null) {
-                    mMediaProjection.stop();
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mMediaProjection != null) {
+                        mMediaProjection.stop();
+                    }
+                    if (mVirtualDisplay != null) {
+                        mVirtualDisplay.release();
+                        mVirtualDisplay = null; // Clear the reference
+                    }
+                    if (mImageReader != null) {
+                        mImageReader.setOnImageAvailableListener(null, null);
+                        mImageReader.close();
+                        mImageReader = null; // Clear the reference
+                    }
+                    if (mOrientationChangeCallback != null) {
+                        mOrientationChangeCallback.disable();
+                        mOrientationChangeCallback = null; // Clear the reference
+                    }
                 }
             });
         }
@@ -241,29 +326,56 @@ public class ScreenshotService extends Service {
 
         // start capture reader
         mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
+                mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
+        mImageReader.setOnImageAvailableListener(new ScreenshotService.ImageAvailableListener(), mHandler);
+        //log relevent information
+        Log.e(TAG, "createVirtualDisplay: " + mWidth + " " + mHeight + " " + mDensity);
+    }
+    private void showOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        viewGroup = (ViewGroup) layoutInflater.inflate(R.layout.screenshot_button, null);
+        viewGroup = layoutInflater.inflate(R.layout.screenshot_button, null);
+
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+
+        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.x = 0;
+        params.y = 200;
+        windowManager.addView(viewGroup, params);
+        viewGroup.setOnTouchListener(new View.OnTouchListener() {
+            private int initialX, initialY;
+            private float touchX, touchY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = params.x;
+                        initialY = params.y;
+                        touchX = event.getRawX();
+                        touchY = event.getRawY();
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        params.x = initialX + (int) (event.getRawX() - touchX);
+                        params.y = initialY + (int) (event.getRawY() - touchY);
+                        windowManager.updateViewLayout(viewGroup, params);
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+
         ImageButton captureButton = viewGroup.findViewById(R.id.screenshot_button);
         ImageButton stopButton = viewGroup.findViewById(R.id.screenshot_stop_button);
-        int LAYOUT_TYPE;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_TOAST;
-        }
-        floatWindowLayoutParam = new WindowManager.LayoutParams(
-                200,
-                400,
-                LAYOUT_TYPE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-        );
-
-        floatWindowLayoutParam.x = 0;
-        floatWindowLayoutParam.y = 0;
-        floatWindowLayoutParam.gravity = Gravity.TOP | Gravity.START;
-        windowManager.addView(viewGroup, floatWindowLayoutParam);
 
         stopButton.setOnClickListener((view) -> {
             Intent intent = new Intent(this, ScreenshotService.class);
@@ -276,16 +388,21 @@ public class ScreenshotService extends Service {
             Handler handler = new Handler(Looper.getMainLooper());
             // Delay after click capture button by 1 seconds
             handler.postDelayed(() -> {
-                    captureScreenshot();
-                    windowManager.addView(viewGroup, floatWindowLayoutParam);
-            }, 500);
+                captureScreenshot();
+                windowManager.addView(viewGroup, params);
+            }, 200);
         });
-
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
-                mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
-
     }
 
+    private void removeOverlay() {
+        if (viewGroup != null) {
+            windowManager.removeView(viewGroup);
+            stopProjection(); // Stop the MediaProjection and release resources
+            // Call stopSelf to stop the service
+            stopSelf();
+
+        }
+    }
     /**
      * @author Dương Thành Luân
      * @date 14/08/2024
@@ -295,7 +412,10 @@ public class ScreenshotService extends Service {
         FileOutputStream fos = null;
         Bitmap bitmap = null;
         String fileName = "";
-        imageGalleryAdapter = new ImageGalleryAdapter();
+        if (mImageReader == null) {
+            Log.e("Screenshot", "ImageReader is not initialized");
+            return;
+        }
         try (Image image = mImageReader.acquireLatestImage()) {
             if (image != null) {
                 Image.Plane[] planes = image.getPlanes();
@@ -311,7 +431,10 @@ public class ScreenshotService extends Service {
                     LocalDateTime localDateTime = LocalDateTime.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
+                    images.add(fileName);
+                    //imageGalleryAdapter.setImages(images);
                 }
+
                 // write bitmap to a file
                 fos = new FileOutputStream(fileName);
                 //imageGalleryAdapter.addItem(fileName);

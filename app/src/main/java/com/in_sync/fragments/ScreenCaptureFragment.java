@@ -3,12 +3,17 @@ package com.in_sync.fragments;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 
+//import com.cloudinary.*;
+//import com.cloudinary.utils.ObjectUtils;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,8 +31,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.in_sync.R;
 import com.in_sync.activities.ImageDetailActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.file.FileSystem;
+import com.in_sync.helpers.ScreenCapturePermissionUtils;
+import com.in_sync.helpers.ScreenShotPermissionUtils;
 import com.in_sync.listener.RecyclerItemClickListener;
 import com.in_sync.services.ScreenshotService;
+
+import org.opencv.BuildConfig;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,12 +55,33 @@ public class ScreenCaptureFragment extends Fragment {
     private RecyclerView imagesRV;
     private List<String> imageList;
     private List<String> selectedImages;
+    private ActivityResultLauncher<Intent> screenshotLauncher;
 
     public ScreenCaptureFragment() {
     }
 
     public ScreenCaptureFragment(Context context) {
         this.context = context;
+    }
+    private ScreenShotPermissionUtils screenshotHelper;
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context= context;
+        screenshotLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent resultData = result.getData();
+                        if (resultData != null) {
+                            resultData.putExtra("data", "data");
+                            screenshotHelper.handleResult(result.getResultCode(), resultData);
+                        }
+                    }
+                }
+        );
+        // Initialize ScreenCapturePermissionUtils
+        screenshotHelper = new ScreenShotPermissionUtils(context, screenshotLauncher);
     }
 
     @Nullable
@@ -63,7 +94,7 @@ public class ScreenCaptureFragment extends Fragment {
         FOLDER_PATH = Objects.requireNonNull(context.getExternalFilesDir(null)).getAbsolutePath() + "/screenshots/";
         captureButton = view.findViewById(R.id.screen_capture_button);
         imagesRV = view.findViewById(R.id.image_gallery);
-        imageList = getFileName();
+        //imageList = FileSystem.getFileName(context);
         uploadButton = view.findViewById(R.id.upload_button);
         selectedImages = new ArrayList<>();
         uploadButton.hide();
@@ -73,6 +104,23 @@ public class ScreenCaptureFragment extends Fragment {
         captureButton.setOnClickListener(v -> {
             startProjection();
         });
+        uploadButton.setOnClickListener(this::sendData);
+    }
+
+    private void sendData(View view) {
+        for (String path : selectedImages) {
+            File file = new File(path);
+            if (file.exists()) {
+                //upload to cloudinary
+                //Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+                //        "cloud_name",
+                //        "api_key", "913766755358889",
+                //        "api_secret", "undefined",
+                //        "secure", true));
+                Log.e(TAG, "sendData: " + file.getName() + " + Path: "+ path);
+            }
+        }
+        Log.e(TAG, "sendData: "  );
     }
 
     @Override
@@ -80,14 +128,20 @@ public class ScreenCaptureFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
         catchEvent();
+    }
+
+    /*
+        * onResume() method is called when the activity will start interacting with the user.
+        * So when start app again the image list will be updated.
+        * The sequence of lifecycle methods is: onCreate() -> onStart() -> onResume()
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume: Calling");
+        imageList = FileSystem.getFileName(context);
         prepareRecyclerView();
-        displayUploadButton();
     }
-
-    private void displayUploadButton() {
-
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     private void prepareRecyclerView() {
         ImageGalleryAdapter imageRVAdapter = new ImageGalleryAdapter(context, imageList);
@@ -95,6 +149,7 @@ public class ScreenCaptureFragment extends Fragment {
         GridLayoutManager manager = new GridLayoutManager(context, 2);
         imagesRV.setLayoutManager(manager);
         imagesRV.setAdapter(imageRVAdapter);
+        // Catch event when item is clicked or long clicked
         imagesRV.addOnItemTouchListener(
                 new RecyclerItemClickListener(context, imagesRV, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
@@ -102,13 +157,15 @@ public class ScreenCaptureFragment extends Fragment {
                         Intent i = new Intent(context, ImageDetailActivity.class);
                         i.putExtra("imgPath", imageList.get(position));
                         context.startActivity(i);
-                    }
 
+                    }
+                    @SuppressLint("UseCompatLoadingForDrawables")
                     @Override
                     public void onLongItemClick(View view, int position) {
                         try {
                             //Catch hold action
-                            if (view.getBackground() != null && view.getBackground().getConstantState() == context.getDrawable(R.drawable.border).getConstantState()) {
+                            if (view.getBackground() != null
+                                    && view.getBackground().getConstantState() == Objects.requireNonNull(context.getDrawable(R.drawable.border)).getConstantState()) {
                                 view.setBackground(null);
                                 selectedImages.remove(imageList.get(position));
                                 Log.e(TAG, "Removed: " + imageList.get(position));
@@ -120,6 +177,7 @@ public class ScreenCaptureFragment extends Fragment {
                         } catch (Exception e) {
                             Toast.makeText(context, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
+                        // Set hide/unhidden upload button
                         if (!selectedImages.isEmpty()) {
                             uploadButton.show();
                         } else {
@@ -128,43 +186,7 @@ public class ScreenCaptureFragment extends Fragment {
                     }
                 }));
     }
-
-    private List<String> getFileName() {
-        List<String> filesName = new ArrayList<>();
-        try {
-            File folder = new File(FOLDER_PATH);
-            if (folder.exists() && folder.isDirectory()) {
-                File[] files = folder.listFiles((file) -> file.getName().endsWith(".png"));
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.length() > 0)
-                            filesName.add(FOLDER_PATH + file.getName());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Toast.makeText(context, "ERROR: CAN NOT READ IMAGE FOLDER", Toast.LENGTH_SHORT).show();
-        }
-
-        return filesName;
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Intent intent = ScreenshotService.getStartIntent(context, resultCode, data);
-                context.startService(intent);
-            }
-        }
-    }
-
     private void startProjection() {
-        MediaProjectionManager mProjectionManager =
-                (MediaProjectionManager) context.getSystemService(MEDIA_PROJECTION_SERVICE);
-        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+        screenshotHelper.startProjection();
     }
-
 }

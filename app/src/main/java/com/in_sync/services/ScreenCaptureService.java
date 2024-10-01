@@ -108,7 +108,6 @@ public class ScreenCaptureService extends AccessibilityService {
     private com.in_sync.models.Action currentAction = null;
     private boolean isExpanded = true;
     private Queue<com.in_sync.models.Action> actionQueue = new LinkedList<>();
-
     private static Context contexts;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
@@ -127,10 +126,8 @@ public class ScreenCaptureService extends AccessibilityService {
     }
 
     private static boolean isStartCommand(Intent intent) {
-
-        boolean res = intent.hasExtra(RESULT_CODE) && intent.hasExtra(DATA)
+        return intent.hasExtra(RESULT_CODE) && intent.hasExtra(DATA)
                 && intent.hasExtra(ACTION) && Objects.equals(intent.getStringExtra(ACTION), START);
-        return res;
     }
 
     private static boolean isStopCommand(Intent intent) {
@@ -275,6 +272,7 @@ public class ScreenCaptureService extends AccessibilityService {
         if (isStartCommand(intent)) {
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
             startForeground(notification.first, notification.second);
+
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
             Intent data = intent.getParcelableExtra(DATA);
             startProjection(resultCode, data);
@@ -294,7 +292,6 @@ public class ScreenCaptureService extends AccessibilityService {
         if (mMediaProjection == null) {
             mMediaProjection = mpManager.getMediaProjection(resultCode, data);
             if (mMediaProjection != null) {
-
                 // display metrics
                 mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -305,7 +302,6 @@ public class ScreenCaptureService extends AccessibilityService {
                 if (mOrientationChangeCallback.canDetectOrientation()) {
                     mOrientationChangeCallback.enable();
                 }
-
                 mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
             }
         }

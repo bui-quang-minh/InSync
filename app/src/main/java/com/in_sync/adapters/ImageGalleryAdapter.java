@@ -31,7 +31,6 @@ import lombok.NoArgsConstructor;
 public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapter.ImageGalleryHolder> {
     private Context context;
     private List<String> imageList;
-    private final String TAG = "IMAGE_GALLERY_ADAPTER";
 
     public ImageGalleryAdapter(Context context, List<String> imageList) {
         this.context = context;
@@ -50,28 +49,6 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
     public void onBindViewHolder(@NonNull ImageGalleryHolder holder, @SuppressLint("RecyclerView") int position) {
         File imgFile = new File(imageList.get(position));
         Picasso.with(context).load(imgFile).into(holder.image);
-//        holder.image.setOnClickListener(v -> {
-//            Intent i = new Intent(context, ImageDetailActivity.class);
-//            i.putExtra("imgPath", imageList.get(position));
-//            context.startActivity(i);
-//        });
-        /*
-        holder.image.setOnLongClickListener((v) -> {
-            try {
-                if (holder.image.getBackground() != null) {
-                    holder.image.setBackground(null);
-                    selectedImages.remove(imageList.get(position));
-                } else {
-                    holder.image.setBackground(context.getResources().getDrawable(R.drawable.border));
-                    selectedImages.add(imageList.get(position));
-                }
-            } catch (Exception e) {
-                Toast.makeText(context, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "onBindViewHolder: " + e.getMessage());
-            }
-            return true;
-        });
-         */
     }
 
     @Override

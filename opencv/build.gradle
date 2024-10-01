@@ -112,6 +112,7 @@ android {
                 targets "opencv_jni_shared"
             }
         }
+
     }
 
     compileOptions {
