@@ -17,6 +17,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
         buildConfigField "String", "CLOUDINARY_URL", "\"${properties.getProperty('CLOUDINARY_URL')}\""
@@ -52,7 +53,8 @@ android {
 
 dependencies {
     //import cloudinary
-    //implementation 'com.cloudinary:cloudinary-android:1.25.0'
+    implementation 'com.cloudinary:cloudinary-android-core:3.0.2'
+
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'

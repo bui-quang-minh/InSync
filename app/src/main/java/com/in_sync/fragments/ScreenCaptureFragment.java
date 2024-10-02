@@ -5,6 +5,10 @@ import static android.content.Context.MEDIA_PROJECTION_SERVICE;
 
 //import com.cloudinary.*;
 //import com.cloudinary.utils.ObjectUtils;
+import static com.in_sync.BuildConfig.API_KEY;
+import static com.in_sync.BuildConfig.API_SECRET;
+import static com.in_sync.BuildConfig.CLOUD_NAME;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -27,6 +31,8 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.in_sync.R;
 import com.in_sync.activities.ImageDetailActivity;
@@ -42,6 +48,7 @@ import org.opencv.BuildConfig;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -108,28 +115,35 @@ public class ScreenCaptureFragment extends Fragment {
     }
 
     private void sendData(View view) {
+        Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", CLOUD_NAME,
+                "api_key", API_KEY,
+                "api_secret", API_SECRET
+        ));
+
         for (String path : selectedImages) {
             File file = new File(path);
             if (file.exists()) {
-                //upload to cloudinary
-                //Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-                //        "cloud_name",
-                //        "api_key", "913766755358889",
-                //        "api_secret", "undefined",
-                //        "secure", true));
-                Log.e(TAG, "sendData: " + file.getName() + " + Path: "+ path);
+                // Upload to Cloudinary
+                new Thread(() -> {
+                    try {
+                        // Upload the file
+                        Map<String, Object> uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+                        Log.e(TAG, "Image uploaded: " + uploadResult.get("url"));
+                    } catch (Exception e) {
+                        Log.e(TAG, "Upload failed: ", e);
+                    }
+                }).start(); // Start a new thread to avoid blocking the UI
             }
         }
-        Log.e(TAG, "sendData: "  );
+        Log.e(TAG, "sendData: upload completed");
     }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
         catchEvent();
     }
-
     /*
         * onResume() method is called when the activity will start interacting with the user.
         * So when start app again the image list will be updated.
