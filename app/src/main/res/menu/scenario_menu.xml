@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <!-- Item SearchView -->
     <item
-        android:id="@+id/action_search_project"
+        android:id="@+id/action_search_scenario"
         android:icon="@drawable/baseline_search_24"
         android:title="Search"
         app:actionViewClass="android.widget.SearchView"
@@ -12,13 +12,13 @@
         android:focusableInTouchMode="true"/>
     <!-- Item khác -->
     <item
-        android:id="@+id/action_add_project"
+        android:id="@+id/action_add_scenario"
         android:title="Add Project"
         android:icon="@drawable/baseline_add_box_24"
         app:title="Sort"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_sort_project"
+        android:id="@+id/action_sort_scenario"
         android:title="Sort"
         android:icon="@drawable/baseline_sort_24"
         app:title="Sort"

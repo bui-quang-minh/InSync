@@ -66,18 +66,18 @@ public class LoginActivity extends AppCompatActivity {
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        loginButton              = findViewById(R.id.loginButton);
-        usernameLayout           = findViewById(R.id.txtUsername);
-        passwordLayout           = findViewById(R.id.txtPassword);
-        usernameEditText         = findViewById(R.id.inputUsername);
-        passwordEditText         = findViewById(R.id.inputPassword);
-        loginWithGoogleButton    = findViewById(R.id.loginWithGoogleButton);
+        loginButton = findViewById(R.id.loginButton);
+        usernameLayout = findViewById(R.id.txtUsername);
+        passwordLayout = findViewById(R.id.txtPassword);
+        usernameEditText = findViewById(R.id.inputUsername);
+        passwordEditText = findViewById(R.id.inputPassword);
+        loginWithGoogleButton = findViewById(R.id.loginWithGoogleButton);
     }
 
     private void eventHandling() {
-        loginWithGoogleButton   .setOnClickListener(this::loginWithGoogleButtonClicked);
-        loginButton             .setOnClickListener(this::loginButtonClicked);
-        usernameEditText        .setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        loginWithGoogleButton.setOnClickListener(this::loginWithGoogleButtonClicked);
+        loginButton.setOnClickListener(this::loginButtonClicked);
+        usernameEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
         });
-        passwordEditText        .setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
@@ -104,8 +104,8 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
         });
-        passwordEditText        .setTransformationMethod(PasswordTransformationMethod.getInstance());
-        passwordLayout          .setEndIconOnClickListener(new View.OnClickListener() {
+        passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        passwordLayout.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Toggle password visibility
@@ -136,23 +136,23 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == RC_SIGN_IN){
+        if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> task) {
-        try{
+        try {
             GoogleSignInAccount account = task.getResult(ApiException.class);
-            if(account != null){
+            if (account != null) {
                 GetAllUserRequest.GetUsersList(this, new VolleyArrayRequestCallback() {
                     @Override
-                    public void onSuccess(JSONArray result){
+                    public void onSuccess(JSONArray result) {
                         List<JSONObject> list = new ArrayList<>();
-                        try{
+                        try {
                             for (int i = 0; i < result.length(); i++) {
-                                if(result.getJSONObject(i).toString().contains(account.getEmail())){
+                                if (result.getJSONObject(i).toString().contains(account.getEmail())) {
                                     list.add(result.getJSONObject(i));
                                     JSONArray jsonArray = new JSONArray();
                                     for (JSONObject jsonObject : list) {
@@ -168,12 +168,12 @@ public class LoginActivity extends AppCompatActivity {
                                     break;
                                 }
                             }
-                            if (list.isEmpty()){
+                            if (list.isEmpty()) {
                                 Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_SHORT).show();
                                 loginButton.setEnabled(true);
                                 loginWithGoogleButton.setEnabled(true);
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -186,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -198,7 +198,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameLayout.setError(null);
         passwordLayout.setError(null);
         //catch empty
-        if (usernameEditText.getText().toString().isEmpty()&&passwordEditText.getText().toString().isEmpty()) {
+        if (usernameEditText.getText().toString().isEmpty() && passwordEditText.getText().toString().isEmpty()) {
             usernameLayout.setError("Username is required");
             passwordLayout.setError("Password is required");
             loginButton.setEnabled(true);
@@ -221,11 +221,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(JSONArray result) {
                 if (result.length() > 0) {
-                    try{
+                    try {
                         JSONObject user = result.getJSONObject(0);
                         String id = user.getString("id");
-                        validatePassword(id,result, LoginActivity.this);
-                    }catch (Exception e){
+                        validatePassword(id, result, LoginActivity.this);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
@@ -235,9 +235,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
 
-            private void validatePassword(String userId,JSONArray data, Context context) {
+            private void validatePassword(String userId, JSONArray data, Context context) {
                 String password = passwordEditText.getText().toString();
-                Log.e("validatePassword: ", password );
+                Log.e("validatePassword: ", password);
                 ValidatePasswordRequest.ValidatePassword(userId, password, data, context, new VolleyObjectRequestCallback() {
                     @Override
                     public void onSuccess(JSONObject result, JSONArray data) {

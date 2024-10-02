@@ -4,10 +4,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -20,14 +17,18 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiresApi(api = Build.VERSION_CODES.O)
-
-public class Project implements Serializable {
+public class Scenario {
     private UUID id;
+    private UUID projectId;
     private String projectName;
+    private String title;
     private String description;
-    private UUID userId;
-    private String displayName;
-    private LocalDateTime dateCreated;
-    private LocalDateTime dateUpdated;
-    private Boolean isPublish;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String stepsWeb;
+    private String stepsAndroid;
+    private Boolean isFavorites;
+    private String imageUrl;
+    private UUID AuthorId;
+    private UUID AuthorName;
 }

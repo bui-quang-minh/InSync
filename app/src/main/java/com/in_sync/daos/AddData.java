@@ -15,13 +15,21 @@ import java.util.Random;
 public class AddData {
     private LogsFirebaseService _service;
 
+
     public AddData() {
         _service = new LogsFirebaseService();
+    }
+    public void addTotalData() {
+        addDataScenario1();
+        addDataScenario2();
+        addDataScenario3();
+        addDataScenario4();
+        addDataScenario5();
     }
 
     public void addDataScenario1() {
         Random rd = new Random();
-        String scenarioId = "36b06ee8-4d4a-4130-9164-8c782981483f";
+        String scenarioId = "DB46C556-4F07-4879-B552-0080E568660D";
 // Đối tượng LogSession 1
         LogSession session1 = new LogSession("Morning Routine", "iPhone 15 Pro Max", scenarioId);
         List<Log> logsForSession1 = new ArrayList<>();
@@ -95,7 +103,7 @@ public class AddData {
 
     public void addDataScenario2() {
         Random rd = new Random();
-        String scenarioId = "932ae6e1-9a1c-4b69-accd-c47ad15f3d5f";
+        String scenarioId = "1E9BE31B-A610-403A-A9C3-3A40A59B5F91";
 // Đối tượng LogSession 1
 
         LogSession session1 = new LogSession("Morning Routine", "iPhone 15 Pro Max", scenarioId);
@@ -169,7 +177,7 @@ public class AddData {
 
 
     public void addDataScenario3() {
-        String scenarioId = "a11ce879-8645-4135-815d-0e0a5d9c139e";
+        String scenarioId = "0B8C4550-E25F-4A22-96EF-5CF6C3099368";
         Random rd = new Random();
 
         // Session 1
@@ -240,7 +248,7 @@ public class AddData {
 
 
     public void addDataScenario4() {
-        String scenarioId = "d2a2ab0d-87a4-4da1-8fc1-96d4458ef89b";
+        String scenarioId = "B06EE4BB-E96E-46C5-8B87-69BC9F66D165";
         Random rd = new Random();
 
         // Session 4
@@ -301,7 +309,7 @@ public class AddData {
 
     public void addDataScenario5() {
         Random rd = new Random();
-        String scenarioId = "f5d0c555-6139-452f-a1ec-726dbea85fa7";
+        String scenarioId = "4B603709-E9D7-4B13-A7BA-88B01909B086";
         // Session 7
         LogSession session7 = new LogSession("Late Night Bug Fixing", "Sony Xperia 1 IV", scenarioId);
         List<Log> logsForSession7 = new ArrayList<>();
