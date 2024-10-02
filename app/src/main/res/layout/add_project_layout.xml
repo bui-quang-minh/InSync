@@ -90,22 +90,56 @@
             android:orientation="horizontal"
             android:weightSum="10"
             >
-            <Button
-                android:id="@+id/btn_add_project"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="7"
-                android:layout_marginRight="20dp"
-                android:text="Add Project"
-                android:layout_marginTop="16dp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
+                android:layout_weight="5"
+                app:iconTint="@null"
+                app:strokeColor="@color/neutral_400"
+                app:strokeWidth="1dp"
+                android:backgroundTint="@android:color/white"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
                 android:text="Cancel"
-                android:layout_marginTop="16dp"/>
+                android:layout_margin="2dp"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_add_project"
+                android:layout_weight="5"
+                app:iconTint="@null"
+                app:strokeColor="@color/black"
+                app:strokeWidth="1dp"
+                android:backgroundTint="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add"
+                android:layout_margin="2dp"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                />
+<!--            <Button-->
+<!--                android:id="@+id/btn_cancel"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="5"-->
+<!--                android:text="Cancel"-->
+<!--                android:layout_marginTop="16dp"/>-->
+<!--            <Button-->
+<!--                android:id="@+id/btn_add_project"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="5"-->
+<!--                android:layout_marginRight="20dp"-->
+<!--                android:text="Add Project"-->
+<!--                android:layout_marginTop="16dp"/>-->
+
+
         </LinearLayout>
 
     </LinearLayout>
