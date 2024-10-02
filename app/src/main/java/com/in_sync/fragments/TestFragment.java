@@ -67,11 +67,27 @@ public class TestFragment extends Fragment {
                 "        \"actionType\": \"DELAY\",\n" +
                 "        \"on\": \"\",\n" +
                 "        \"logResult\": true,\n" +
-                "        \"duration\": 500,\n" +
+                "        \"duration\": 5000,\n" +
                 "        \"tries\": 1\n" +
                 "    },\n" +
                 "    {\n" +
                 "        \"index\": 2,\n" +
+                "        \"actionType\": \"SWIPE\",\n" +
+                "        \"on\": \"LEFT\",\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 2000,\n" +
+                "        \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"index\": 3,\n" +
+                "        \"actionType\": \"DELAY\",\n" +
+                "        \"on\": \"\",\n" +
+                "        \"logResult\": true,\n" +
+                "        \"duration\": 500,\n" +
+                "        \"tries\": 1\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"index\": 4,\n" +
                 "        \"actionType\": \"CLICK\",\n" +
                 "        \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1726844127/i3jjo1kgdkphcaxqfmz3.jpg\",\n" +
                 "        \"logResult\": true,\n" +
@@ -79,25 +95,9 @@ public class TestFragment extends Fragment {
                 "        \"tries\": 1\n" +
                 "    },\n" +
                 "    {\n" +
-                "        \"index\": 3,\n" +
+                "        \"index\": 5,\n" +
                 "        \"actionType\": \"FOR\",\n" +
                 "        \"executeActions\": [\n" +
-                "            {\n" +
-                "                \"index\": 4,\n" +
-                "                \"actionType\": \"DELAY\",\n" +
-                "                \"on\": \"\",\n" +
-                "                \"logResult\": true,\n" +
-                "                \"duration\": 500,\n" +
-                "                \"tries\": 1\n" +
-                "            },\n" +
-                "            {\n" +
-                "                \"index\": 5,\n" +
-                "                \"actionType\": \"CLICK\",\n" +
-                "                \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727182935/dzaoq0zfrfnuvmjqqgky.jpg\",\n" +
-                "                \"logResult\": true,\n" +
-                "                \"duration\": 100,\n" +
-                "                \"tries\": 1\n" +
-                "            },\n" +
                 "            {\n" +
                 "                \"index\": 6,\n" +
                 "                \"actionType\": \"DELAY\",\n" +
@@ -108,6 +108,22 @@ public class TestFragment extends Fragment {
                 "            },\n" +
                 "            {\n" +
                 "                \"index\": 7,\n" +
+                "                \"actionType\": \"CLICK\",\n" +
+                "                \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727182935/dzaoq0zfrfnuvmjqqgky.jpg\",\n" +
+                "                \"logResult\": true,\n" +
+                "                \"duration\": 100,\n" +
+                "                \"tries\": 1\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"index\": 8,\n" +
+                "                \"actionType\": \"DELAY\",\n" +
+                "                \"on\": \"\",\n" +
+                "                \"logResult\": true,\n" +
+                "                \"duration\": 500,\n" +
+                "                \"tries\": 1\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"index\": 9,\n" +
                 "                \"actionType\": \"CLICK\",\n" +
                 "                \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727182947/ajzgz5fjgfxbdunsivbj.jpg\",\n" +
                 "                \"logResult\": true,\n" +
@@ -120,7 +136,7 @@ public class TestFragment extends Fragment {
                 "        \"tries\": 3\n" +
                 "    },\n" +
                 "    {\n" +
-                "        \"index\": 8,\n" +
+                "        \"index\": 10,\n" +
                 "        \"actionType\": \"DELAY\",\n" +
                 "        \"on\": \"\",\n" +
                 "        \"logResult\": true,\n" +
@@ -128,7 +144,7 @@ public class TestFragment extends Fragment {
                 "        \"tries\": 1\n" +
                 "    },\n" +
                 "    {\n" +
-                "        \"index\": 9,\n" +
+                "        \"index\": 11,\n" +
                 "        \"actionType\": \"CLICK\",\n" +
                 "        \"on\": \"https://res.cloudinary.com/dt3zxmzwx/image/upload/v1727183150/calprkydbyd3a8qehpxm.jpg\",\n" +
                 "        \"logResult\": true,\n" +

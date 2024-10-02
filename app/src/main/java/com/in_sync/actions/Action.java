@@ -128,11 +128,65 @@ public class Action extends ActionDef {
                     break;
                 case ActionDef.DELAY:
                     return handleDelayAction(currentAction, sequence);
+                case ActionDef.SWIPE:
+                    if (currentAction.getOn().equals("UP")) {
+                        return Action.swipeUpAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    } else if (currentAction.getOn().equals("DOWN")) {
+                        return Action.swipeDownAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    } else if (currentAction.getOn().equals("LEFT")) {
+                        return Action.swipeLeftAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    } else if (currentAction.getOn().equals("RIGHT")) {
+                        return Action.swipeRightAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    }
             }
         }
         return currentAction;
     }
 
+    private static com.in_sync.models.Action swipeRightAction(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        Path path = new Path();
+        path.moveTo(mWidth * 0.2f, mHeight / 2f);  // Start from left center
+        path.lineTo(mWidth * 0.8f, mHeight / 2f);  // Move to right center
+        boolean res = performSwipe(path, duration, tries, accessibilityService);
+        return sequence.traverseAction(res, currentAction);
+    }
+
+    private static com.in_sync.models.Action swipeLeftAction(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        Path path = new Path();
+        path.moveTo(mWidth * 0.8f, mHeight / 2f);  // Start from right center
+        path.lineTo(mWidth * 0.2f, mHeight / 2f);  // Move to left center
+        boolean res = performSwipe(path, duration, tries, accessibilityService);
+        return sequence.traverseAction(res, currentAction);
+    }
+
+    private static com.in_sync.models.Action swipeDownAction(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        Path path = new Path();
+        path.moveTo(mWidth / 2f, mHeight * 0.2f);  // Start from top center
+        path.lineTo(mWidth / 2f, mHeight * 0.8f);  // Move to bottom center
+        boolean res = performSwipe(path, duration, tries, accessibilityService);
+        return sequence.traverseAction(res, currentAction);
+    }
+
+    private static com.in_sync.models.Action swipeUpAction(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        Path path = new Path();
+        path.moveTo(mWidth / 2f, mHeight * 0.8f);  // Start from bottom center
+        path.lineTo(mWidth / 2f, mHeight * 0.2f);  // Move to top center
+        boolean res = performSwipe(path, duration, tries, accessibilityService);
+        return sequence.traverseAction(res, currentAction);
+    }
+
+    private static boolean performSwipe(Path path, int duration, int tries, AccessibilityService accessibilityService) {
+        GestureDescription.Builder builder = new GestureDescription.Builder();
+        builder.addStroke(new GestureDescription.StrokeDescription(path, 0, duration));
+            boolean result = accessibilityService.dispatchGesture(builder.build(), null, null);
+            if (result) {
+                Log.e(TAG, "Swipe gesture succeeded");
+                return true;
+            } else {
+                Log.e(TAG, "Swipe gesture failed on attempt: ");
+            }
+        return false;
+    }
     public static Bitmap getBitmapFromURL(String on) {
         Bitmap bitmap = null;
         try {

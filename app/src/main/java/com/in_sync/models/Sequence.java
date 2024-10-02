@@ -33,6 +33,12 @@ public class Sequence {
                     return actions.poll();
                 }
                 break;
+            case ActionDef.SWIPE:
+                if (conditionResult){
+                    Log.e("Seq", "traverseAction: Swipe Poll" );
+                    return actions.poll();
+                }
+                break;
         }
         return currentAction;
     }
