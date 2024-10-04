@@ -138,10 +138,83 @@ public class Action extends ActionDef {
                     } else if (currentAction.getOn().equals("RIGHT")) {
                         return Action.swipeRightAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
                     }
+                case ActionDef.ZOOM:
+                    if (currentAction.getOn().equals("IN")){
+                        return Action.zoomIn(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    }
+                    else if (currentAction.getOn().equals("OUT")){
+                        return Action.zoomOut(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    }
             }
         }
         return currentAction;
     }
+
+    private static com.in_sync.models.Action zoomOut(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        int centerX = mWidth / 2;
+        int centerY = mHeight / 2;
+
+        // Define starting positions (fingers start apart)
+        Path path1 = new Path();
+        path1.moveTo(centerX - 200, centerY);  // First finger starts to the left
+        Path path2 = new Path();
+        path2.moveTo(centerX + 200, centerY);  // Second finger starts to the right
+
+        // Fingers move towards the center
+        path1.lineTo(centerX - 50, centerY);
+        path2.lineTo(centerX + 50, centerY);
+
+        // Perform the gesture using two fingers
+        GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path1, 0, duration));
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path2, 0, duration));
+
+        // Dispatch the gesture
+        boolean result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
+
+        // Log the result
+        if (result) {
+            Log.e(TAG, "Zoom out gesture succeeded");
+            return sequence.traverseAction(true, currentAction);
+        } else {
+            Log.e(TAG, "Zoom out gesture failed");
+            return sequence.traverseAction(false, currentAction);
+        }
+    }
+
+    private static com.in_sync.models.Action zoomIn(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        // Define the center of the screen
+        int centerX = mWidth / 2;
+        int centerY = mHeight / 2;
+
+        // Define starting positions (fingers start close together)
+        Path path1 = new Path();
+        path1.moveTo(centerX - 50, centerY);  // First finger starts close to the center
+        Path path2 = new Path();
+        path2.moveTo(centerX + 50, centerY);  // Second finger starts close to the center
+
+        // Fingers move farther apart
+        path1.lineTo(centerX - 200, centerY);
+        path2.lineTo(centerX + 200, centerY);
+
+        // Perform the gesture using two fingers
+        GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path1, 0, duration));
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(path2, 0, duration));
+
+        // Dispatch the gesture
+        boolean result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
+
+        // Log the result
+        if (result) {
+            Log.e(TAG, "Zoom in gesture succeeded");
+            return sequence.traverseAction(true, currentAction);
+        } else {
+            Log.e(TAG, "Zoom in gesture failed");
+            return sequence.traverseAction(false, currentAction);
+        }
+    }
+
 
     private static com.in_sync.models.Action swipeRightAction(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
         Path path = new Path();
