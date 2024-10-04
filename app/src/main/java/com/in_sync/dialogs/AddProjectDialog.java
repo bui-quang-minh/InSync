@@ -113,6 +113,7 @@ public class AddProjectDialog extends DialogFragment {
                 addProjectDto.setUserIdClerk(userIdClerk);
                 Call<ResponseSuccess> callAddProject = apiProject.AddProject(addProjectDto);
 
+                btn_add.setEnabled(false);
                 callAddProject.enqueue(new Callback<ResponseSuccess>() {
                     @Override
                     public void onResponse(Call<ResponseSuccess> call, Response<ResponseSuccess> response) {
@@ -129,6 +130,7 @@ public class AddProjectDialog extends DialogFragment {
                         showDialogNotification("Error", "Add project failed. Please try again", 1000);
                     }
                 });
+                btn_add.setEnabled(false);
 
             }
         });
