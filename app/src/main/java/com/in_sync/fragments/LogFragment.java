@@ -269,8 +269,8 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     // Phan Quang Huy
     // Get data for scenario spinner
     public void initDataForScenarioSpinner() {
+        checkUserLogin();
         progressBar.setVisibility(View.VISIBLE);
-
         Call<ResponsePaging<ArrayList<Scenario>>> callAllScenario = apiScenario.getAllScenaroOfUserClerk(userIdClerk, "", 0, Integer.MAX_VALUE);
         callAllScenario.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
@@ -291,7 +291,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
 
                 } else {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "An error occurred while retrieving data.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "An error occurred while retrieving data. in initDataForScenarioSpinner", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -299,7 +299,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
             @Override
             public void onFailure(Call<ResponsePaging<ArrayList<Scenario>>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "An error occurred while retrieving data.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "An error occurred while retrieving data. in initDataForScenarioSpinner", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -387,13 +387,13 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                         }
                     });
                 } else {
-                    Toast.makeText(getContext(), "An error occurred while retrieving data.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "An error occurred while retrieving data. in GetAllLogSessionOfAllScenario", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponsePaging<ArrayList<Scenario>>> call, Throwable t) {
-                Toast.makeText(getContext(), "An error occurred while retrieving data.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "An error occurred while retrieving data. in GetAllLogSessionOfAllScenario", Toast.LENGTH_SHORT).show();
 
             }
         });
