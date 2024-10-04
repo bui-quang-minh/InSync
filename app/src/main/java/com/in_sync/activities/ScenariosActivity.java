@@ -118,6 +118,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         scenarioRecyclerView = findViewById(R.id.scenario_recycle);
         notifyTextView = findViewById(R.id.notify_no_scenario);
         projectNameTextView = findViewById(R.id.project_name_of_scenario);
+        box_empty = findViewById(R.id.empty_box);
         // api
         apiScenario = ApiClient.getRetrofitInstance().create(APIScenario.class);
         apiProject = ApiClient.getRetrofitInstance().create(APIProject.class);

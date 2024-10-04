@@ -117,7 +117,7 @@ public class UpdateProjectDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 // Hiển thị view
-
+                btn_update.setEnabled(false);
                 ProjectDtos.UpdateProjectDto updateProjectDto = new ProjectDtos.UpdateProjectDto();
                 UUID project_id = UUID.fromString(projectId.getText().toString());
                 updateProjectDto.setProjectName(projectName.getText().toString());
@@ -143,7 +143,7 @@ public class UpdateProjectDialog extends DialogFragment {
                         showDialogNotification("Error", "Update project failed. Please try again", 1000);
                     }
                 });
-
+                btn_update.setEnabled(true);
             }
         });
         btn_cancel.setOnClickListener(new View.OnClickListener() {
