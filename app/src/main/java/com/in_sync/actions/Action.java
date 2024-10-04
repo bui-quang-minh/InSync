@@ -5,11 +5,13 @@ import android.accessibilityservice.GestureDescription;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Path;
 import android.media.Image;
 import android.media.ImageReader;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -145,9 +147,31 @@ public class Action extends ActionDef {
                     else if (currentAction.getOn().equals("OUT")){
                         return Action.zoomOut(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
                     }
+                case ActionDef.OPEN_APP:
+                    return Action.openApp(currentAction.getOn(), accessibilityService, sequence, currentAction);
             }
         }
         return currentAction;
+    }
+
+    private static com.in_sync.models.Action openApp(String on, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        if (on != null && !on.isEmpty()) {
+            // Create an intent to open the app using the package name from the "on" field
+            try {
+                Intent launchIntent = new Intent(Intent.ACTION_VIEW);
+                //Flag_activity_new_task
+                launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                launchIntent.setData(Uri.parse("android-app://".concat(on)));
+                accessibilityService.startActivity(launchIntent);
+                return sequence.traverseAction(true, currentAction);
+            } catch (Exception e) {
+                Log.e("OpenAppAction", "Error launching app: " + e.getMessage());
+                return sequence.traverseAction(false, currentAction);
+            }
+        } else {
+            Log.e("Action", "Package name is empty or null.");
+            return sequence.traverseAction(false, currentAction);
+        }
     }
 
     private static com.in_sync.models.Action zoomOut(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {

@@ -44,6 +44,12 @@ public class Sequence {
                     Log.e("Seq", "traverseAction: Zoom Poll" );
                     return actions.poll();
                 }
+            case ActionDef.OPEN_APP:
+                if (conditionResult){
+                    Log.e("Seq", "traverseAction: Open App Poll" );
+                    return actions.poll();
+                }
+                break;
         }
         return currentAction;
     }
