@@ -47,7 +47,6 @@ public class Action extends ActionDef {
     private boolean isDelay = false; // Biến cờ để kiểm soát việc chờ đợi
 
 
-
     public Action(Context context, AccessibilityService accessibilityService) {
         this.context = context;
         this.accessibilityService = accessibilityService;
@@ -79,7 +78,7 @@ public class Action extends ActionDef {
                                                    android.widget.ImageView imageView, String appOpened, AccessibilityNodeInfo source, Sequence sequence,
                                                    com.in_sync.models.Action currentAction) {
 
-       if (currentAction == null) {
+        if (currentAction == null) {
             currentAction = new com.in_sync.models.Action();
             currentAction = sequence.getFirstAction();
             return currentAction;
@@ -88,7 +87,7 @@ public class Action extends ActionDef {
 //            Log.e(TAG, "All actions have been executed. Projection Stop");
 //            return currentAction;
 //        }
-       else {
+        else {
             switch (currentAction.getActionType()) {
                 case Action.CLICK:
                     Bitmap bitmap = null;
@@ -141,14 +140,15 @@ public class Action extends ActionDef {
                         return Action.swipeRightAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
                     }
                 case ActionDef.ZOOM:
-                    if (currentAction.getOn().equals("IN")){
+                    if (currentAction.getOn().equals("IN")) {
                         return Action.zoomIn(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
-                    }
-                    else if (currentAction.getOn().equals("OUT")){
+                    } else if (currentAction.getOn().equals("OUT")) {
                         return Action.zoomOut(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
                     }
                 case ActionDef.OPEN_APP:
                     return Action.openApp(currentAction.getOn(), accessibilityService, sequence, currentAction);
+                case ActionDef.ROTATE:
+                    return Action.rotationAction(mWidth, mHeight, accessibilityService, sequence, currentAction);
             }
         }
         return currentAction;
@@ -248,6 +248,7 @@ public class Action extends ActionDef {
         return sequence.traverseAction(res, currentAction);
     }
 
+
     private static com.in_sync.models.Action swipeLeftAction(int mWidth, int mHeight, int duration, int tries, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
         Path path = new Path();
         path.moveTo(mWidth * 0.8f, mHeight / 2f);  // Start from right center
@@ -275,15 +276,16 @@ public class Action extends ActionDef {
     private static boolean performSwipe(Path path, int duration, int tries, AccessibilityService accessibilityService) {
         GestureDescription.Builder builder = new GestureDescription.Builder();
         builder.addStroke(new GestureDescription.StrokeDescription(path, 0, duration));
-            boolean result = accessibilityService.dispatchGesture(builder.build(), null, null);
-            if (result) {
-                Log.e(TAG, "Swipe gesture succeeded");
-                return true;
-            } else {
-                Log.e(TAG, "Swipe gesture failed on attempt: ");
-            }
+        boolean result = accessibilityService.dispatchGesture(builder.build(), null, null);
+        if (result) {
+            Log.e(TAG, "Swipe gesture succeeded");
+            return true;
+        } else {
+            Log.e(TAG, "Swipe gesture failed on attempt: ");
+        }
         return false;
     }
+
     public static Bitmap getBitmapFromURL(String on) {
         Bitmap bitmap = null;
         try {
@@ -359,22 +361,103 @@ public class Action extends ActionDef {
         return sequence.traverseAction(false, currentAction);
     }
 
+    private static com.in_sync.models.Action rotationAction(int mWidth, int mHeight, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        boolean result = false;
+
+        int degree = currentAction.getDegrees();
+        int duration = currentAction.getDuration();
+        String orientation = currentAction.getOn();
+        int count = degree / 90;
+        int degreeRemain = degree % 90;
+        if(degreeRemain == 0){
+            count = (int)degree / 90;
+            for(int i = 0; i < count; i++){
+                result = rotationWithDegree(mWidth, mHeight, accessibilityService, duration, 90, orientation);
+            }
+        }else{
+            for(int i = 0; i < count; i++){
+                result = rotationWithDegree(mWidth, mHeight, accessibilityService, duration, 90, orientation);
+            }
+            result = rotationWithDegree(mWidth, mHeight, accessibilityService, duration, degreeRemain, orientation);
+        }
+
+
+
+
+        if (result) {
+            Log.e(TAG, "rotation gesture succeeded");
+            return sequence.traverseAction(true, currentAction);
+        } else {
+            Log.e(TAG, "rotation gesture failed");
+            return sequence.traverseAction(false, currentAction);
+        }
+    }
+
+    private static boolean rotationWithDegree(int mWidth, int mHeight, AccessibilityService accessibilityService,int durationAction, int degreeAction, String orientationAction) {
+        int centerX = mWidth / 2;
+        int centerY = mHeight / 2;
+        // if flag  equas 1 is rotation right and -1 is rotation left
+        boolean result = false;
+
+
+        double angleRadians = Math.toRadians(degreeAction);
+        int lengthPathX = (int)(Math.sin(angleRadians) * centerX);
+        int lengthMoveY = (int)Math.sqrt(Math.pow(centerX, 2) - Math.pow(lengthPathX, 2));
+        if (orientationAction.equals("RIGHT")) {
+            // Tạo Path cho ngón tay đứng yên
+            Path stationaryPath = new Path();
+            stationaryPath.moveTo(centerX, centerY);
+
+            // Tạo Path cho ngón tay di chuyển thuận chiều kim đồng hồ
+            Path movingPath = new Path();
+            movingPath.moveTo(centerX - lengthPathX, lengthMoveY);
+            movingPath.lineTo(centerX + lengthPathX, lengthMoveY);
+
+            // Perform the gesture using two fingers
+            GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
+            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(stationaryPath, 0, durationAction));
+            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(movingPath, 0, durationAction));
+
+            // Dispatch the gesture
+            result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
+
+            // Log the result
+
+        } else {
+            Path stationaryPath = new Path();
+            stationaryPath.moveTo(centerX, centerY);
+
+            // Tạo Path cho ngón tay di chuyển ngược chiều kim đồng hồ
+            Path movingPath = new Path();
+            movingPath.moveTo(centerX + lengthPathX, lengthMoveY);
+            movingPath.lineTo(centerX - lengthPathX, lengthMoveY);
+
+            // Perform the gesture using two fingers
+            GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
+            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(stationaryPath, 0, durationAction));
+            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(movingPath, 0, durationAction));
+
+            // Dispatch the gesture
+            result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
+        }
+        return result;
+    }
     private com.in_sync.models.Action handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
-        Log.e(TAG, "Trạng thái chờ: "+ currentAction.getIndex() +" Status: index" +" " + isDelay);
+        Log.e(TAG, "Trạng thái chờ: " + currentAction.getIndex() + " Status: index" + " " + isDelay);
         if (!isDelay) {
             isDelay = true;
             int delayTime = currentAction.getDuration(); // Giả sử getDuration() trả về thời gian chờ bằng mili giây
             // Tạo một Handler để xử lý việc chờ
             new Handler().postDelayed(() -> {
-                count ++;
+                count++;
                 isDelay = false;
                 Log.e(TAG, "Cập nhật trạng thái chờ đợi: " + isDelay);
             }, delayTime);
         }
-        if (count != 0){
-            count=0;
+        if (count != 0) {
+            count = 0;
             return sequence.traverseAction(true, currentAction);
-        }else {
+        } else {
             return sequence.traverseAction(false, currentAction);
         }
     }

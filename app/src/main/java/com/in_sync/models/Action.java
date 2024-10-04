@@ -22,4 +22,5 @@ public class Action
     public boolean logResult;
     public int duration;
     public int tries;
+    public int degrees;
 }

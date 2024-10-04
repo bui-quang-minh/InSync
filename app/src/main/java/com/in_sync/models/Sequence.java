@@ -11,42 +11,50 @@ import java.util.Queue;
 public class Sequence {
     private Queue<Action> actions;
     private List<Integer> allExecutedActions = new ArrayList<Integer>();
-    public Sequence(Queue<Action>actions){
+
+    public Sequence(Queue<Action> actions) {
         this.actions = actions;
         Log.d("Sequence", "Sequence created");
-        for (Action action : actions){
+        for (Action action : actions) {
             Log.e("Sequence", "Actions: " + action.getActionType() + " on: " + action.getIndex());
         }
     }
-    public Action traverseAction(boolean conditionResult, Action currentAction){
-        switch(currentAction.getActionType()){
+
+    public Action traverseAction(boolean conditionResult, Action currentAction) {
+        switch (currentAction.getActionType()) {
             case ActionDef.CLICK:
-                if (conditionResult){
-                    Log.e("Seq", "traverseAction: Click Poll" );
+                if (conditionResult) {
+                    Log.e("Seq", "traverseAction: Click Poll");
                     return actions.poll();
                 }
                 break;
 
             case ActionDef.DELAY:
-                if (conditionResult){
-                    Log.e("Seq", "traverseAction: Delay Poll" );
+                if (conditionResult) {
+                    Log.e("Seq", "traverseAction: Delay Poll");
                     return actions.poll();
                 }
                 break;
             case ActionDef.SWIPE:
-                if (conditionResult){
-                    Log.e("Seq", "traverseAction: Swipe Poll" );
+                if (conditionResult) {
+                    Log.e("Seq", "traverseAction: Swipe Poll");
                     return actions.poll();
                 }
                 break;
             case ActionDef.ZOOM:
-                if (conditionResult){
-                    Log.e("Seq", "traverseAction: Zoom Poll" );
+                if (conditionResult) {
+                    Log.e("Seq", "traverseAction: Zoom Poll");
                     return actions.poll();
                 }
             case ActionDef.OPEN_APP:
-                if (conditionResult){
-                    Log.e("Seq", "traverseAction: Open App Poll" );
+                if (conditionResult) {
+                    Log.e("Seq", "traverseAction: Open App Poll");
+                    return actions.poll();
+                }
+                break;
+            case ActionDef.ROTATE:
+                if (conditionResult) {
+                    Log.e("Seq", "traverseAction: Open App Poll");
                     return actions.poll();
                 }
                 break;
@@ -54,9 +62,10 @@ public class Sequence {
         return currentAction;
     }
 
-    public com.in_sync.models.Action peekQueue(){
+    public com.in_sync.models.Action peekQueue() {
         return actions.peek();
     }
+
     public Action getFirstAction() {
         return actions.poll();
     }
