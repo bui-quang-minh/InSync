@@ -275,25 +275,27 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         callAllScenario.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Scenario>>> call, Response<ResponsePaging<ArrayList<Scenario>>> response) {
-
-                progressBar.setVisibility(View.GONE);
-                if (response.isSuccessful()) {
-                    ResponsePaging<ArrayList<Scenario>> responsePaging = response.body();
-                    ArrayList<Scenario> listScenario = responsePaging.getData();
-
-                    Scenario allScenario = new Scenario();
-                    allScenario.setId(uuidDefault);
-                    allScenario.setTitle(All_SCENARIO);
-
-                    listScenario.add(0, allScenario);
-                    scenarioSpinnerAdapter = new ScenarioSpinnerAdapter(getContext(), listScenario);
-                    scenarioSpinner.setAdapter(scenarioSpinnerAdapter);
-
-                } else {
+                try {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "An error occurred while retrieving data.", Toast.LENGTH_SHORT).show();
-                }
+                    if (response.isSuccessful()) {
+                        ResponsePaging<ArrayList<Scenario>> responsePaging = response.body();
+                        ArrayList<Scenario> listScenario = responsePaging.getData();
 
+                        Scenario allScenario = new Scenario();
+                        allScenario.setId(uuidDefault);
+                        allScenario.setTitle(All_SCENARIO);
+
+                        listScenario.add(0, allScenario);
+                        scenarioSpinnerAdapter = new ScenarioSpinnerAdapter(getContext(), listScenario);
+                        scenarioSpinner.setAdapter(scenarioSpinnerAdapter);
+
+                    } else {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), "An error occurred while retrieving data.", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.d(TAG, "onResponse: " + e);
+                }
             }
 
             @Override
@@ -303,6 +305,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
 
             }
         });
+
     }
 
     // Phan Quang Huy
@@ -364,7 +367,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                     ResponsePaging<ArrayList<Scenario>> responsePaging = response.body();
                     ArrayList<String> listScenarioid = responsePaging.getData().stream()
                             .map(scenario -> scenario.getId().toString().toUpperCase()).collect(Collectors.toCollection(ArrayList::new));
-                    if(listScenarioid.size() == 0){
+                    if (listScenarioid.size() == 0) {
                         showNotifyEmpty();
                         return;
                     }

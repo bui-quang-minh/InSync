@@ -73,10 +73,10 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/scenario_recycle"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp" />
+            android:layout_margin="10dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
     </LinearLayout>
 </LinearLayout>

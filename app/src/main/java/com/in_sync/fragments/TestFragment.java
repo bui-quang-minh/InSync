@@ -238,10 +238,7 @@ public class TestFragment extends Fragment {
     }
 
     private void initiateOverlay(View view) {
-//        Intent intent = new Intent(context, ScreenCapturePermissionActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        intent.putExtra("json", inputEditText.getText()) ;
-//        startActivity(intent);
+
         screenCaptureHelper.startProjection();
     }
 }

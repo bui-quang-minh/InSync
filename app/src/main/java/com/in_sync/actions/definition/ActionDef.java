@@ -3,16 +3,11 @@ package com.in_sync.actions.definition;
 public abstract class ActionDef {
     public static final String
             CLICK = "CLICK",
-            PASTE = "PASTE",
+            //PASTE = "PASTE",
             SWIPE = "SWIPE",
-            LONG_CLICK = "LONG_CLICK",
-            DOUBLE_CLICK = "DOUBLE_CLICK",
-            SCROLL = "SCROLL",
-            DRAG = "DRAG",
-            PINCH = "PINCH",
+            //DRAG = "DRAG",
             ZOOM = "ZOOM",
             ROTATE = "ROTATE",
-            TAP = "TAP",
             DELAY = "DELAY",
             IF = "IF",
             FOR = "FOR",
