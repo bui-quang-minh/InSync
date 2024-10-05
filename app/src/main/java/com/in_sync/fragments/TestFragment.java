@@ -72,17 +72,17 @@ public class TestFragment extends Fragment {
                 "    \"actionType\": \"DELAY\",\n" +
                 "    \"on\": \"\",\n" +
                 "    \"logResult\": true,\n" +
-                "    \"duration\": 2000,\n" +
+                "    \"duration\": 4000,\n" +
                 "    \"tries\": 1\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"index\": 2,\n" +
                 "    \"actionType\": \"ROTATE\",\n" +
-                "    \"on\": \"RIGHT\",\n" +
+                "    \"on\": \"LEFT\",\n" +
                 "    \"logResult\": true,\n" +
-                "    \"duration\": 2000,\n" +
+                "    \"duration\": 1500,\n" +
                 "    \"tries\": 4,\n" +
-                "    \"degrees\": 150\n" +
+                "    \"degrees\": 160\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"index\": 3,\n" +

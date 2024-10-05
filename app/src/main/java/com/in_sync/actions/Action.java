@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
@@ -37,6 +38,7 @@ import java.nio.ByteBuffer;
 public class Action extends ActionDef {
     private int index = 0;
     private int count = 0;
+    private static int checkCompleted = 0;
     private static int IMAGES_PRODUCED;
     private int ACCURACY_POINT;
     private Coordinate prev_point = new Coordinate(0, 0);
@@ -362,86 +364,56 @@ public class Action extends ActionDef {
     }
 
     private static com.in_sync.models.Action rotationAction(int mWidth, int mHeight, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
-        boolean result = false;
-
-        int degree = currentAction.getDegrees();
-        int duration = currentAction.getDuration();
-        String orientation = currentAction.getOn();
-        int count = degree / 90;
-        int degreeRemain = degree % 90;
-        if(degreeRemain == 0){
-            count = (int)degree / 90;
-            for(int i = 0; i < count; i++){
-                result = rotationWithDegree(mWidth, mHeight, accessibilityService, duration, 90, orientation);
-            }
-        }else{
-            for(int i = 0; i < count; i++){
-                result = rotationWithDegree(mWidth, mHeight, accessibilityService, duration, 90, orientation);
-            }
-            result = rotationWithDegree(mWidth, mHeight, accessibilityService, duration, degreeRemain, orientation);
-        }
-
-
-
-
-        if (result) {
-            Log.e(TAG, "rotation gesture succeeded");
-            return sequence.traverseAction(true, currentAction);
-        } else {
-            Log.e(TAG, "rotation gesture failed");
-            return sequence.traverseAction(false, currentAction);
-        }
-    }
-
-    private static boolean rotationWithDegree(int mWidth, int mHeight, AccessibilityService accessibilityService,int durationAction, int degreeAction, String orientationAction) {
         int centerX = mWidth / 2;
         int centerY = mHeight / 2;
-        // if flag  equas 1 is rotation right and -1 is rotation left
-        boolean result = false;
+        boolean result;
 
+// Assuming the radius for the circular path is half the screen width
+        int radius = Math.min(centerX, centerY); // Using the smaller radius to avoid exceeding the screen
 
-        double angleRadians = Math.toRadians(degreeAction);
-        int lengthPathX = (int)(Math.sin(angleRadians) * centerX);
-        int lengthMoveY = (int)Math.sqrt(Math.pow(centerX, 2) - Math.pow(lengthPathX, 2));
-        if (orientationAction.equals("RIGHT")) {
-            // Tạo Path cho ngón tay đứng yên
-            Path stationaryPath = new Path();
-            stationaryPath.moveTo(centerX, centerY);
+// Calculate the start and end angles for the circular movement
+        float startAngle;
+        float sweepAngle = currentAction.getDegrees(); // This is the angle we want to move
 
-            // Tạo Path cho ngón tay di chuyển thuận chiều kim đồng hồ
-            Path movingPath = new Path();
-            movingPath.moveTo(centerX - lengthPathX, lengthMoveY);
-            movingPath.lineTo(centerX + lengthPathX, lengthMoveY);
-
-            // Perform the gesture using two fingers
-            GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
-            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(stationaryPath, 0, durationAction));
-            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(movingPath, 0, durationAction));
-
-            // Dispatch the gesture
-            result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
-
-            // Log the result
-
+        if (currentAction.getOn().equals("RIGHT")) {
+            // Start from 180 degrees (moving from left to right clockwise)
+            startAngle = 180;
         } else {
-            Path stationaryPath = new Path();
-            stationaryPath.moveTo(centerX, centerY);
-
-            // Tạo Path cho ngón tay di chuyển ngược chiều kim đồng hồ
-            Path movingPath = new Path();
-            movingPath.moveTo(centerX + lengthPathX, lengthMoveY);
-            movingPath.lineTo(centerX - lengthPathX, lengthMoveY);
-
-            // Perform the gesture using two fingers
-            GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
-            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(stationaryPath, 0, durationAction));
-            gestureBuilder.addStroke(new GestureDescription.StrokeDescription(movingPath, 0, durationAction));
-
-            // Dispatch the gesture
-            result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
+            // Start from 0 degrees (moving from right to left counterclockwise)
+            startAngle = 180;
+            sweepAngle = -sweepAngle; // Reverse the angle for counterclockwise movement
         }
-        return result;
+
+// Create the circular path for the moving finger
+        Path movingPath = new Path();
+        RectF oval = new RectF(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        movingPath.arcTo(oval, startAngle, sweepAngle); // Draw the arc
+
+// Create the stationary path for the stationary finger
+        Path stationaryPath = new Path();
+        stationaryPath.moveTo(centerX, centerY);
+
+// Perform the gesture with two fingers
+        GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(stationaryPath, 0, currentAction.getDuration()));
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(movingPath, 0, currentAction.getDuration()));
+
+// Dispatch the gesture
+        result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
+        if (result) {
+            Log.e(TAG, "Rotation gesture succeeded");
+            sequence.traverseAction(true, currentAction);
+        } else {
+            Log.e(TAG, "Rotation gesture failed");
+            sequence.traverseAction(false, currentAction);
+        }
+        return null;
     }
+
+
+
+
+
     private com.in_sync.models.Action handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
         Log.e(TAG, "Trạng thái chờ: " + currentAction.getIndex() + " Status: index" + " " + isDelay);
         if (!isDelay) {
