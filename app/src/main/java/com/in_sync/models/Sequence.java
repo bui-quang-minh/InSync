@@ -54,7 +54,7 @@ public class Sequence {
                 break;
             case ActionDef.ROTATE:
                 if (conditionResult) {
-                    Log.e("Seq", "traverseAction: Open App Poll");
+                    Log.e("Seq", "traverseAction: Rotate App Poll");
                     return actions.poll();
                 }
                 break;

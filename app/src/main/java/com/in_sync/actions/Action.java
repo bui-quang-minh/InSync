@@ -369,12 +369,13 @@ public class Action extends ActionDef {
         boolean result;
 
 // Assuming the radius for the circular path is half the screen width
-        int radius = Math.min(centerX, centerY); // Using the smaller radius to avoid exceeding the screen
+        int radius = Math.min(centerX, centerY)/2; // Using the smaller radius to avoid exceeding the screen
 
 // Calculate the start and end angles for the circular movement
         float startAngle;
         float sweepAngle = currentAction.getDegrees(); // This is the angle we want to move
-
+        if (sweepAngle == 360)
+            sweepAngle--;
         if (currentAction.getOn().equals("RIGHT")) {
             // Start from 180 degrees (moving from left to right clockwise)
             startAngle = 180;
@@ -392,22 +393,23 @@ public class Action extends ActionDef {
 // Create the stationary path for the stationary finger
         Path stationaryPath = new Path();
         stationaryPath.moveTo(centerX, centerY);
+        stationaryPath.lineTo(centerX+5, centerY+5);
 
 // Perform the gesture with two fingers
         GestureDescription.Builder gestureBuilder = new GestureDescription.Builder();
-        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(stationaryPath, 0, currentAction.getDuration()));
-        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(movingPath, 0, currentAction.getDuration()));
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(stationaryPath, 0, currentAction.getDuration()+100));
+        gestureBuilder.addStroke(new GestureDescription.StrokeDescription(movingPath, 100, currentAction.getDuration()));
 
 // Dispatch the gesture
         result = accessibilityService.dispatchGesture(gestureBuilder.build(), null, null);
         if (result) {
             Log.e(TAG, "Rotation gesture succeeded");
-            sequence.traverseAction(true, currentAction);
+            return sequence.traverseAction(true, currentAction);
         } else {
             Log.e(TAG, "Rotation gesture failed");
-            sequence.traverseAction(false, currentAction);
+            return sequence.traverseAction(false, currentAction);
         }
-        return null;
+
     }
 
 
