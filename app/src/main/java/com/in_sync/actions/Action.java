@@ -151,6 +151,9 @@ public class Action extends ActionDef {
                     return Action.openApp(currentAction.getOn(), accessibilityService, sequence, currentAction);
                 case ActionDef.ROTATE:
                     return Action.rotationAction(mWidth, mHeight, accessibilityService, sequence, currentAction);
+                case ActionDef.END_RUN:
+                    Log.e(TAG, "actionHandler: END RUN" );
+                    return currentAction;
             }
         }
         return currentAction;

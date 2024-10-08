@@ -11,5 +11,6 @@ public abstract class ActionDef {
             DELAY = "DELAY",
             IF = "IF",
             FOR = "FOR",
+            END_RUN = "END_RUN",
             OPEN_APP = "OPEN_APP";
 }

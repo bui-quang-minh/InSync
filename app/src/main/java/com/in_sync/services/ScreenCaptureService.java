@@ -142,10 +142,15 @@ public class ScreenCaptureService extends AccessibilityService {
         @Override
         public void onImageAvailable(ImageReader reader) {
             com.in_sync.models.Action newAction = action.actionHandler(reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction);
-            if (newAction == null) {
+            if(Objects.equals(newAction.getActionType(), ActionDef.END_RUN)){
+                Log.e(TAG, "onImageAvailable: Endrun exe" );
+                stopProjection();
+                removeOverlay();
+            }
+            else if (newAction == null) {
                 currentAction = newAction;
                 Log.e(TAG, "onImageAvailable: StopProjection");
-                removeOverlay();
+                stopProjection();
             } else {
                 currentAction = newAction;
             }
