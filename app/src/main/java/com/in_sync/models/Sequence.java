@@ -58,6 +58,12 @@ public class Sequence {
                     return actions.poll();
                 }
                 break;
+            case ActionDef.PASTE:
+                if (conditionResult) {
+                    Log.e("Seq", "traverseAction: Paste Poll");
+                    return actions.poll();
+                }
+                break;
         }
         return currentAction;
     }

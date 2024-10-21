@@ -154,10 +154,49 @@ public class Action extends ActionDef {
                 case ActionDef.END_RUN:
                     Log.e(TAG, "actionHandler: END RUN" );
                     return currentAction;
+                case ActionDef.PASTE:
+                    return sequence.traverseAction(pasteStimulation(currentAction.getPasteContent()), currentAction);
             }
         }
         return currentAction;
     }
+
+    private void setTextInClipboard(String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("pasted_text", text);
+        clipboard.setPrimaryClip(clip);
+    }
+    private boolean pasteStimulation(String text) {
+        // Set the text to be pasted in the clipboard
+        setTextInClipboard(text);
+        // Get the root window to work with AccessibilityNodeInfo
+        AccessibilityNodeInfo nodeInfo = accessibilityService.getRootInActiveWindow();
+
+        if (nodeInfo == null) {
+            Log.e(TAG, "pasteStimulation: Root window is null");
+            return false;
+        }
+
+        // Get the currently focused node (where the cursor is)
+        AccessibilityNodeInfo focusedNode = accessibilityService.getRootInActiveWindow().findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+
+        if (focusedNode != null) {
+            // Perform the ACTION_PASTE on the focused node
+            boolean pasted = focusedNode.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+            if (pasted) {
+                Log.i(TAG, "pasteStimulation: Text successfully pasted.");
+                return true;
+            } else {
+                Log.e(TAG, "pasteStimulation: Failed to paste.");
+                return false;
+            }
+        } else {
+            Log.e(TAG, "pasteStimulation: No focused node found.");
+            return false;
+        }
+    }
+
+
 
     private static com.in_sync.models.Action openApp(String on, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
         if (on != null && !on.isEmpty()) {
@@ -413,11 +452,6 @@ public class Action extends ActionDef {
         }
 
     }
-
-
-
-
-
     private com.in_sync.models.Action handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
         Log.e(TAG, "Trạng thái chờ: " + currentAction.getIndex() + " Status: index" + " " + isDelay);
         if (!isDelay) {

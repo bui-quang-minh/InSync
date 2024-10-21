@@ -28,4 +28,5 @@ public class Action
     public List<com.in_sync.models.Action> executeActions;
     public int times;
     public String open;
+    public String pasteContent;
 }
