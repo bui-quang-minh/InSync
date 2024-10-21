@@ -132,23 +132,23 @@ public class Action extends ActionDef {
                 case ActionDef.DELAY:
                     return handleDelayAction(currentAction, sequence);
                 case ActionDef.SWIPE:
-                    if (currentAction.getOn().equals("UP")) {
-                        return Action.swipeUpAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
-                    } else if (currentAction.getOn().equals("DOWN")) {
-                        return Action.swipeDownAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
-                    } else if (currentAction.getOn().equals("LEFT")) {
-                        return Action.swipeLeftAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
-                    } else if (currentAction.getOn().equals("RIGHT")) {
-                        return Action.swipeRightAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    if (currentAction.getDirection().equals("UP")) {
+                        return Action.swipeUpAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
+                    } else if (currentAction.getDirection().equals("DOWN")) {
+                        return Action.swipeDownAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
+                    } else if (currentAction.getDirection().equals("LEFT")) {
+                        return Action.swipeLeftAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
+                    } else if (currentAction.getDirection().equals("RIGHT")) {
+                        return Action.swipeRightAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
                     }
                 case ActionDef.ZOOM:
-                    if (currentAction.getOn().equals("IN")) {
-                        return Action.zoomIn(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
-                    } else if (currentAction.getOn().equals("OUT")) {
-                        return Action.zoomOut(mWidth, mHeight, currentAction.getDuration(), currentAction.getTries(), accessibilityService, sequence, currentAction);
+                    if (currentAction.getDirection().equals("IN")) {
+                        return Action.zoomIn(mWidth, mHeight, currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
+                    } else if (currentAction.getDirection().equals("OUT")) {
+                        return Action.zoomOut(mWidth, mHeight, currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
                     }
                 case ActionDef.OPEN_APP:
-                    return Action.openApp(currentAction.getOn(), accessibilityService, sequence, currentAction);
+                    return Action.openApp(currentAction.getOpen(), accessibilityService, sequence, currentAction);
                 case ActionDef.ROTATE:
                     return Action.rotationAction(mWidth, mHeight, accessibilityService, sequence, currentAction);
                 case ActionDef.END_RUN:
@@ -331,7 +331,6 @@ public class Action extends ActionDef {
             source.performAction(AccessibilityNodeInfoCompat.ACTION_PASTE);
         }
         Log.e("Error", String.format("AccessibilityNodeInfoCompat.ACTION_PASTE %1$s supported", isSupported ? "is" : "is NOT"));
-
     }
 
     public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template, android.widget.ImageView imageView, Bitmap bmp, int index, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
@@ -348,7 +347,7 @@ public class Action extends ActionDef {
             Action.clickAction((float) matchLoc.x + (float) bmp.getWidth() / 2,
                     (float) matchLoc.y + (float) bmp.getHeight() / 2,
                     currentAction.getDuration(),
-                    currentAction.getTries(),
+                    currentAction.getTimes(),
                     accessibilityService);
             ACCURACY_POINT = 0;
             IMAGES_PRODUCED = 0;
@@ -379,7 +378,7 @@ public class Action extends ActionDef {
         float sweepAngle = currentAction.getDegrees(); // This is the angle we want to move
         if (sweepAngle == 360)
             sweepAngle--;
-        if (currentAction.getOn().equals("RIGHT")) {
+        if (currentAction.getDirection().equals("RIGHT")) {
             // Start from 180 degrees (moving from left to right clockwise)
             startAngle = 180;
         } else {

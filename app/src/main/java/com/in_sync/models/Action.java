@@ -14,13 +14,18 @@ import lombok.Setter;
 public class Action
 {
     public int index;
-    public int parent;
-    public String action;
     public String actionType;
-    public String on;
-    public List<com.in_sync.models.Action> executeActions;
-    public boolean logResult;
+    public boolean isLog;
+    public String logContent;
     public int duration;
-    public int tries;
+    public String direction;
+    public String on;
+    public float x;
+    public float y;
+    public float xPercent;
+    public float yPercent;
     public int degrees;
+    public List<com.in_sync.models.Action> executeActions;
+    public int times;
+    public String open;
 }

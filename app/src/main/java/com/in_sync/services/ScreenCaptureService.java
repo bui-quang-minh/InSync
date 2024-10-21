@@ -369,7 +369,7 @@ public class ScreenCaptureService extends AccessibilityService {
     public  void tranferListToQueue (List<com.in_sync.models.Action> actions){
         for (com.in_sync.models.Action singleAction:actions) {
             if(singleAction.getActionType().equals(ActionDef.FOR)) {
-                for (int i = 0; i < singleAction.getTries(); i++) {
+                for (int i = 0; i < singleAction.getTimes(); i++) {
                     tranferListToQueue(singleAction.getExecuteActions());
                 }
             }else{

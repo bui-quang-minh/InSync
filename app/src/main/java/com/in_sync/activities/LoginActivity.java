@@ -152,6 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                         List<JSONObject> list = new ArrayList<>();
                         try {
                             for (int i = 0; i < result.length(); i++) {
+                                Log.e("onSuccess: ", result.getJSONObject(i).toString());
                                 if (result.getJSONObject(i).toString().contains(account.getEmail())) {
                                     list.add(result.getJSONObject(i));
                                     JSONArray jsonArray = new JSONArray();
