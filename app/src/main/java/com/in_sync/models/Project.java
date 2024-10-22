@@ -25,7 +25,8 @@ public class Project implements Serializable {
     private UUID id;
     private String projectName;
     private String description;
-    private UUID userId;
+    private String userId;
+    private UUID userIdGuid;
     private String displayName;
     private LocalDateTime dateCreated;
     private LocalDateTime dateUpdated;

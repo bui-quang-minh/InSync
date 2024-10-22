@@ -295,7 +295,7 @@ public class ProjectFragment extends Fragment implements
 
                 } else {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Error occurred during data retrieval", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error occurred during data retrievalL", Toast.LENGTH_SHORT).show();
                 }
 
             }
