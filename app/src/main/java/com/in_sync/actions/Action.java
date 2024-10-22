@@ -359,19 +359,6 @@ public class Action extends ActionDef {
         return new Mat(bitmap.getHeight(), bitmap.getWidth(), CvType.CV_8UC4);
     }
 
-
-    private void pasteFromClipboard(String content, AccessibilityNodeInfo source) {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText("text", content);
-        clipboard.setPrimaryClip(clipData);
-        int supportedActions = source.getActions();
-        boolean isSupported = (supportedActions & AccessibilityNodeInfoCompat.ACTION_PASTE) == AccessibilityNodeInfoCompat.ACTION_PASTE;
-        if (isSupported) {
-            source.performAction(AccessibilityNodeInfoCompat.ACTION_PASTE);
-        }
-        Log.e("Error", String.format("AccessibilityNodeInfoCompat.ACTION_PASTE %1$s supported", isSupported ? "is" : "is NOT"));
-    }
-
     public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template, android.widget.ImageView imageView, Bitmap bmp, int index, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
         Log.e(TAG, mmr.maxVal + " accurate value");
         if (mmr.maxVal >= 0.70) {
