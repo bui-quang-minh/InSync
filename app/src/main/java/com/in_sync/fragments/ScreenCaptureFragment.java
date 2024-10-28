@@ -1,8 +1,5 @@
 package com.in_sync.fragments;
 
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.MEDIA_PROJECTION_SERVICE;
-
 //import com.cloudinary.*;
 //import com.cloudinary.utils.ObjectUtils;
 import static com.in_sync.BuildConfig.API_KEY;
@@ -13,8 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.projection.MediaProjectionManager;
-import android.os.Bundle;
+        import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -39,13 +35,11 @@ import com.in_sync.activities.ImageDetailActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
 import com.in_sync.file.FileSystem;
 import com.in_sync.helpers.AssetsServicePermissionUtils;
-import com.in_sync.helpers.ScreenCapturePermissionUtils;
-import com.in_sync.listener.RecyclerItemClickListener;
+        import com.in_sync.listener.RecyclerItemClickListener;
 
-import org.opencv.BuildConfig;
-
-import java.io.File;
+        import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -151,14 +145,25 @@ public class ScreenCaptureFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.e(TAG, "onResume: Calling");
+        refreshImageList();
+    }
+    public void refreshImageList() {
+        // Retrieve the file names
         imageList = FileSystem.getFileName(context);
+        // Reverse the imageList
+        Collections.reverse(imageList);
+        // Prepare the RecyclerView with the reversed list
         prepareRecyclerView();
     }
     @SuppressLint("NotifyDataSetChanged")
     private void prepareRecyclerView() {
         ImageGalleryAdapter imageRVAdapter = new ImageGalleryAdapter(context, imageList);
+        for (String a: imageList) {
+            Log.e(TAG, "prepareRecyclerView: " + a);
+        }
         // Set the layout manager and adapter for the RecyclerView
-        GridLayoutManager manager = new GridLayoutManager(context, 2);
+        GridLayoutManager manager = new GridLayoutManager(context, 5);
+        imagesRV.hasFixedSize();
         imagesRV.setLayoutManager(manager);
         imagesRV.setAdapter(imageRVAdapter);
         // Catch event when item is clicked or long clicked
@@ -169,7 +174,6 @@ public class ScreenCaptureFragment extends Fragment {
                         Intent i = new Intent(context, ImageDetailActivity.class);
                         i.putExtra("imgPath", imageList.get(position));
                         context.startActivity(i);
-
                     }
                     @SuppressLint("UseCompatLoadingForDrawables")
                     @Override

@@ -16,6 +16,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.Image;
 import android.media.ImageReader;
+import android.media.MediaPlayer;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
@@ -37,11 +38,8 @@ import android.widget.LinearLayout;
 
 import androidx.core.util.Pair;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.in_sync.R;
 import com.in_sync.actions.Action;
-import com.in_sync.actions.definition.ActionDef;
 import com.in_sync.adapters.ImageGalleryAdapter;
 import com.in_sync.file.FileSystem;
 import com.in_sync.helpers.NotificationUtils;
@@ -52,7 +50,6 @@ import com.in_sync.models.Step;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -62,7 +59,6 @@ import java.util.Objects;
 import java.util.Queue;
 
 public class AssetsService extends AccessibilityService {
-
     private static final String TAG = "AssetsService";
     private static final String RESULT_CODE = "RESULT_CODE";
     private static final String DATA = "DATA";
@@ -405,11 +401,15 @@ public class AssetsService extends AccessibilityService {
             @Override
             public void onClick(View v) {
                 windowManager.removeView(overlayView);
+                MediaPlayer mediaPlayer = MediaPlayer.create(contexts, R.raw.camera);
+                mediaPlayer.setOnCompletionListener(mp -> mp.release()); // Release the MediaPlayer once the sound is done
+                mediaPlayer.start();
                 Handler handler = new Handler(Looper.getMainLooper());
                 // Delay after click capture button by 1 seconds
                 handler.postDelayed(() -> {
                     captureScreenshot();
                     windowManager.addView(overlayView, params);
+
                 }, 100);
             }
         });
