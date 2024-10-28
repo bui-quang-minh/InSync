@@ -142,6 +142,11 @@ public class MainActivity extends AppCompatActivity {
         dialog = new Dialog(this);
         dialog.setContentView(R.layout.permission_request);
         dialog.setCancelable(false);
+        Button guideButton = dialog.findViewById(R.id.btn_guide);
+        guideButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, WalkthoughNavigationActivity.class);
+            startActivity(intent);
+        });
         Button requestSetting = dialog.findViewById(R.id.request_button);
         requestSetting.setOnClickListener(v -> {
             Toast.makeText(MainActivity.this, "Requesting", Toast.LENGTH_SHORT).show();

@@ -32,7 +32,7 @@ public class WalkthoughNavigationActivity extends AppCompatActivity {
             } else {
                 backButton.setVisibility(View.INVISIBLE);
             }
-            if (position == 2){
+            if (position == 3){
                 nextButton.setText("Finish");
             } else {
                 nextButton.setText("Next");
@@ -60,7 +60,7 @@ public class WalkthoughNavigationActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getItem(0) < 2)
+                if (getItem(0) < 3)
                     slideViewPager.setCurrentItem(getItem(1), true);
                 else {
                     Intent i = new Intent(WalkthoughNavigationActivity.this, GetStartedActivity.class);
@@ -85,7 +85,7 @@ public class WalkthoughNavigationActivity extends AppCompatActivity {
         slideViewPager.addOnPageChangeListener(viewPagerListener);
     }
     public void setDotIndicator(int position) {
-        dots = new TextView[3];
+        dots = new TextView[4];
         dotIndicator.removeAllViews();
         for (int i = 0; i < dots.length; i++) {
             dots[i] = new TextView(this);

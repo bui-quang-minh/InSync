@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">In-Sync</string>
+    <string name="app_name">InSync</string>
     <string name="toast_message_screenshot_success">huuh</string>
     <string name="toast_message_screenshot">huuhhuhu</string>
     <string name="settings_message">huhuhuuhhuhuuhuhhu</string>
@@ -71,10 +71,12 @@
     <string name="card_content_2">Unlike traditional tools, InSync uses Android\'s accessibility services, eliminating the need for complex ADB setups.</string>
     <string name="card_content_3">Experience seamless script execution directly on your Android device, with real-time logs to monitor every action.</string>
     <string name="startDesc">Continue exploring, tweaking, and perfecting your scripts to streamline your productivity.</string>
-    <string name="wt_text_1">Create Your Script</string>
-    <string name="wt_text_2">Customize and Personalize</string>
-    <string name="wt_text_3">Precise Log History</string>
-    <string name="wt_desc_1">Use our intuitive script editor to design the sequence of actions that match your workflow. Whether its a simple task or a complex series of operation.</string>
-    <string name="wt_desc_2">Adjust parameters, set conditions, and loop actions to create a script that is tailored to your exact needs. The possibilities are endless.</string>
-    <string name="wt_desc_3">Stay informed with detailed and precise logs. Every action, every change, and every task performed by InSync is logged meticulously, so you always know what’s happening behind the scenes.</string>
+    <string name="wt_text_1">Tìm kiếm ứng dụng</string>
+    <string name="wt_text_2">Xác định ứng dụng InSync</string>
+    <string name="wt_text_3">Bật quyền cho ứng dụng</string>
+    <string name="wt_text_4">Cấp quyền và tiếp tục</string>
+    <string name="wt_desc_1">Truy cập "Ứng dụng đã cài đặt".</string>
+    <string name="wt_desc_2">Bạn sẽ cần cấp quyền cho dịch vụ của InSync các quyền này sẽ được sử dụng để chạy kịch bản cũng như các tiện ích kèm theo ứng dụng.</string>
+    <string name="wt_desc_3">Nhấn vào nút toggle để trao quyền cho InSync</string>
+    <string name="wt_desc_4">Lựa chọn cho phép, sau đó tiếp tục cấp cho dịch vụ còn lại của InSync</string>
 </resources>

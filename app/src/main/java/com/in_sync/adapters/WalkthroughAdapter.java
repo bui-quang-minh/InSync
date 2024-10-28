@@ -15,19 +15,22 @@ import com.in_sync.R;
 public class WalkthroughAdapter extends PagerAdapter {
     Context context;
     int sliderAllImages[] = {
-            R.drawable.walkthrough_1,
-            R.drawable.walkthrough_2,
-            R.drawable.walkthrough_3,
+            R.drawable.step_1,
+            R.drawable.step_2,
+            R.drawable.step_3,
+            R.drawable.step_4
     };
     int sliderAllTitle[] = {
             R.string.wt_text_1,
             R.string.wt_text_2,
             R.string.wt_text_3,
+            R.string.wt_text_4
     };
     int sliderAllDesc[] = {
             R.string.wt_desc_1,
             R.string.wt_desc_2,
             R.string.wt_desc_3,
+            R.string.wt_desc_4
     };
     public WalkthroughAdapter(Context context){
         this.context = context;

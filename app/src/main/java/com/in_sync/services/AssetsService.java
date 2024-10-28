@@ -9,6 +9,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.display.DisplayManager;
@@ -17,6 +18,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -40,12 +42,20 @@ import com.google.gson.reflect.TypeToken;
 import com.in_sync.R;
 import com.in_sync.actions.Action;
 import com.in_sync.actions.definition.ActionDef;
+import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.file.FileSystem;
 import com.in_sync.helpers.NotificationUtils;
 import com.in_sync.models.Coordinate;
 import com.in_sync.models.Sequence;
 import com.in_sync.models.Step;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -73,6 +83,8 @@ public class AssetsService extends AccessibilityService {
     private int mHeight;
     private int mRotation;
     private AssetsService.OrientationChangeCallback mOrientationChangeCallback;
+    private String mStoreDir;
+    private ImageGalleryAdapter imageGalleryAdapter;
     private String json;
     private Step[] steps;
     private ImageView imageView;
@@ -85,6 +97,7 @@ public class AssetsService extends AccessibilityService {
     private AccessibilityNodeInfo source;
     private com.in_sync.models.Action currentAction = null;
     private boolean isExpanded = true;
+    private List<String> images;
     private Queue<com.in_sync.models.Action> actionQueue = new LinkedList<>();
     private static Context contexts;
 
@@ -197,6 +210,30 @@ public class AssetsService extends AccessibilityService {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // create store dir
+        File externalFilesDir = getExternalFilesDir(null);
+        if (externalFilesDir != null) {
+            mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
+            File storeDirectory = new File(mStoreDir);
+
+            if (!storeDirectory.exists()) {
+                boolean success = storeDirectory.mkdirs();
+                if (!success) {
+                    Log.e(TAG, "failed to create file storage directory.");
+                    stopSelf();
+                }
+            }else{
+                Log.e(TAG, "file storage directory already exists.");
+            }
+        } else {
+            Log.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
+            stopSelf();
+        }
+
+        images = FileSystem.getFileName(this);
+        imageGalleryAdapter = new ImageGalleryAdapter(this, images);
+
         Log.e(TAG, "onCreate: sevices started");
         new Thread() {
             @Override
@@ -363,8 +400,70 @@ public class AssetsService extends AccessibilityService {
             }
         });
         imageView = overlayView.findViewById(R.id.screenshot_image_view);
+        ImageButton cameraButton = overlayView.findViewById(R.id.camera_button);
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                windowManager.removeView(overlayView);
+                Handler handler = new Handler(Looper.getMainLooper());
+                // Delay after click capture button by 1 seconds
+                handler.postDelayed(() -> {
+                    captureScreenshot();
+                    windowManager.addView(overlayView, params);
+                }, 100);
+            }
+        });
     }
+    private void captureScreenshot() {
+        FileOutputStream fos = null;
+        Bitmap bitmap = null;
+        String fileName = "";
+        if (mImageReader == null) {
+            Log.e("Screenshot", "ImageReader is not initialized");
+            return;
+        }
+        try (Image image = mImageReader.acquireLatestImage()) {
+            if (image != null) {
+                Image.Plane[] planes = image.getPlanes();
+                ByteBuffer buffer = planes[0].getBuffer();
+                int pixelStride = planes[0].getPixelStride();
+                int rowStride = planes[0].getRowStride();
+                int rowPadding = rowStride - pixelStride * mWidth;
+                // create bitmap
+                bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                bitmap.copyPixelsFromBuffer(buffer);
+                // Set local date time
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    LocalDateTime localDateTime = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
+                    images.add(fileName);
+                    //imageGalleryAdapter.setImages(images);
+                }
 
+                // write bitmap to a file
+                fos = new FileOutputStream(fileName);
+                //imageGalleryAdapter.addItem(fileName);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+
+        }
+    }
     private void toggleExpandCollapse() {
         LinearLayout content = overlayView.findViewById(R.id.overlay_content);
         ImageButton arrowButton = overlayView.findViewById(R.id.arrow_button);
