@@ -65,17 +65,26 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
         <service
-            android:name=".services.ScreenshotService"
+            android:name=".services.AssetsService"
             android:exported="false"
-            android:foregroundServiceType="mediaProjection" />
+            android:foregroundServiceType="mediaProjection"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
 
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan" />
-        <activity
-            android:name=".activities.ScreenshotPermissionActivity"
-            android:exported="true" />
+<!--        <activity-->
+<!--            android:name=".activities.ScreenshotPermissionActivity"-->
+<!--            android:exported="true" />-->
     </application>
 
 </manifest>

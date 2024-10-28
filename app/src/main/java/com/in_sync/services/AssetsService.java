@@ -217,10 +217,6 @@ public class AssetsService extends AccessibilityService {
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
         info.notificationTimeout = 100;
         this.setServiceInfo(info);
-        if (intent != null) {
-            json = intent.getExtras().get("json").toString();
-            bindStep(json);
-        }
         showOverlay();
         currentAction = null;
         Log.e(TAG, "onStartCommand Services started");
@@ -304,37 +300,12 @@ public class AssetsService extends AccessibilityService {
         Log.e(TAG, "createVirtualDisplay: " + mWidth + " " + mHeight + " " + mDensity);
     }
 
-    private void bindStep(String json) {
-        Gson gson = new Gson();
-        Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {}.getType();
-        List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);
-        actionQueue.clear();
-        tranferListToQueue(actionsList);
-        Log.e(TAG, "QUEUE SIZE: " + actionQueue.size());
-        for (com.in_sync.models.Action action: actionQueue) {
-            Log.e(TAG, "QUEUE DATA: "+action.getIndex()+ " ACTION:" + action.getActionType());
-        }
-        sequence = new Sequence(actionQueue);
-    }
-
-    public  void tranferListToQueue (List<com.in_sync.models.Action> actions){
-        for (com.in_sync.models.Action singleAction:actions) {
-            if(singleAction.getActionType().equals(ActionDef.FOR)) {
-                for (int i = 0; i < singleAction.getTimes(); i++) {
-                    tranferListToQueue(singleAction.getExecuteActions());
-                }
-            }else{
-                actionQueue.add(singleAction);
-            }
-        }
-    }
-
 
 
     private void showOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        overlayView = inflater.inflate(R.layout.overlay_layout, null);
+        overlayView = inflater.inflate(R.layout.screenshot_button, null);
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,

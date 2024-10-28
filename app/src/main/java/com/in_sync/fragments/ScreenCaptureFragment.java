@@ -38,10 +38,9 @@ import com.in_sync.R;
 import com.in_sync.activities.ImageDetailActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
 import com.in_sync.file.FileSystem;
+import com.in_sync.helpers.AssetsServicePermissionUtils;
 import com.in_sync.helpers.ScreenCapturePermissionUtils;
-import com.in_sync.helpers.ScreenShotPermissionUtils;
 import com.in_sync.listener.RecyclerItemClickListener;
-import com.in_sync.services.ScreenshotService;
 
 import org.opencv.BuildConfig;
 
@@ -70,7 +69,7 @@ public class ScreenCaptureFragment extends Fragment {
     public ScreenCaptureFragment(Context context) {
         this.context = context;
     }
-    private ScreenShotPermissionUtils screenshotHelper;
+    private AssetsServicePermissionUtils assetsHelper;
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -81,14 +80,13 @@ public class ScreenCaptureFragment extends Fragment {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent resultData = result.getData();
                         if (resultData != null) {
-                            resultData.putExtra("data", "data");
-                            screenshotHelper.handleResult(result.getResultCode(), resultData);
+                            assetsHelper.handleResult(result.getResultCode(), resultData);
                         }
                     }
                 }
         );
         // Initialize ScreenCapturePermissionUtils
-        screenshotHelper = new ScreenShotPermissionUtils(context, screenshotLauncher);
+        assetsHelper = new AssetsServicePermissionUtils(context, screenshotLauncher);
     }
 
     @Nullable
@@ -201,6 +199,6 @@ public class ScreenCaptureFragment extends Fragment {
                 }));
     }
     private void startProjection() {
-        screenshotHelper.startProjection();
+        assetsHelper.startProjection();
     }
 }
