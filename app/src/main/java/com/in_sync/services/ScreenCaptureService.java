@@ -141,22 +141,27 @@ public class ScreenCaptureService extends AccessibilityService {
     private class ImageAvailableListener implements ImageReader.OnImageAvailableListener {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            com.in_sync.models.Action newAction = action.actionHandler(reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction);
-            if(Objects.equals(newAction.getActionType(), ActionDef.END_RUN)){
-                Log.e(TAG, "onImageAvailable: Endrun exe" );
-                stopProjection();
-                removeOverlay();
-            }
-            else if (newAction == null) {
-                currentAction = newAction;
-                Log.e(TAG, "onImageAvailable: StopProjection");
-                stopProjection();
-            } else {
-                currentAction = newAction;
-            }
-            try (Image image = mImageReader.acquireLatestImage()) {
+            try{
+                com.in_sync.models.Action newAction = action.actionHandler(reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction);
+                if(Objects.equals(newAction.getActionType(), ActionDef.END_RUN)){
+                    Log.e(TAG, "onImageAvailable: Endrun exe" );
+                    stopProjection();
+                    removeOverlay();
+                    sequence.clearActions();
+                }
+                else if (newAction == null) {
+                    currentAction = newAction;
+                    Log.e(TAG, "onImageAvailable: StopProjection");
+                    stopProjection();
+                } else {
+                    currentAction = newAction;
+                }
+                try (Image image = mImageReader.acquireLatestImage()) {
 
-            } catch (Exception e) {
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }catch (Exception e){
                 e.printStackTrace();
             }
         }
@@ -168,33 +173,29 @@ public class ScreenCaptureService extends AccessibilityService {
         OrientationChangeCallback(Context context) {
             super(context);
         }
-
         @Override
         public void onOrientationChanged(int orientation) {
             final int rotation = mDisplay.getRotation();
             if (rotation != mRotation) {
                 mRotation = rotation;
-
                 try {
                     // Clean up existing virtual display and image reader
                     if (mVirtualDisplay != null) {
                         mVirtualDisplay.release();
                         mVirtualDisplay = null;
                     }
-
                     if (mImageReader != null) {
                         mImageReader.setOnImageAvailableListener(null, null);
                         mImageReader = null;
                     }
-
                     // Delay recreation slightly to avoid rapid re-triggering
                     mHandler.postDelayed(() -> {
                         try {
                             createVirtualDisplay();
                         } catch (Exception e) {
                             // Use the Activity context for the AlertDialog
-
                             removeOverlay();
+
                             new Handler(Looper.getMainLooper()).post(() -> {
                                 AlertDialog alertDialog = new AlertDialog.Builder(contexts)
                                         .setTitle("Warning")
@@ -206,7 +207,7 @@ public class ScreenCaptureService extends AccessibilityService {
                                 alertDialog.show();
                             });
                         }
-                    }, 50);
+                    }, 0);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -468,19 +469,5 @@ public class ScreenCaptureService extends AccessibilityService {
             stopSelf();
 
         }
-    }
-
-    private void pasteFromClipboard(String content) {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText("text", content);
-        clipboard.setPrimaryClip(clipData);
-        int supportedActions = source.getActions();
-        boolean isSupported = (supportedActions & AccessibilityNodeInfoCompat.ACTION_PASTE) == AccessibilityNodeInfoCompat.ACTION_PASTE;
-        if (isSupported) {
-            source.performAction(AccessibilityNodeInfoCompat.ACTION_PASTE);
-
-        }
-        Log.e("Error", String.format("AccessibilityNodeInfoCompat.ACTION_PASTE %1$s supported", isSupported ? "is" : "is NOT"));
-
     }
 }

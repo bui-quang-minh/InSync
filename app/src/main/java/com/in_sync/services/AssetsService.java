@@ -6,69 +6,64 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.AnimationDrawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
-import android.view.Surface;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Pair;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.in_sync.R;
-import com.in_sync.activities.ScreenshotPermissionActivity;
-import com.in_sync.adapters.ImageGalleryAdapter;
-import com.in_sync.file.FileSystem;
+import com.in_sync.actions.Action;
+import com.in_sync.actions.definition.ActionDef;
 import com.in_sync.helpers.NotificationUtils;
+import com.in_sync.models.Coordinate;
+import com.in_sync.models.Sequence;
+import com.in_sync.models.Step;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.sql.Time;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.lang.reflect.Type;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Queue;
 
-public class ScreenshotService extends AccessibilityService {
+public class AssetsService extends AccessibilityService {
 
-    private static final String TAG = "ScreenshotService";
+    private static final String TAG = "AssetsService";
     private static final String RESULT_CODE = "RESULT_CODE";
     private static final String DATA = "DATA";
     private static final String ACTION = "ACTION";
     private static final String START = "START";
     private static final String STOP = "STOP";
     private static final String SCREENCAP_NAME = "screencap";
+
+    private WindowManager windowManager;
+    private View overlayView;
     private MediaProjection mMediaProjection;
-    private String mStoreDir;
     private ImageReader mImageReader;
     private Handler mHandler;
     private Display mDisplay;
@@ -77,17 +72,24 @@ public class ScreenshotService extends AccessibilityService {
     private int mWidth;
     private int mHeight;
     private int mRotation;
-    private WindowManager windowManager;
-    private WindowManager.LayoutParams floatWindowLayoutParam;
-    private View viewGroup;
-    private OrientationChangeCallback mOrientationChangeCallback;
-    private ImageGalleryAdapter imageGalleryAdapter;
-    private List<String> images;
+    private AssetsService.OrientationChangeCallback mOrientationChangeCallback;
+    private String json;
+    private Step[] steps;
+    private ImageView imageView;
+    private String appOpened = "";
+    private Action action;
+    private Sequence sequence;
+    private static int IMAGES_PRODUCED;
+    private int ACCURACY_POINT;
+    private Coordinate prev_point = new Coordinate(0, 0);
+    private AccessibilityNodeInfo source;
+    private com.in_sync.models.Action currentAction = null;
+    private boolean isExpanded = true;
+    private Queue<com.in_sync.models.Action> actionQueue = new LinkedList<>();
     private static Context contexts;
-    private Intent startIntent;
-    private Context startContext;
+
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
-        Intent intent = new Intent(context, ScreenshotService.class);
+        Intent intent = new Intent(context, AssetsService.class);
         intent.putExtra(ACTION, START);
         intent.putExtra(RESULT_CODE, resultCode);
         intent.putExtra(DATA, data);
@@ -96,7 +98,7 @@ public class ScreenshotService extends AccessibilityService {
     }
 
     public static Intent getStopIntent(Context context) {
-        Intent intent = new Intent(context, ScreenshotService.class);
+        Intent intent = new Intent(context, AssetsService.class);
         intent.putExtra(ACTION, STOP);
         return intent;
     }
@@ -121,7 +123,6 @@ public class ScreenshotService extends AccessibilityService {
     }
 
     private class OrientationChangeCallback extends OrientationEventListener {
-
         OrientationChangeCallback(Context context) {
             super(context);
         }
@@ -147,11 +148,11 @@ public class ScreenshotService extends AccessibilityService {
                         } catch (Exception e) {
                             // Use the Activity context for the AlertDialog
                             removeOverlay();
-                            Log.e(TAG, "onOrientationChanged: " + e);
+
                             new Handler(Looper.getMainLooper()).post(() -> {
                                 AlertDialog alertDialog = new AlertDialog.Builder(contexts)
                                         .setTitle("Warning")
-                                        .setMessage("Detect orientation change! Please restart the service." + e)
+                                        .setMessage("Detect orientation change! Please restart the service.")
                                         .setNeutralButton("OK", (dialog, which) -> {
                                             dialog.dismiss();
                                         })
@@ -167,7 +168,6 @@ public class ScreenshotService extends AccessibilityService {
         }
     }
 
-
     private class MediaProjectionStopCallback extends MediaProjection.Callback {
         @Override
         public void onStop() {
@@ -178,7 +178,7 @@ public class ScreenshotService extends AccessibilityService {
                     if (mVirtualDisplay != null) mVirtualDisplay.release();
                     if (mImageReader != null) mImageReader.setOnImageAvailableListener(null, null);
                     if (mOrientationChangeCallback != null) mOrientationChangeCallback.disable();
-                    mMediaProjection.unregisterCallback(ScreenshotService.MediaProjectionStopCallback.this);
+                    mMediaProjection.unregisterCallback(AssetsService.MediaProjectionStopCallback.this);
                 }
             });
         }
@@ -197,28 +197,7 @@ public class ScreenshotService extends AccessibilityService {
     @Override
     public void onCreate() {
         super.onCreate();
-        // create store dir
-        File externalFilesDir = getExternalFilesDir(null);
-        if (externalFilesDir != null) {
-            mStoreDir = externalFilesDir.getAbsolutePath() + "/screenshots/";
-            File storeDirectory = new File(mStoreDir);
-
-            if (!storeDirectory.exists()) {
-                boolean success = storeDirectory.mkdirs();
-                if (!success) {
-                    Log.e(TAG, "failed to create file storage directory.");
-                    stopSelf();
-                }
-            }
-        } else {
-            Log.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
-            stopSelf();
-        }
-
-        images = FileSystem.getFileName(this);
-        imageGalleryAdapter = new ImageGalleryAdapter(this, images);
         Log.e(TAG, "onCreate: sevices started");
-        // start capture handling thread
         new Thread() {
             @Override
             public void run() {
@@ -231,21 +210,27 @@ public class ScreenshotService extends AccessibilityService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        showOverlay();
+        System.loadLibrary("opencv_java4");
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
         info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED |
                 AccessibilityEvent.TYPE_VIEW_FOCUSED;
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
         info.notificationTimeout = 100;
         this.setServiceInfo(info);
+        if (intent != null) {
+            json = intent.getExtras().get("json").toString();
+            bindStep(json);
+        }
+        showOverlay();
+        currentAction = null;
+        Log.e(TAG, "onStartCommand Services started");
+        action = new Action(getApplicationContext(), AssetsService.this);
         if (isStartCommand(intent)) {
-            // create notification
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
             startForeground(notification.first, notification.second);
-            // start projection
+
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
             Intent data = intent.getParcelableExtra(DATA);
-            startIntent = intent;
             startProjection(resultCode, data);
         } else if (isStopCommand(intent)) {
             stopSelf();
@@ -257,35 +242,8 @@ public class ScreenshotService extends AccessibilityService {
     }
 
     private void startProjection(int resultCode, Intent data) {
-        startContext = this;
         MediaProjectionManager mpManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        if (mMediaProjection != null) {
-            mMediaProjection.stop();
-            mMediaProjection = null;
-        }
-        mMediaProjection = mpManager.getMediaProjection(resultCode, data);
-        if (mMediaProjection != null) {
-            // display metrics
-            mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
-            WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-            mDisplay = windowManager.getDefaultDisplay();
-
-            // Register callbacks
-            mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
-
-            mOrientationChangeCallback = new OrientationChangeCallback(this);
-            if (mOrientationChangeCallback.canDetectOrientation()) {
-                mOrientationChangeCallback.enable();
-            }
-            createVirtualDisplay();
-        }
-    }
-
-
-    private void newProjection(int resultCode, Intent data) {
-        startContext = this;
-        MediaProjectionManager mpManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         mMediaProjection = null;
         if (mMediaProjection == null) {
             mMediaProjection = mpManager.getMediaProjection(resultCode, data);
@@ -294,17 +252,17 @@ public class ScreenshotService extends AccessibilityService {
                 mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                 mDisplay = windowManager.getDefaultDisplay();
-                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
-
-                mOrientationChangeCallback = new OrientationChangeCallback(this);
+                mMediaProjection.registerCallback(new AssetsService.MediaProjectionStopCallback(), mHandler);
+                createVirtualDisplay();
+                mOrientationChangeCallback = new AssetsService.OrientationChangeCallback(this);
                 if (mOrientationChangeCallback.canDetectOrientation()) {
                     mOrientationChangeCallback.enable();
                 }
-                mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
-                createVirtualDisplay();
+                mMediaProjection.registerCallback(new AssetsService.MediaProjectionStopCallback(), mHandler);
             }
         }
     }
+
     private void stopProjection() {
         if (mHandler != null) {
             mHandler.post(new Runnable() {
@@ -341,27 +299,56 @@ public class ScreenshotService extends AccessibilityService {
         mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
                 mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
-        mImageReader.setOnImageAvailableListener(new ScreenshotService.ImageAvailableListener(), mHandler);
+        mImageReader.setOnImageAvailableListener(new AssetsService.ImageAvailableListener(), mHandler);
         //log relevent information
         Log.e(TAG, "createVirtualDisplay: " + mWidth + " " + mHeight + " " + mDensity);
     }
+
+    private void bindStep(String json) {
+        Gson gson = new Gson();
+        Type actionListType = new TypeToken<List<com.in_sync.models.Action>>() {}.getType();
+        List<com.in_sync.models.Action> actionsList = gson.fromJson(json, actionListType);
+        actionQueue.clear();
+        tranferListToQueue(actionsList);
+        Log.e(TAG, "QUEUE SIZE: " + actionQueue.size());
+        for (com.in_sync.models.Action action: actionQueue) {
+            Log.e(TAG, "QUEUE DATA: "+action.getIndex()+ " ACTION:" + action.getActionType());
+        }
+        sequence = new Sequence(actionQueue);
+    }
+
+    public  void tranferListToQueue (List<com.in_sync.models.Action> actions){
+        for (com.in_sync.models.Action singleAction:actions) {
+            if(singleAction.getActionType().equals(ActionDef.FOR)) {
+                for (int i = 0; i < singleAction.getTimes(); i++) {
+                    tranferListToQueue(singleAction.getExecuteActions());
+                }
+            }else{
+                actionQueue.add(singleAction);
+            }
+        }
+    }
+
+
+
     private void showOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        viewGroup = layoutInflater.inflate(R.layout.screenshot_button, null);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        overlayView = inflater.inflate(R.layout.overlay_layout, null);
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.TOP | Gravity.LEFT;
         params.x = 0;
         params.y = 200;
-        windowManager.addView(viewGroup, params);
-        viewGroup.setOnTouchListener(new View.OnTouchListener() {
+
+        windowManager.addView(overlayView, params);
+        overlayView.setOnTouchListener(new View.OnTouchListener() {
             private int initialX, initialY;
             private float touchX, touchY;
 
@@ -378,7 +365,7 @@ public class ScreenshotService extends AccessibilityService {
                     case MotionEvent.ACTION_MOVE:
                         params.x = initialX + (int) (event.getRawX() - touchX);
                         params.y = initialY + (int) (event.getRawY() - touchY);
-                        windowManager.updateViewLayout(viewGroup, params);
+                        windowManager.updateViewLayout(overlayView, params);
                         return true;
 
                     default:
@@ -386,90 +373,51 @@ public class ScreenshotService extends AccessibilityService {
                 }
             }
         });
-
-        ImageButton captureButton = viewGroup.findViewById(R.id.screenshot_button);
-        ImageButton stopButton = viewGroup.findViewById(R.id.screenshot_stop_button);
-
-        stopButton.setOnClickListener((view) -> {
-            Intent intent = new Intent(this, ScreenshotService.class);
-            stopService(intent);
-            windowManager.removeView(viewGroup);
+        ImageView blinkingLight = overlayView.findViewById(R.id.blinking_light);
+        AnimationDrawable animationDrawable = (AnimationDrawable) blinkingLight.getDrawable();
+        animationDrawable.start();
+        ImageButton arrowButton = overlayView.findViewById(R.id.arrow_button);
+        arrowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleExpandCollapse();
+                windowManager.updateViewLayout(overlayView, params);
+            }
         });
-
-        captureButton.setOnClickListener((view) -> {
-            windowManager.removeView(viewGroup);
-            Handler handler = new Handler(Looper.getMainLooper());
-            // Delay after click capture button by 1 seconds
-            handler.postDelayed(() -> {
-                captureScreenshot();
-                windowManager.addView(viewGroup, params);
-            }, 200);
+        ImageButton closeButton = overlayView.findViewById(R.id.stop_button);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeOverlay();
+            }
         });
+        imageView = overlayView.findViewById(R.id.screenshot_image_view);
+    }
+
+    private void toggleExpandCollapse() {
+        LinearLayout content = overlayView.findViewById(R.id.overlay_content);
+        ImageButton arrowButton = overlayView.findViewById(R.id.arrow_button);
+
+        if (isExpanded) {
+            // Collapse
+            content.setVisibility(View.GONE);
+            arrowButton.setImageResource(R.drawable.baseline_keyboard_arrow_up_24);
+        } else {
+            // Expand
+            content.setVisibility(View.VISIBLE);
+            arrowButton.setImageResource(R.drawable.baseline_keyboard_arrow_down_24);
+        }
+
+        isExpanded = !isExpanded;
     }
 
     private void removeOverlay() {
-        if (viewGroup != null) {
-            windowManager.removeView(viewGroup);
+        if (overlayView != null) {
+            windowManager.removeView(overlayView);
             stopProjection(); // Stop the MediaProjection and release resources
             // Call stopSelf to stop the service
             stopSelf();
 
         }
     }
-    /**
-     * @author Dương Thành Luân
-     * @date 14/08/2024
-     * @desc notice the latest image which is sent by Media Projector
-     */
-    private void captureScreenshot() {
-        FileOutputStream fos = null;
-        Bitmap bitmap = null;
-        String fileName = "";
-        if (mImageReader == null) {
-            Log.e("Screenshot", "ImageReader is not initialized");
-            return;
-        }
-        try (Image image = mImageReader.acquireLatestImage()) {
-            if (image != null) {
-                Image.Plane[] planes = image.getPlanes();
-                ByteBuffer buffer = planes[0].getBuffer();
-                int pixelStride = planes[0].getPixelStride();
-                int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * mWidth;
-                // create bitmap
-                bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                bitmap.copyPixelsFromBuffer(buffer);
-                // Set local date time
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    LocalDateTime localDateTime = LocalDateTime.now();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
-                    images.add(fileName);
-                    //imageGalleryAdapter.setImages(images);
-                }
-
-                // write bitmap to a file
-                fos = new FileOutputStream(fileName);
-                //imageGalleryAdapter.addItem(fileName);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-
-            if (bitmap != null) {
-                bitmap.recycle();
-            }
-
-        }
-    }
-
 }

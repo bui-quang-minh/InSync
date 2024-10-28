@@ -75,4 +75,8 @@ public class Sequence {
     public Action getFirstAction() {
         return actions.poll();
     }
+
+    public void clearActions() {
+        actions.clear();
+    }
 }
