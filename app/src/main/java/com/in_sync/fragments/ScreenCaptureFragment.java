@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +34,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.in_sync.R;
 import com.in_sync.activities.ImageDetailActivity;
 import com.in_sync.adapters.ImageGalleryAdapter;
+import com.in_sync.dialogs.AddProjectDialog;
+import com.in_sync.dialogs.UploadAssetsDialog;
 import com.in_sync.file.FileSystem;
 import com.in_sync.helpers.AssetsServicePermissionUtils;
         import com.in_sync.listener.RecyclerItemClickListener;
@@ -45,7 +48,7 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public class ScreenCaptureFragment extends Fragment {
+public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialog.UploadAssetsDialogListener {
     private View captureButton;
     private FloatingActionButton uploadButton;
     private Context context;
@@ -107,28 +110,11 @@ public class ScreenCaptureFragment extends Fragment {
     }
 
     private void sendData(View view) {
-        Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", CLOUD_NAME,
-                "api_key", API_KEY,
-                "api_secret", API_SECRET
-        ));
 
-        for (String path : selectedImages) {
-            File file = new File(path);
-            if (file.exists()) {
-                // Upload to Cloudinary
-                new Thread(() -> {
-                    try {
-                        // Upload the file
-                        Map<String, Object> uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
-                        Log.e(TAG, "Image uploaded: " + uploadResult.get("url"));
-                    } catch (Exception e) {
-                        Log.e(TAG, "Upload failed: ", e);
-                    }
-                }).start(); // Start a new thread to avoid blocking the UI
-            }
-        }
-        Log.e(TAG, "sendData: upload completed");
+        FragmentManager fm = getParentFragmentManager();
+        UploadAssetsDialog addProjectDialog = new UploadAssetsDialog(getContext(), ScreenCaptureFragment.this, selectedImages);
+        addProjectDialog.show(fm, "AddProjectDialog");
+
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -171,6 +157,8 @@ public class ScreenCaptureFragment extends Fragment {
                 new RecyclerItemClickListener(context, imagesRV, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
+                        selectedImages.clear();
+                        uploadButton.hide();
                         Intent i = new Intent(context, ImageDetailActivity.class);
                         i.putExtra("imgPath", imageList.get(position));
                         context.startActivity(i);
@@ -180,12 +168,13 @@ public class ScreenCaptureFragment extends Fragment {
                     public void onLongItemClick(View view, int position) {
                         try {
                             //Catch hold action
-                            if (view.getBackground() != null
-                                    && view.getBackground().getConstantState() == Objects.requireNonNull(context.getDrawable(R.drawable.border)).getConstantState()) {
+                            if ("selected".equals(view.getTag())) {
                                 view.setBackground(null);
+                                view.setTag(null);
                                 selectedImages.remove(imageList.get(position));
                                 Log.e(TAG, "Removed: " + imageList.get(position));
                             } else {
+                                view.setTag("selected");
                                 view.setBackground(context.getDrawable(R.drawable.border));
                                 selectedImages.add(imageList.get(position));
                                 Log.e(TAG, "Added: " + imageList.get(position));
@@ -204,5 +193,10 @@ public class ScreenCaptureFragment extends Fragment {
     }
     private void startProjection() {
         assetsHelper.startProjection();
+    }
+
+    @Override
+    public void onAddDialogClosed() {
+
     }
 }

@@ -429,8 +429,10 @@ public class AssetsService extends AccessibilityService {
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
                 int rowPadding = rowStride - pixelStride * mWidth;
-                // create bitmap
                 bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+
+                //bitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+
                 bitmap.copyPixelsFromBuffer(buffer);
                 // Set local date time
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -447,7 +449,7 @@ public class AssetsService extends AccessibilityService {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             }
 
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (fos != null) {

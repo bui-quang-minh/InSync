@@ -13,7 +13,7 @@
         app:menu="@menu/screenshot_menu"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:title="Screenshot"
+        app:title="Assets Gallery"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
 
@@ -28,15 +28,18 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:contentDescription="Upload Image"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:id="@+id/upload_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:layout_margin="16dp"
-        app:srcCompat="@drawable/cloud_upload_foreground"/>
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Upload Image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.954"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:backgroundTint="@color/blue_300"
+        app:layout_constraintRight_toRightOf="parent"
+        app:srcCompat="@drawable/cloud_upload_foreground" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
