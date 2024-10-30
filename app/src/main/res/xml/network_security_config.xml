@@ -6,6 +6,9 @@
             <certificates src="@raw/conveyor_root"/>
         </trust-anchors>
     </domain-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">res.cloudinary.com</domain>
+    </domain-config>
 </network-security-config>
 
 

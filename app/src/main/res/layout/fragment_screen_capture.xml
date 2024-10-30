@@ -16,7 +16,7 @@
         app:title="Assets Gallery"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-
+        app:titleTextAppearance="@style/ToolbarTitleText"
         />
 
     <androidx.recyclerview.widget.RecyclerView

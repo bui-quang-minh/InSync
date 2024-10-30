@@ -24,6 +24,9 @@ public class Sequence {
         switch (currentAction.getActionType()) {
             case ActionDef.CLICK:
                 if (conditionResult) {
+                    if(currentAction.isLog()){
+
+                    }
                     Log.e("Seq", "traverseAction: Click Poll");
                     return actions.poll();
                 }

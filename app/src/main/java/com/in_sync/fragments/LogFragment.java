@@ -108,6 +108,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         progressBar = view.findViewById(R.id.progress_bar);
         logSessionRecyclerView = view.findViewById(R.id.log_session_recycle);
         scenarioSpinner = view.findViewById(R.id.scenario_sp);
+        scenarioSpinner.setVisibility(View.GONE);
         notifyTextView = view.findViewById(R.id.notify_no_session);
         empty_box = view.findViewById(R.id.empty_box);
         apiScenario = ApiClient.getRetrofitInstance().create(APIScenario.class);
@@ -288,6 +289,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                         listScenario.add(0, allScenario);
                         scenarioSpinnerAdapter = new ScenarioSpinnerAdapter(getContext(), listScenario);
                         scenarioSpinner.setAdapter(scenarioSpinnerAdapter);
+                        scenarioSpinner.setVisibility(View.VISIBLE);
 
                     } else {
                         progressBar.setVisibility(View.GONE);

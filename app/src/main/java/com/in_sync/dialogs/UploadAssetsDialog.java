@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,6 +78,7 @@ public class UploadAssetsDialog  extends DialogFragment {
     Spinner spinner;
     ArrayList<Project> projects = new ArrayList<>();
     String projectId = "";
+    ProgressBar progressBar;
 
 
     public UploadAssetsDialog(Context context, UploadAssetsDialogListener listener, List<String> selectedImages) {
@@ -125,8 +127,10 @@ public class UploadAssetsDialog  extends DialogFragment {
         AlertDialog dialog = builder.create();
         btn_cancel = view.findViewById(R.id.btn_cancel);
         btn_add = view.findViewById(R.id.btn_add);
+        progressBar = view.findViewById(R.id.progressBar);
         btn_add.setEnabled(false);
         spinner = view.findViewById(R.id.projectSpinner);
+        spinner.setVisibility(View.GONE);
         Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk, "");
         callProject.enqueue(new Callback<ResponsePaging<ArrayList<Project>>>() {
             @Override
@@ -141,6 +145,8 @@ public class UploadAssetsDialog  extends DialogFragment {
                     }
                     ProjectSpinnerAdapter adapter = new ProjectSpinnerAdapter(getContext(), projects);
                     spinner.setAdapter(adapter);
+                    progressBar.setVisibility(View.GONE);
+                    spinner.setVisibility(View.VISIBLE);
                     spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
