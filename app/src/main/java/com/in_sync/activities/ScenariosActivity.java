@@ -335,6 +335,10 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
            showDialogNotification("Error Notification", "Can't find the scenario.", 1000);
             return;
         }
+        SharedPreferences sharedPreferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("scenarioId", scenario.getId().toString());
+        editor.apply();
         Intent intent = new Intent(ScenariosActivity.this, RunScenarioActivity.class);
         intent.putExtra("scenarioId", scenario.getId().toString());
         intent.putExtra("scenarioName", scenario.getTitle());

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.content.SharedPreferences;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -140,7 +141,10 @@ public class TestFragment extends Fragment {
     }
 
     private void initiateOverlay(View view) {
-
+        SharedPreferences sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("scenarioId");
+        editor.apply(); // Apply changes to remove the key
         screenCaptureHelper.startProjection();
     }
 }

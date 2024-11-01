@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -37,7 +38,7 @@ public class LogsFirebaseService {
     private static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     private static final DateTimeFormatter DATE_TIME_FORMATTER_2 = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     public static final String SORT_A_Z = "Sort A-Z", SORT_Z_A = "Sort Z-A", SORT_BY_NEWEST = "Sort by Newest", SORT_BY_OLDEST = "Sort by Oldest";
-
+    LogSession session;
     private DatabaseReference databaseReference;
 
     //Phan Quang Huy
@@ -45,6 +46,7 @@ public class LogsFirebaseService {
     public LogsFirebaseService() {
         // Khởi tạo Firebase Database
         databaseReference = FirebaseDatabase.getInstance().getReferenceFromUrl(PATHBASE);
+        session = new LogSession();
     }
 
     //Phan Quang Huy
@@ -517,4 +519,65 @@ public class LogsFirebaseService {
     public interface LogCallback<T> {
         void onCallback(T data);
     }
+
+    public void initializeLogSession(LogSession session, LogsFirebaseService.LogCallback<LogSession> callback) {
+        // Create a new LogSession object
+        this.session = session;
+
+        // Get a new unique key for the LogSession
+        DatabaseReference logSessionsRef = databaseReference.child(LOG_SESSIONS_PATH);
+        String logSessionId = session.getSession_id();
+
+        if (logSessionId == null) {
+            Log.e(TAG, "Failed to create log session: key is null");
+            callback.onCallback(null);
+            return;
+        }
+
+        // Set the ID and save it in Firebase
+        this.session.setSession_id(logSessionId);
+        logSessionsRef.child(logSessionId).setValue(this.session)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Log session initialized successfully.");
+                    callback.onCallback(this.session); // Return the initialized session
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to initialize log session: " + e.getMessage());
+                    callback.onCallback(null);
+                });
+    }
+
+    public void uploadLogEntry(String logSessionId, com.in_sync.models.Log logEntry, LogsFirebaseService.LogCallback<com.in_sync.models.Log> callback) {
+        // Check if logSessionId is valid
+        if (logSessionId == null || logSessionId.isEmpty()) {
+            Log.e(TAG, "Invalid log session ID");
+            callback.onCallback(null);
+            return;
+        }
+
+        // Reference to the specific LogSession's logs
+        DatabaseReference logsRef = databaseReference.child(LOGS_PATH);
+
+        // Get a unique key for the log entry
+        String logId = logEntry.getLog_scenarios_id();
+
+        if (logId == null) {
+            Log.e(TAG, "Failed to create log entry: key is null");
+            callback.onCallback(null);
+            return;
+        }
+
+        // Set the ID and save the log entry
+        logEntry.setLog_scenarios_id(logId);
+        logsRef.child(logId).setValue(logEntry)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Log entry uploaded successfully.");
+                    callback.onCallback(logEntry); // Return the uploaded log entry
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to upload log entry: " + e.getMessage());
+                    callback.onCallback(null);
+                });
+    }
+
 }

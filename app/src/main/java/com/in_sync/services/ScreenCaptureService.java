@@ -364,7 +364,8 @@ public class ScreenCaptureService extends AccessibilityService {
         for (com.in_sync.models.Action action: actionQueue) {
             Log.e(TAG, "QUEUE DATA: "+action.getIndex()+ " ACTION:" + action.getActionType());
         }
-        sequence = new Sequence(actionQueue);
+
+        sequence = new Sequence(actionQueue, contexts);
     }
 
     public  void tranferListToQueue (List<com.in_sync.models.Action> actions){
