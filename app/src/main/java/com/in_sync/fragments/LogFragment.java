@@ -117,7 +117,6 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         if (activity != null) {
             activity.setSupportActionBar(toolbar);
         }
-
     }
 
     private void getInformationUserLogin() {
@@ -323,6 +322,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
         }
 
         if (scenario.getTitle().equals(All_SCENARIO)) {
+            //GetAllLogSessionOfScenario("c4150fad-97da-4bb4-9bf6-d01a47994a7b", "", sortOptions[2]);
             GetAllLogSessionOfAllScenario(search, sortBy);
         } else {
             GetAllLogSessionOfScenario(scenario.getId().toString().toUpperCase(), search, sortBy);
@@ -368,7 +368,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
                 if (response.isSuccessful()) {
                     ResponsePaging<ArrayList<Scenario>> responsePaging = response.body();
                     ArrayList<String> listScenarioid = responsePaging.getData().stream()
-                            .map(scenario -> scenario.getId().toString().toUpperCase()).collect(Collectors.toCollection(ArrayList::new));
+                            .map(scenario -> scenario.getId().toString().toLowerCase()).collect(Collectors.toCollection(ArrayList::new));
                     if (listScenarioid.size() == 0) {
                         showNotifyEmpty();
                         return;
