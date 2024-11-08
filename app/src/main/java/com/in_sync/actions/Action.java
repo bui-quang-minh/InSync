@@ -17,8 +17,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-
 import com.in_sync.actions.definition.ActionDef;
 import com.in_sync.models.Coordinate;
 import com.in_sync.models.Sequence;
@@ -91,7 +89,9 @@ public class Action extends ActionDef {
 //        }
         else {
             switch (currentAction.getActionType()) {
-                case Action.CLICK:
+                case Action.CLICK_XY:
+                    return click(currentAction.getX(), currentAction.getY(), currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
+                case Action.SMART_CLICK:
                     Bitmap bitmap = null;
                     try (Image image = mImageReader.acquireLatestImage()) {
                         if (image != null) {
@@ -107,16 +107,18 @@ public class Action extends ActionDef {
                             Bitmap bmp = getBitmapFromURL(currentAction.getOn());
                             Mat template = createMatFromBitmap(bmp);
                             Utils.bitmapToMat(bmp, template);
-                            imageView.post(() -> {
-                                // Update UI elements here, e.g.:
-                                imageView.setImageBitmap(bmp);
-                            });
+
                             //
                             //PERFORM TEMPLATE MATCHING
                             //
                             Mat result = createMatFromBitmap(bitmap);
                             Imgproc.matchTemplate(mat, template, result, Imgproc.TM_CCOEFF_NORMED);
                             //
+
+                            imageView.post(() -> {
+                                // Update UI elements here, e.g.:
+                                imageView.setImageBitmap(bmp);
+                            });
                             // Find the location of the best match
                             //
                             Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
@@ -159,6 +161,11 @@ public class Action extends ActionDef {
             }
         }
         return currentAction;
+    }
+
+    private com.in_sync.models.Action click(float x, float y, int duration, int times, AccessibilityService accessibilityService, Sequence sequence, com.in_sync.models.Action currentAction) {
+        Action.clickAction(x, y, duration, times, accessibilityService);
+        return sequence.traverseAction(true, currentAction);
     }
 
     private void setTextInClipboard(String text) {
@@ -440,7 +447,7 @@ public class Action extends ActionDef {
 
     }
     private com.in_sync.models.Action handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
-        Log.e(TAG, "Trạng thái chờ: " + currentAction.getIndex() + " Status: index" + " " + isDelay);
+        //Log.e(TAG, "Trạng thái chờ: " + currentAction.getIndex() + " Status: index" + " " + isDelay);
         if (!isDelay) {
             isDelay = true;
             int delayTime = currentAction.getDuration(); // Giả sử getDuration() trả về thời gian chờ bằng mili giây
