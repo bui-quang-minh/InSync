@@ -45,6 +45,8 @@ public class Action extends ActionDef {
     public static String appOpenedResend;
     private AccessibilityService accessibilityService;
     private boolean isDelay = false; // Biến cờ để kiểm soát việc chờ đợi
+    private long startTime = 0;
+
 
 
     public Action(Context context, AccessibilityService accessibilityService) {
@@ -91,7 +93,7 @@ public class Action extends ActionDef {
             switch (currentAction.getActionType()) {
                 case Action.CLICK_XY:
                     return click(currentAction.getX(), currentAction.getY(), currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
-                case Action.SMART_CLICK:
+                case Action.CLICK_SMART:
                     Bitmap bitmap = null;
                     try (Image image = mImageReader.acquireLatestImage()) {
                         if (image != null) {
@@ -133,6 +135,9 @@ public class Action extends ActionDef {
                     break;
                 case ActionDef.DELAY:
                     return handleDelayAction(currentAction, sequence);
+                case ActionDef.LOG:
+                    Log.e(TAG, "actionHandler: LOG");
+                    return sequence.traverseAction(true, currentAction);
                 case ActionDef.SWIPE:
                     if (currentAction.getDirection().equals("UP")) {
                         return Action.swipeUpAction(mWidth, mHeight, currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
@@ -446,26 +451,58 @@ public class Action extends ActionDef {
         }
 
     }
+//    private com.in_sync.models.Action handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
+//        if (!isDelay) {
+//            startTime = System.currentTimeMillis();
+//            isDelay = true;
+//            new Handler().postDelayed(() -> {
+//                count++;
+//                isDelay = false;
+//                Log.e(TAG, "Cập nhật trạng thái chờ đợi: " + isDelay);
+//            }, currentAction.getDuration());
+//        }
+//        else{
+//            long elapsedTime = System.currentTimeMillis() - startTime;
+//            Log.e(TAG, "Elapsed time since delay started: " + elapsedTime + " ms, needed: "+ currentAction.getDuration() + " ms");
+//        }
+//        if (count != 0) {
+//            count = 0;
+//            return sequence.traverseAction(true, currentAction);
+//        } else {
+//            return sequence.traverseAction(false, currentAction);
+//        }
+//    }
+
     private com.in_sync.models.Action handleDelayAction(com.in_sync.models.Action currentAction, Sequence sequence) {
-        //Log.e(TAG, "Trạng thái chờ: " + currentAction.getIndex() + " Status: index" + " " + isDelay);
         if (!isDelay) {
+            startTime = System.currentTimeMillis();
             isDelay = true;
-            int delayTime = currentAction.getDuration(); // Giả sử getDuration() trả về thời gian chờ bằng mili giây
-            // Tạo một Handler để xử lý việc chờ
-            new Handler().postDelayed(() -> {
-                count++;
-                isDelay = false;
-                Log.e(TAG, "Cập nhật trạng thái chờ đợi: " + isDelay);
-            }, delayTime);
-        }
-        if (count != 0) {
-            count = 0;
-            return sequence.traverseAction(true, currentAction);
+            int delayTime = currentAction.getDuration();
+
+            // Blocking delay
+            while (System.currentTimeMillis() - startTime < delayTime) {
+                // Do nothing
+            }
+
+            count++;
+            isDelay = false;
+            Log.e(TAG, "Blocking delay completed for " + delayTime + " ms");
+
+            if (count != 0) {
+                count = 0;
+                return sequence.traverseAction(true, currentAction);
+            } else {
+                return sequence.traverseAction(false, currentAction);
+            }
         } else {
-            return sequence.traverseAction(false, currentAction);
+            // Log elapsed time while delay is ongoing
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            Log.e(TAG, "Elapsed time since delay started: " + elapsedTime + " ms, needed: " + currentAction.getDuration() + " ms");
+
+            // If called during an active delay, return null or handle as needed
+            return null;
         }
     }
-
 
     public interface ActionCallback {
         void onActionCompleted(com.in_sync.models.Action action);

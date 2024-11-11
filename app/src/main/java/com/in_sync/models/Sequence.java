@@ -65,6 +65,20 @@ public class Sequence {
 
     public Action traverseAction(boolean conditionResult, Action currentAction) {
         switch (currentAction.getActionType()) {
+            case ActionDef.LOG:
+                if (conditionResult) {
+                    Logging(currentAction);
+                    Log.e("Seq", "traverseAction: Log Poll");
+                    return actions.poll();
+                }
+                break;
+            case ActionDef.IF:
+                if (conditionResult) {
+                    Logging(currentAction);
+                    Log.e("Seq", "traverseAction: If Poll");
+                    return actions.poll();
+                }
+                break;
             case ActionDef.CLICK_XY:
                 if (conditionResult) {
                     Logging(currentAction);
@@ -72,10 +86,10 @@ public class Sequence {
                     return actions.poll();
                 }
                 break;
-            case ActionDef.SMART_CLICK:
+            case ActionDef.CLICK_SMART:
                 if (conditionResult) {
                     Logging(currentAction);
-                    Log.e("Seq", "traverseAction: Click Poll");
+                    Log.e("Seq", "traverseAction: Click Smart Poll");
                     return actions.poll();
                 }
                 break;
