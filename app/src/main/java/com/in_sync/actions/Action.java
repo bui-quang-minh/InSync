@@ -91,6 +91,44 @@ public class Action extends ActionDef {
 //        }
         else {
             switch (currentAction.getActionType()) {
+                case ActionDef.IF:
+                    Log.e(TAG, "actionHandler: IF");
+                    Bitmap screen = null;
+                    try (Image image = mImageReader.acquireLatestImage()) {
+                        if (image != null) {
+                            //
+                            //GET SCREEN BITMAP
+                            //
+                            screen = getScreenBitmap(image);
+                            Mat mat = createMatFromBitmap(screen);
+                            Utils.bitmapToMat(screen, mat);
+                            //
+                            //GET TEMPLATE BITMAP
+                            //
+                            Bitmap bmp = getBitmapFromURL(currentAction.getImageExist());
+                            Mat template = createMatFromBitmap(bmp);
+                            Utils.bitmapToMat(bmp, template);
+
+                            //
+                            //PERFORM TEMPLATE MATCHING
+                            //
+                            Mat result = createMatFromBitmap(screen);
+                            Imgproc.matchTemplate(mat, template, result, Imgproc.TM_CCOEFF_NORMED);
+                            //
+                            Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
+                            if (mmr.maxVal >= 0.70) {
+                                Log.e(TAG, mmr.maxVal + " accurate value found at x: "+ mmr.maxLoc.x + " y: "+ mmr.maxLoc.y);
+                                return sequence.traverseAction(true, currentAction);
+                            } else {
+                                Log.e(TAG, "No image match found");
+                                return sequence.traverseAction(false, currentAction);
+                            }
+
+                        }
+                    } catch (Exception e) {
+                        return sequence.traverseAction(false, currentAction);
+                    }
+                    break;
                 case Action.CLICK_XY:
                     return click(currentAction.getX(), currentAction.getY(), currentAction.getDuration(), currentAction.getTimes(), accessibilityService, sequence, currentAction);
                 case Action.CLICK_SMART:
@@ -163,6 +201,9 @@ public class Action extends ActionDef {
                     return currentAction;
                 case ActionDef.PASTE:
                     return sequence.traverseAction(pasteStimulation(currentAction.getPasteContent()), currentAction);
+                default:
+                    Log.e(TAG, "actionHandler: Default");
+                    return currentAction;
             }
         }
         return currentAction;

@@ -27,6 +27,10 @@ public class Action
     public int degrees;
     public List<com.in_sync.models.Action> executeActions;
     public int times;
+    public int tries;
     public String open;
     public String pasteContent;
+    public String imageExist;
+    public List<com.in_sync.models.Action> trueActions;
+    public List<com.in_sync.models.Action> falseActions;
 }

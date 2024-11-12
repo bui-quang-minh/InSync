@@ -11,6 +11,7 @@ import com.in_sync.daos.LogsFirebaseService;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
@@ -18,6 +19,8 @@ import java.util.Queue;
 public class Sequence {
     private Queue<Action> actions;
     private List<Integer> allExecutedActions = new ArrayList<Integer>();
+    private int tries = 0;
+    private Queue<Action> tempQueue;
     SharedPreferences sharedPreferences;
     LogsFirebaseService logsFirebaseService;
 
@@ -27,6 +30,7 @@ public class Sequence {
 
     public Sequence(Queue<Action> actions, Context context) {
         this.actions = actions;
+        tempQueue = new java.util.LinkedList<>();
         Log.d("Sequence", "Sequence created");
         for (Action action : actions) {
             Log.e("Sequence", "Actions: " + action.getActionType() + " on: " + action.getIndex());
@@ -75,10 +79,39 @@ public class Sequence {
             case ActionDef.IF:
                 if (conditionResult) {
                     Logging(currentAction);
-                    Log.e("Seq", "traverseAction: If Poll");
-                    return actions.poll();
+                    Log.e("Seq", "traverseAction: True If Poll Tries: "+ tries + " Max Tries: "+ currentAction.getTries());
+                    tries = 0;
+                    for (int i = 0; i < currentAction.getTrueActions().size(); i++) {
+                        tempQueue.add(currentAction.getTrueActions().get(i));
+                    }
+                    while (!actions.isEmpty()){
+                        tempQueue.add(actions.poll());
+                    }
+                    actions = new LinkedList<>(tempQueue);
+                    tempQueue.clear();
+                    Action nextAction = actions.poll();
+                    Log.e("a", "traverseAction: next action" + nextAction.getActionType() );
+                    return nextAction;
+                }else{
+                    tries++;
+                    if(tries < currentAction.getTries()){
+                        Log.e("Seq", "traverseAction: False If Poll Tries: "+ tries + " Max Tries: "+ currentAction.getTries());
+                        return currentAction;
+                    }else{
+                        Log.e("Seq", "queue transfer");
+                        tries = 0;
+                        for (int i = 0; i < currentAction.getFalseActions().size(); i++) {
+                            tempQueue.add(currentAction.getFalseActions().get(i));
+                        }
+                        while (!actions.isEmpty()){
+                            tempQueue.add(actions.poll());
+                        }
+                        actions = new LinkedList<>(tempQueue);
+                        tempQueue.clear();
+                        com.in_sync.models.Action nextAction = actions.poll();
+                        return nextAction;
+                    }
                 }
-                break;
             case ActionDef.CLICK_XY:
                 if (conditionResult) {
                     Logging(currentAction);
