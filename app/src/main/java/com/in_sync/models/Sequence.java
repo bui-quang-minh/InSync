@@ -67,6 +67,17 @@ public class Sequence {
         }
     }
 
+    public  void tranferListToQueue (List<com.in_sync.models.Action> actions){
+        for (com.in_sync.models.Action singleAction:actions) {
+            if(singleAction.getActionType().equals(ActionDef.FOR)) {
+                for (int i = 0; i < singleAction.getTimes(); i++) {
+                    tranferListToQueue(singleAction.getExecuteActions());
+                }
+            }else{
+                tempQueue.add(singleAction);
+            }
+        }
+    }
     public Action traverseAction(boolean conditionResult, Action currentAction) {
         switch (currentAction.getActionType()) {
             case ActionDef.LOG:
@@ -81,9 +92,10 @@ public class Sequence {
                     Logging(currentAction);
                     Log.e("Seq", "traverseAction: True If Poll Tries: "+ tries + " Max Tries: "+ currentAction.getTries());
                     tries = 0;
-                    for (int i = 0; i < currentAction.getTrueActions().size(); i++) {
-                        tempQueue.add(currentAction.getTrueActions().get(i));
-                    }
+                    tranferListToQueue(currentAction.getTrueActions());
+//                    for (int i = 0; i < currentAction.getTrueActions().size(); i++) {
+//                        tempQueue.add(currentAction.getTrueActions().get(i));
+//                    }
                     while (!actions.isEmpty()){
                         tempQueue.add(actions.poll());
                     }
@@ -100,9 +112,11 @@ public class Sequence {
                     }else{
                         Log.e("Seq", "queue transfer");
                         tries = 0;
-                        for (int i = 0; i < currentAction.getFalseActions().size(); i++) {
-                            tempQueue.add(currentAction.getFalseActions().get(i));
-                        }
+                        tranferListToQueue(currentAction.getFalseActions());
+//                        for (int i = 0; i < currentAction.getFalseActions().size(); i++) {
+//
+//                            tempQueue.add(currentAction.getFalseActions().get(i));
+//                        }
                         while (!actions.isEmpty()){
                             tempQueue.add(actions.poll());
                         }
