@@ -16,7 +16,7 @@
             app:menu="@menu/profile_menu"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            app:title="Profile"
+            app:title="Home"
             app:titleTextAppearance="@style/ToolbarTitleText"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -28,30 +28,30 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Right-side Navigation Drawer -->
-    <LinearLayout
-        android:id="@+id/right_drawer"
-        android:layout_width="280dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:orientation="vertical"
-        android:background="@android:color/white"
-        android:padding="16dp">
+<!--    <LinearLayout-->
+<!--        android:id="@+id/right_drawer"-->
+<!--        android:layout_width="280dp"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_gravity="end"-->
+<!--        android:orientation="vertical"-->
+<!--        android:background="@android:color/white"-->
+<!--        android:padding="16dp">-->
 
-        <!-- Add items for your settings menu here -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Settings Option 1"
-            android:padding="16dp"/>
+<!--        &lt;!&ndash; Add items for your settings menu here &ndash;&gt;-->
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Logout"-->
+<!--            android:padding="16dp"/>-->
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Settings Option 2"
-            android:padding="16dp"/>
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Settings Option 2"-->
+<!--            android:padding="16dp"/>-->
 
-        <!-- Add more items as needed -->
+<!--        &lt;!&ndash; Add more items as needed &ndash;&gt;-->
 
-    </LinearLayout>
+<!--    </LinearLayout>-->
 
 </androidx.drawerlayout.widget.DrawerLayout>

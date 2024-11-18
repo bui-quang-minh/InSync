@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.home) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, deviceInfoFragment).commit();
+                            .replace(R.id.container, profileFragment).commit();
                     return true;
                 } else if (item.getItemId() == R.id.log) {
                     getSupportFragmentManager().beginTransaction()
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         screenCaptureFragment = new ScreenCaptureFragment(this);
         //Set the default fragment
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, deviceInfoFragment).commit();
+                .replace(R.id.container, profileFragment).commit();
     }
 
 

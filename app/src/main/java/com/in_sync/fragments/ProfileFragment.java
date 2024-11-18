@@ -1,6 +1,9 @@
 package com.in_sync.fragments;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -21,6 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
 import com.in_sync.R;
+import com.in_sync.activities.LoginActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,10 +55,8 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = setInformation(inflater, container);
-
         drawerLayout = view.findViewById(R.id.drawer_layout);
         setupToolbar(view);
-
         return view;
     }
 
@@ -96,7 +99,7 @@ public class ProfileFragment extends Fragment {
                 // Extract user name
                 String userName = user.optString("username", "user_name");
                 if (userName.equals("null")) {
-                    userName = "user_name";
+                    userName = "Member";
                 }
 
                 // Extract email address
@@ -128,9 +131,6 @@ public class ProfileFragment extends Fragment {
                         .placeholder(R.drawable.profile_avatar_placeholder)
                         .into(avatarImageView);
 
-
-//                TextView tvU = view.findViewById(R.id.device_infomic);
-//                tvU.setText(userInfo);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,14 +138,15 @@ public class ProfileFragment extends Fragment {
 
         // Set onClick listener for device_info_section
         LinearLayout deviceInfoSection = view.findViewById(R.id.device_info_section);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.cv_fragment_device_info, new DeviceInfoFragment());
+        transaction.addToBackStack(null);
+        transaction.commit();
         deviceInfoSection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Redirect to DeviceInfoFragment
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.cv_fragment_device_info, new DeviceInfoFragment());
-                transaction.addToBackStack(null);
-                transaction.commit();
+
             }
         });
 
@@ -157,8 +158,9 @@ public class ProfileFragment extends Fragment {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.settings_icon) {
-                    openRightDrawer();
+                if (item.getItemId() == R.id.logout_icon) {
+                    logout(context);
+                    //openRightDrawer();
                     return true;
                 }
                 return false;
@@ -166,6 +168,39 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private void logout(Context context) {
+        // Create an AlertDialog for confirmation
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure you want to logout?");
+
+        // Positive button to confirm logout
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            // Delete SharedPreferences
+            SharedPreferences sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear(); // Clear all preferences
+            editor.apply(); // Apply the changes
+
+            // Notify the user and take appropriate action (e.g., navigate to the login screen)
+            Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+            // Example: Redirect to login screen (assuming LoginActivity exists)
+            Intent intent = new Intent(context, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            ((Activity) context).finish(); // Close the current activity
+        });
+
+        // Negative button to cancel the action
+        builder.setNegativeButton("No", (dialog, which) -> {
+            dialog.dismiss(); // Close the dialog
+        });
+
+        // Show the dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     private void openRightDrawer() {
         if (drawerLayout != null && !drawerLayout.isDrawerOpen(GravityCompat.END)) {
             drawerLayout.openDrawer(GravityCompat.END);

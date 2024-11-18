@@ -56,6 +56,18 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        String userInfo = sharedPreferences.getString("UserInfo", null);
+        if (userInfo != null) {
+            // If session exists, navigate to the main activity
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish(); // Close the LoginActivity
+            return;
+        }
+
+
         setContentView(R.layout.activity_login);
         onAppStart();
         eventHandling();
