@@ -22,6 +22,7 @@ import com.google.android.material.navigation.NavigationBarView;
 
 import com.in_sync.R;
 import com.in_sync.daos.AddData;
+import com.in_sync.fragments.DeviceInfoFragment;
 import com.in_sync.fragments.ProjectFragment;
 import com.in_sync.fragments.HomeFragment;
 import com.in_sync.fragments.LogFragment;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private BottomNavigationView bottomNavigationView;
     private HomeFragment homeFragment;
+    private DeviceInfoFragment deviceInfoFragment;
     private LogFragment logFragment;
     private ProjectFragment projectFragment;
     private TestFragment testFragment;
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.home) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, homeFragment).commit();
+                            .replace(R.id.container, deviceInfoFragment).commit();
                     return true;
                 } else if (item.getItemId() == R.id.log) {
                     getSupportFragmentManager().beginTransaction()
@@ -132,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         screenCaptureFragment = new ScreenCaptureFragment(this);
         //Set the default fragment
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, homeFragment).commit();
+                .replace(R.id.container, deviceInfoFragment).commit();
     }
 
 
