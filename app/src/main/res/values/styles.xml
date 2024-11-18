@@ -3,4 +3,8 @@
     <style name="ToolbarTitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textStyle">bold</item><!-- Optional: Set the text size -->
     </style>
+
+    <style name="circle">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

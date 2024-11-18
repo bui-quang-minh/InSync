@@ -25,6 +25,8 @@ import com.in_sync.R;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class ProfileFragment extends Fragment {
 
     private TextView textView;
@@ -68,7 +70,7 @@ public class ProfileFragment extends Fragment {
         tvFullName = view.findViewById(R.id.full_name);
         tvUserName  = view.findViewById(R.id.user_name);
         tvUserEmail = view.findViewById(R.id.user_email);
-        tvUserPhone = view.findViewById(R.id.user_phone);
+        //tvUserPhone = view.findViewById(R.id.user_phone);
         tvDeviceName = view.findViewById(R.id.device_info);
 
         try {
@@ -103,18 +105,21 @@ public class ProfileFragment extends Fragment {
 
                 // Extract avatar URL if has_image is true
                 String avatarUrl = null;
-                if (user.getBoolean("has_image")) {
+                //if (user.getBoolean("has_image")) {
                     avatarUrl = user.getString("image_url");
-                }
+                //}
 
                 // Extract device name
-                String deviceName = Build.MANUFACTURER + Build.MODEL;
+                // Device Model and Manufacturer
+                String manufacturer = Build.MANUFACTURER.toUpperCase(Locale.ROOT);
+                String model = Build.MODEL.toUpperCase(Locale.ROOT);
+                String deviceName = manufacturer + " " + model;
 
                 // Set the extracted values to TextViews
                 tvFullName.setText(fullName);
                 tvUserName.setText(userName);
                 tvUserEmail.setText(emailAddress);
-                tvUserPhone.setText("retrieved_phone_number");
+                //tvUserPhone.setText("retrieved_phone_number");
                 tvDeviceName.setText(deviceName);
                 ImageView avatarImageView = view.findViewById(R.id.avatar);
                 Glide.with(context)
@@ -123,6 +128,9 @@ public class ProfileFragment extends Fragment {
                         .placeholder(R.drawable.profile_avatar_placeholder)
                         .into(avatarImageView);
 
+
+//                TextView tvU = view.findViewById(R.id.device_infomic);
+//                tvU.setText(userInfo);
             }
         } catch (Exception e) {
             e.printStackTrace();
