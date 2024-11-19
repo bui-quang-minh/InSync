@@ -156,9 +156,9 @@ public class AddProjectDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
         builder.setTitle(title);
         if(title.equalsIgnoreCase("Success")){
-            builder.setIcon(R.drawable.status_success_of_log);
+            //builder.setIcon(R.drawable.status_success_of_log);
         }else{
-            builder.setIcon(R.drawable.status_fail_of_log);
+            //builder.setIcon(R.drawable.status_fail_of_log);
         }
 
         builder.setMessage(message);

@@ -134,9 +134,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             updateProject = itemView.findViewById(R.id.update_project_btn);
             projectStatus = itemView.findViewById(R.id.status_project);
             updatedTimeTextView = itemView.findViewById(R.id.updated_time_tv);
-
-
-
             viewScenario.setOnClickListener(v -> onItemClickProjectListener.onViewClick(v, getAdapterPosition()));
             deleteProject.setOnClickListener(v -> onItemClickProjectListener.onDeleteClick(v, getAdapterPosition()));
             updateProject.setOnClickListener(v -> onItemClickProjectListener.onUpdateClick(v, getAdapterPosition()));

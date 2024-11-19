@@ -13,7 +13,7 @@
         app:menu="@menu/profile_menu"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:title="Profile"
+        app:title="Home"
         app:titleTextAppearance="@style/ToolbarTitleText"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

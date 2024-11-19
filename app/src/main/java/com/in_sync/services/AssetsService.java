@@ -135,6 +135,7 @@ public class AssetsService extends AccessibilityService {
         OrientationChangeCallback(Context context) {
             super(context);
         }
+
         @Override
         public void onOrientationChanged(int orientation) {
             final int rotation = mDisplay.getRotation();
@@ -219,7 +220,7 @@ public class AssetsService extends AccessibilityService {
                     Log.e(TAG, "failed to create file storage directory.");
                     stopSelf();
                 }
-            }else{
+            } else {
                 Log.e(TAG, "file storage directory already exists.");
             }
         } else {
@@ -334,7 +335,6 @@ public class AssetsService extends AccessibilityService {
     }
 
 
-
     private void showOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -414,6 +414,7 @@ public class AssetsService extends AccessibilityService {
             }
         });
     }
+
     private void captureScreenshot() {
         FileOutputStream fos = null;
         Bitmap bitmap = null;
@@ -429,11 +430,36 @@ public class AssetsService extends AccessibilityService {
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
                 int rowPadding = rowStride - pixelStride * mWidth;
-                bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                //bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+//                bitmap = Bitmap.createBitmap(mWidth , mHeight, Bitmap.Config.ARGB_8888);
 
                 //bitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
 
-                bitmap.copyPixelsFromBuffer(buffer);
+//                bitmap.copyPixelsFromBuffer(buffer);
+
+
+                bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+                int[] pixels = new int[mWidth * mHeight];
+                buffer.position(0);
+
+                // Manually copy pixels, row by row
+                for (int row = 0; row < mHeight; row++) {
+                    for (int col = 0; col < mWidth; col++) {
+                        int pixelIndex = row * mWidth + col;
+                        int bufferIndex = row * rowStride + col * pixelStride;
+                        buffer.position(bufferIndex);
+                        int r = (buffer.get() & 0xFF);
+                        int g = (buffer.get() & 0xFF);
+                        int b = (buffer.get() & 0xFF);
+                        int a = (buffer.get() & 0xFF);
+                        pixels[pixelIndex] = (a << 24) | (r << 16) | (g << 8) | b;
+                    }
+                }
+
+                // Populate the Bitmap
+                bitmap.setPixels(pixels, 0, mWidth, 0, 0, mWidth, mHeight);
+
+
                 // Set local date time
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     LocalDateTime localDateTime = LocalDateTime.now();
@@ -449,7 +475,7 @@ public class AssetsService extends AccessibilityService {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             }
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (fos != null) {
@@ -466,6 +492,7 @@ public class AssetsService extends AccessibilityService {
 
         }
     }
+
     private void toggleExpandCollapse() {
         LinearLayout content = overlayView.findViewById(R.id.overlay_content);
         ImageButton arrowButton = overlayView.findViewById(R.id.arrow_button);
