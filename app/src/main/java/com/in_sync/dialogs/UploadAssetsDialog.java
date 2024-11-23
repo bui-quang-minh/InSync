@@ -3,6 +3,7 @@ package com.in_sync.dialogs;
 import static com.in_sync.BuildConfig.API_KEY;
 import static com.in_sync.BuildConfig.API_SECRET;
 import static com.in_sync.BuildConfig.CLOUD_NAME;
+import static com.in_sync.BuildConfig.INSYNC_API;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -131,7 +132,7 @@ public class UploadAssetsDialog  extends DialogFragment {
         btn_add.setEnabled(false);
         spinner = view.findViewById(R.id.projectSpinner);
         spinner.setVisibility(View.GONE);
-        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk, "");
+        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk, "", INSYNC_API);
         callProject.enqueue(new Callback<ResponsePaging<ArrayList<Project>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Project>>> call, Response<ResponsePaging<ArrayList<Project>>> response) {
@@ -211,7 +212,7 @@ public class UploadAssetsDialog  extends DialogFragment {
                                 addAssetDto.setAssetName(file.getName());
                                 addAssetDto.setType("image");
                                 addAssetDto.setFilePath(uploadResult.get("url").toString());
-                                Call<ResponseSuccess> callAddAssets= apiAssets.AddAsset(addAssetDto);
+                                Call<ResponseSuccess> callAddAssets= apiAssets.AddAsset(addAssetDto, INSYNC_API);
                                 callAddAssets.enqueue(new Callback<ResponseSuccess>() {
                                     @Override
                                     public void onResponse(Call<ResponseSuccess> call, Response<ResponseSuccess> response) {

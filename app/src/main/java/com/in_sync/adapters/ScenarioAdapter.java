@@ -80,31 +80,29 @@ public class ScenarioAdapter extends  RecyclerView.Adapter< com.in_sync.adapters
             Duration duration = Duration.between(specificDateTime, now);
             long second = duration.getSeconds();
             if (second < 60) {
-                return second + "seconds" + "ago";
+                return second + " seconds" + "ago";
             }
             long minutes = second / 60;
 
             if (minutes < 60) {
-                return minutes + "minutes " + "ago";
+                return minutes + " minutes " + "ago";
             }
             long hours = minutes / 60;
             if (hours < 24) {
-                return hours + "hours " + "ago";
+                return hours + " hours " + "ago";
             }
             long days = hours / 24;
             if (days < 30) {
-                return days + "days " + "ago";
+                return days + " days " + "ago";
             }
             long months = days / 30;
             if (months < 12) {
-                return months + "months " + "ago";
+                return months + " months " + "ago";
             }
             long years = months / 12;
             if (years < 12) {
-                return years + "years " + "ago";
+                return years + " years " + "ago";
             }
-
-
             return "";
         }
 

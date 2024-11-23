@@ -1,5 +1,7 @@
 package com.in_sync.fragments;
 
+import static com.in_sync.BuildConfig.INSYNC_API;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -271,7 +273,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
     public void initDataForScenarioSpinner() {
         progressBar.setVisibility(View.VISIBLE);
 
-        Call<ResponsePaging<ArrayList<Scenario>>> callAllScenario = apiScenario.getAllScenaroOfUserClerk(userIdClerk, "", 0, Integer.MAX_VALUE);
+        Call<ResponsePaging<ArrayList<Scenario>>> callAllScenario = apiScenario.getAllScenaroOfUserClerk(userIdClerk, INSYNC_API, "", 0, Integer.MAX_VALUE);
         callAllScenario.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Scenario>>> call, Response<ResponsePaging<ArrayList<Scenario>>> response) {
@@ -361,7 +363,7 @@ public class LogFragment extends Fragment implements LogSessionAdapter.OnItemCli
 
         progressBar.setVisibility(View.VISIBLE);
 
-        Call<ResponsePaging<ArrayList<Scenario>>> callAllScenario = apiScenario.getAllScenaroOfUserClerk(userIdClerk, "", 0, Integer.MAX_VALUE);
+        Call<ResponsePaging<ArrayList<Scenario>>> callAllScenario = apiScenario.getAllScenaroOfUserClerk(userIdClerk, INSYNC_API, "", 0, Integer.MAX_VALUE);
         callAllScenario.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Scenario>>> call, Response<ResponsePaging<ArrayList<Scenario>>> response) {

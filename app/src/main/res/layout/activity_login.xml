@@ -44,6 +44,7 @@
                 android:textColor="@color/neutral_500"
                 android:layout_gravity="center"
                 android:textSize="12sp"
+
                 android:paddingBottom="12dp" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/loginWithGoogleButton"
@@ -159,6 +160,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Forgot Password?"
+                android:visibility="gone"
                 android:textColor="@color/colorPrimary"
                 android:textSize="13sp"
                 android:textStyle="bold"

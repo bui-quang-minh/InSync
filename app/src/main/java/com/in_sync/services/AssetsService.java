@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Choreographer;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -401,16 +402,35 @@ public class AssetsService extends AccessibilityService {
             @Override
             public void onClick(View v) {
                 windowManager.removeView(overlayView);
-                MediaPlayer mediaPlayer = MediaPlayer.create(contexts, R.raw.camera);
-                mediaPlayer.setOnCompletionListener(mp -> mp.release()); // Release the MediaPlayer once the sound is done
-                mediaPlayer.start();
-                Handler handler = new Handler(Looper.getMainLooper());
-                // Delay after click capture button by 1 seconds
-                handler.postDelayed(() -> {
-                    captureScreenshot();
-                    windowManager.addView(overlayView, params);
 
-                }, 100);
+//                Handler handler = new Handler(Looper.getMainLooper());
+//                // Delay after click capture button by 1 seconds
+//                handler.postDelayed(() -> {
+//                    captureScreenshot();
+//                    windowManager.addView(overlayView, params);
+//
+//                }, 100);
+
+                long startTime = System.nanoTime(); // Record start time for logging
+
+                Choreographer.getInstance().postFrameCallback(frameTimeNanos -> {
+                    // Calculate the frame callback delay
+                    long initialDelay = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
+
+                    // Ensure a total delay of 100ms
+                    long remainingDelay = Math.max(100 - initialDelay, 0); // Adjust to account for the frame time already elapsed
+
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.postDelayed(() -> {
+                        Log.d("FinalDelay", "Total delay: " + (initialDelay + remainingDelay) + "ms");
+                        MediaPlayer mediaPlayer = MediaPlayer.create(contexts, R.raw.camera);
+                        mediaPlayer.setOnCompletionListener(mp -> mp.release()); // Release the MediaPlayer once the sound is done
+                        mediaPlayer.start();
+                        captureScreenshot(); // Capture screenshot
+                        windowManager.addView(overlayView, params); // Re-add overlay
+                    }, remainingDelay);
+                });
+
             }
         });
     }

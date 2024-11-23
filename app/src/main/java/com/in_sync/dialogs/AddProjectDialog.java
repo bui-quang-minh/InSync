@@ -1,5 +1,7 @@
 package com.in_sync.dialogs;
 
+import static com.in_sync.BuildConfig.INSYNC_API;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -111,7 +113,7 @@ public class AddProjectDialog extends DialogFragment {
                 addProjectDto.setDescription(description.getText().toString());
                 addProjectDto.setIsPublish(isPublish.isChecked());
                 addProjectDto.setUserIdClerk(userIdClerk);
-                Call<ResponseSuccess> callAddProject = apiProject.AddProject(addProjectDto);
+                Call<ResponseSuccess> callAddProject = apiProject.AddProject(addProjectDto , INSYNC_API);
 
                 btn_add.setEnabled(false);
                 callAddProject.enqueue(new Callback<ResponseSuccess>() {

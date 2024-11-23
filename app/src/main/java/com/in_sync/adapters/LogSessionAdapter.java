@@ -57,10 +57,10 @@ public class LogSessionAdapter extends RecyclerView.Adapter<LogSessionAdapter.Lo
         holder.deviceNameTextView.setText(logSession.getDevice_name());
         if(logSession.isNeed_resolve()){
             holder.need_resolve_img.setImageResource(R.drawable.warning);
-            holder.systemDescription.setText("An issue has been detected that may affect the final result. Please check the error details and verify.");
+            holder.systemDescription.setText("Powered by INSYNC.");
         }else{
             holder.need_resolve_img.setImageResource(R.drawable.mark);
-            holder.systemDescription.setText("Everything is working perfectly. The system is performing optimally with no issues to report.");
+            holder.systemDescription.setText("Powered by INSYNC.");
         }
         try{
             LocalDateTime dateTime = LocalDateTime.parse(logSession.getDate_created(), dateTimeFormatter);

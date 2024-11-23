@@ -54,9 +54,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     @Override
     public void onBindViewHolder(@NonNull ProjectAdapter.ProjectViewHolder holder, int position) {
         Project project = projects.get(position);
-
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        String deviceName = model.startsWith(manufacturer)? model: manufacturer + " " + model;
         holder.projectNameTextView.setText(project.getProjectName());
-        holder.deviceNameTextView.setText("Iphone 19 promax");
+        holder.deviceNameTextView.setText(deviceName);
         holder.projectDesciptionTextView.setText(project.getDescription());
         if (project.getDateUpdated() == null) {
             holder.dateUpdatedTextView.setText("Project not updated");

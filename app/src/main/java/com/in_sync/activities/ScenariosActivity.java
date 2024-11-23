@@ -1,5 +1,7 @@
 package com.in_sync.activities;
 
+import static com.in_sync.BuildConfig.INSYNC_API;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -273,7 +275,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
 
 
         progressBar.setVisibility(View.VISIBLE);
-        Call<ResponsePaging<ArrayList<Scenario>>> call = apiScenario.getAllScenaroOfProject(projectUUID, userIdClerk, keySearch, 0, Integer.MAX_VALUE);
+        Call<ResponsePaging<ArrayList<Scenario>>> call = apiScenario.getAllScenaroOfProject(projectUUID, INSYNC_API, userIdClerk, keySearch, 0, Integer.MAX_VALUE);
         call.enqueue(new Callback<ResponsePaging<ArrayList<Scenario>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Scenario>>> call, Response<ResponsePaging<ArrayList<Scenario>>> response) {
@@ -360,7 +362,7 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         builder.setMessage("Are you sure you want to delete this scenario?");
         builder.setIcon(R.drawable.alert);
         builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-            Call<ResponseSuccess> deleteScenario = apiScenario.deleteScenario(scenario.getId());
+            Call<ResponseSuccess> deleteScenario = apiScenario.deleteScenario(scenario.getId(), INSYNC_API);
             deleteScenario.enqueue(new Callback<ResponseSuccess>() {
                 @Override
                 public void onResponse(Call<ResponseSuccess> call, Response<ResponseSuccess> response) {

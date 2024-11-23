@@ -12,6 +12,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.AnimationDrawable;
 import android.hardware.display.DisplayManager;
@@ -22,6 +23,9 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.os.VibratorManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -35,7 +39,9 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
@@ -145,6 +151,16 @@ public class ScreenCaptureService extends AccessibilityService {
                 com.in_sync.models.Action newAction = action.actionHandler(reader, ScreenCaptureService.this, mWidth, mHeight, imageView, appOpened, source, sequence, currentAction);
                 if(Objects.equals(newAction.getActionType(), ActionDef.END_RUN)){
                     Log.e(TAG, "onImageAvailable: Endrun exe" );
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        // For Android 12 (API 31) and above
+                        VibratorManager vibratorManager = (VibratorManager) contexts.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+                        Vibrator vibrator = vibratorManager.getDefaultVibrator();
+                        vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)); // Vibrate for 500ms
+                    } else {
+                        // For Android 11 (API 30) and below
+                        Vibrator vibrator = (Vibrator) contexts.getSystemService(Context.VIBRATOR_SERVICE);
+                        vibrator.vibrate(500); // Vibrate for 500ms
+                    }
                     stopProjection();
                     removeOverlay();
                     sequence.clearActions();

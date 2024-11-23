@@ -1,5 +1,7 @@
 package com.in_sync.fragments;
 
+import static com.in_sync.BuildConfig.INSYNC_API;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -254,7 +256,7 @@ public class ProjectFragment extends Fragment implements
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk, keySearch);
+        Call<ResponsePaging<ArrayList<Project>>> callProject = apiProject.getAllProjectsOfUser(userIdClerk, keySearch, INSYNC_API);
         callProject.enqueue(new Callback<ResponsePaging<ArrayList<Project>>>() {
             @Override
             public void onResponse(Call<ResponsePaging<ArrayList<Project>>> call, Response<ResponsePaging<ArrayList<Project>>> response) {
@@ -350,7 +352,7 @@ public class ProjectFragment extends Fragment implements
             builder.setIcon(R.drawable.alert);
             builder.setPositiveButton("Yes", (dialogInterface, i) -> {
 
-                Call<ResponseSuccess> callDeleteProject = apiProject.DeleteProject(project.getId());
+                Call<ResponseSuccess> callDeleteProject = apiProject.DeleteProject(project.getId(), INSYNC_API);
                 progressBar.setVisibility(View.VISIBLE);
                 callDeleteProject.enqueue(new Callback<ResponseSuccess>() {
                     @Override

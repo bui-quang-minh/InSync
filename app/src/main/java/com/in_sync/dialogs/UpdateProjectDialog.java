@@ -1,5 +1,7 @@
 package com.in_sync.dialogs;
 
+import static com.in_sync.BuildConfig.INSYNC_API;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -125,7 +127,7 @@ public class UpdateProjectDialog extends DialogFragment {
                 updateProjectDto.setIsPublish(isPublish.isChecked());
                 updateProjectDto.setId(project_id);
 
-                Call<ResponseSuccess> updateProject = apiProject.UpdateProject(project_id,updateProjectDto);
+                Call<ResponseSuccess> updateProject = apiProject.UpdateProject(project_id, updateProjectDto, INSYNC_API);
 
                 updateProject.enqueue(new Callback<ResponseSuccess>() {
                     @Override

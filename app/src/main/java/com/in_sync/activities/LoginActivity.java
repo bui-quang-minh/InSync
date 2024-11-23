@@ -3,6 +3,7 @@ package com.in_sync.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -84,6 +85,12 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.inputUsername);
         passwordEditText = findViewById(R.id.inputPassword);
         loginWithGoogleButton = findViewById(R.id.loginWithGoogleButton);
+        TextView textView6 = findViewById(R.id.textView6);
+        textView6.setOnClickListener(view -> {
+            String url = "https://www.insync.com.vn/"; // Replace with your desired URL
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+        });
     }
 
     private void eventHandling() {
