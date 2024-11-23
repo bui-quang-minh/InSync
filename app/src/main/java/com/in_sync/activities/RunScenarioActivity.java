@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 
@@ -72,9 +73,9 @@ public class RunScenarioActivity extends AppCompatActivity {
             String json = intent.getStringExtra("android_json_string");
             if (json != null) {
                 inputEditText.setText(json);
-                inputEditText.setFocusable(false);
-                inputEditText.setClickable(false);
-                inputEditText.setLongClickable(false);
+                inputEditText.setEnabled(false);
+                inputEditText.setMovementMethod(new ScrollingMovementMethod());
+
             }
         }
         initiateOverlayButton = findViewById(R.id.run_scenario_btn);

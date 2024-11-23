@@ -168,15 +168,6 @@ public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialo
                 new RecyclerItemClickListener(context, imagesRV, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        selectedImages.clear();
-                        uploadButton.hide();
-                        Intent i = new Intent(context, ImageDetailActivity.class);
-                        i.putExtra("imgPath", imageList.get(position));
-                        context.startActivity(i);
-                    }
-                    @SuppressLint("UseCompatLoadingForDrawables")
-                    @Override
-                    public void onLongItemClick(View view, int position) {
                         try {
                             //Catch hold action
                             if ("selected".equals(view.getTag())) {
@@ -199,6 +190,17 @@ public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialo
                         } else {
                             uploadButton.hide();
                         }
+                    }
+                    //@SuppressLint("UseCompatLoadingForDrawables")
+                    @Override
+                    public void onLongItemClick(View view, int position) {
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, new ScreenCaptureFragment()) // Replace with new instance of ScreenCaptureFragment
+                                .commit();
+
+                        Intent i = new Intent(context, ImageDetailActivity.class);
+                        i.putExtra("imgPath", imageList.get(position));
+                        context.startActivity(i);
                     }
                 }));
     }

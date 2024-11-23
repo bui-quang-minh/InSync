@@ -11,7 +11,8 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textView"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="100dp"
         android:padding="10dp"
         app:layout_constraintBottom_toTopOf="@id/initiateOverlayButton"
         app:layout_constraintEnd_toEndOf="parent"
