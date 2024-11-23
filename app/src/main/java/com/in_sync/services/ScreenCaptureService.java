@@ -285,9 +285,19 @@ public class ScreenCaptureService extends AccessibilityService {
         this.setServiceInfo(info);
         if (intent != null) {
             json = intent.getExtras().get("json").toString();
-            bindStep(json);
+            try{
+                bindStep(json);
+                showOverlay();
+            }catch (Exception e) {
+                Toast.makeText(contexts, "Invalid JSON", Toast.LENGTH_SHORT).show();
+                stopSelf();
+                stopProjection();
+                removeOverlay();
+                e.printStackTrace();
+            }
+
         }
-        showOverlay();
+
         currentAction = null;
         Log.e(TAG, "onStartCommand Services started");
         action = new Action(getApplicationContext(), ScreenCaptureService.this);

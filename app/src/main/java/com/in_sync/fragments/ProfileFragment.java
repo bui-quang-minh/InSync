@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -56,10 +57,19 @@ public class ProfileFragment extends Fragment {
 
         View view = setInformation(inflater, container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
+
         setupToolbar(view);
         return view;
     }
-
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle back press or do nothing to prevent back navigation
+            }
+        });
+    }
     public View setInformation(LayoutInflater inflater, ViewGroup container) {
         // Inflate the layout for this
 

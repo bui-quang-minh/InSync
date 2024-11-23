@@ -16,6 +16,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -34,6 +35,7 @@ import com.in_sync.validates.PermissionValid;
 public class MainActivity extends AppCompatActivity {
     private static final int OVERLAY_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "MainActivity";
+    private static final String SELECTED_FRAGMENT_KEY = "selected_fragment";
     private BottomNavigationView bottomNavigationView;
     private HomeFragment homeFragment;
     private DeviceInfoFragment deviceInfoFragment;
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private ProfileFragment profileFragment;
     private ScreenCaptureFragment screenCaptureFragment;
     private Dialog dialog;
+    private Fragment currentFragment;
+    private Fragment selectedFragment = null;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -69,31 +73,38 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.home) {
+                    selectedFragment = profileFragment;
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, profileFragment).commit();
                     return true;
                 } else if (item.getItemId() == R.id.log) {
+                    selectedFragment = logFragment;
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, logFragment).commit();
                     return true;
                 } else if (item.getItemId() == R.id.project) {
+                    selectedFragment = projectFragment;
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, projectFragment).commit();
                     return true;
                 } else if (item.getItemId() == R.id.test) {
+                    selectedFragment = testFragment;
                     getSupportFragmentManager().beginTransaction().
                             replace(R.id.container, testFragment).commit();
                     return true;
                 } else if (item.getItemId() == R.id.screen_capture) {
+                    selectedFragment = screenCaptureFragment;
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.container, screenCaptureFragment).commit();
                     return true;
                 }
                 return false;
+
+
+
             }
         });
     }
-
 
     private void eventHandler() {
     }
@@ -133,8 +144,15 @@ public class MainActivity extends AppCompatActivity {
         profileFragment = new ProfileFragment();
         screenCaptureFragment = new ScreenCaptureFragment(this);
         //Set the default fragment
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, profileFragment).commit();
+//        getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.container, profileFragment).commit();
+        if (currentFragment == null) {
+            selectedFragment = profileFragment;
+            currentFragment = profileFragment;
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, currentFragment)
+                    .commit();
+        }
     }
 
 

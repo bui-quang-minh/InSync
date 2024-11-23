@@ -83,28 +83,28 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         Duration duration = Duration.between(specificDateTime, now);
         long second = duration.getSeconds();
         if (second < 60) {
-            return second + "seconds" + "ago";
+            return second + " sec ago";
         }
         long minutes = second / 60;
 
         if (minutes < 60) {
-            return minutes + "minutes " + "ago";
+            return minutes + " min ago";
         }
         long hours = minutes / 60;
         if (hours < 24) {
-            return hours + "hours " + "ago";
+            return hours + " h ago";
         }
         long days = hours / 24;
         if (days < 30) {
-            return days + "days " + "ago";
+            return days + " d ago";
         }
         long months = days / 30;
         if (months < 12) {
-            return months + "months " + "ago";
+            return months + " m ago";
         }
         long years = months / 12;
         if (years < 12) {
-            return years + "years " + "ago";
+            return years + " y ago";
         }
 
 

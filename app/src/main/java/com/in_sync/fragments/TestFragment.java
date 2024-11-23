@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -64,10 +65,12 @@ public class TestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_test, container, false);
+
         textView = view.findViewById(R.id.textView);
         validationResult = view.findViewById(R.id.validationResult);
         inputEditText = view.findViewById(R.id.inputEditText);
         inputEditText.setText("");
+
         inputEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -91,7 +94,9 @@ public class TestFragment extends Fragment {
 
         onViewStart(view);
         eventHandling();
-        validateJson();
+        initiateOverlayButton.setEnabled(false);
+        validationResult.setText("");
+        //validateJson();
         // Inflate the layout for this fragment
         return view;
     }
@@ -133,9 +138,19 @@ public class TestFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
     }
 
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle back press or do nothing to prevent back navigation
+            }
+        });
+    }
     private void eventHandling() {
         initiateOverlayButton.setOnClickListener(this::initiateOverlay);
     }

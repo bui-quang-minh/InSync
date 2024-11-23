@@ -72,6 +72,9 @@ public class RunScenarioActivity extends AppCompatActivity {
             String json = intent.getStringExtra("android_json_string");
             if (json != null) {
                 inputEditText.setText(json);
+                inputEditText.setFocusable(false);
+                inputEditText.setClickable(false);
+                inputEditText.setLongClickable(false);
             }
         }
         initiateOverlayButton = findViewById(R.id.run_scenario_btn);

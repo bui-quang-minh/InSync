@@ -88,6 +88,19 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+                    <TextView
+                        android:text="10 hours ago "
+                        android:id="@+id/scenario_updated_time_tv"
+                        android:layout_marginLeft="100dp"
+                        android:gravity="end"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/neutral_500"
+                        android:textSize="14sp"/>
 
                 </LinearLayout>
                 <LinearLayout
@@ -121,14 +134,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
 
-                    <TextView
-                        android:text="10 hours ago "
-                        android:id="@+id/scenario_updated_time_tv"
-                        android:layout_marginLeft="100dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/neutral_500"
-                        android:textSize="14sp"/>
+
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

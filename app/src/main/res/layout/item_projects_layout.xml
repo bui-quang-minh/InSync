@@ -91,6 +91,18 @@
                         android:text="This wil run under Devices"
                         android:textSize="14sp"
                         android:textStyle="italic" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+                    <TextView
+                        android:id="@+id/updated_time_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:text="10 hours ago "
+                        android:textColor="@color/neutral_500"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 
@@ -135,15 +147,7 @@
                         android:layout_height="wrap_content"
                         android:text="Delete" />
 
-                    <TextView
-                        android:id="@+id/updated_time_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginTop="-10dp"
-                        android:text="10 hours ago "
-                        android:textColor="@color/neutral_500"
-                        android:textSize="14sp" />
+
                 </LinearLayout>
             </LinearLayout>
 
