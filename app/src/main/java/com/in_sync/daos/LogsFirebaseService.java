@@ -32,7 +32,7 @@ public class LogsFirebaseService {
     private static final String LOGS_PATH = "logs";
     private static final String SCENARIOS_PATH = "scenarios";
     private static final String LOG_SESSIONS_PATH = "log_sessions";
-    private static final String PATHBASE = "https://projectinsync-f627a-default-rtdb.firebaseio.com/";
+    private static final String PATHBASE = "https://projectinsyncmain-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
