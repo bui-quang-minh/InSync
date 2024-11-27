@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -115,7 +116,14 @@ public class ProfileFragment extends Fragment {
                 // Extract email address
                 JSONArray emailAddresses = user.getJSONArray("email_addresses");
                 String emailAddress = emailAddresses.getJSONObject(0).getString("email_address");
-
+                Log.e("log", "setInformation: " + userInfo);
+                for (int i = 0; i < emailAddresses.length(); i++) {
+                    JSONObject email = emailAddresses.getJSONObject(i);
+                    JSONObject verification = email.getJSONObject("verification");
+                    if ("verified".equals(verification.getString("status"))) {
+                        emailAddress = email.getString("email_address");
+                    }
+                }
                 // Extract avatar URL if has_image is true
                 String avatarUrl = null;
                 //if (user.getBoolean("has_image")) {
@@ -181,8 +189,8 @@ public class ProfileFragment extends Fragment {
     private void logout(Context context) {
         // Create an AlertDialog for confirmation
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Logout");
-        builder.setMessage("Are you sure you want to logout?");
+        builder.setTitle("Sign out");
+        builder.setMessage("Are you sure you want to sign out?");
 
         // Positive button to confirm logout
         builder.setPositiveButton("Yes", (dialog, which) -> {

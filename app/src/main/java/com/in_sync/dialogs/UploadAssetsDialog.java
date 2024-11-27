@@ -60,6 +60,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -80,6 +81,7 @@ public class UploadAssetsDialog  extends DialogFragment {
     ArrayList<Project> projects = new ArrayList<>();
     String projectId = "";
     ProgressBar progressBar;
+    private Toast currentToast;
 
 
     public UploadAssetsDialog(Context context, UploadAssetsDialogListener listener, List<String> selectedImages) {
@@ -193,53 +195,81 @@ public class UploadAssetsDialog  extends DialogFragment {
                         "api_key", API_KEY,
                         "api_secret", API_SECRET
                 ));
-                for (String path : selectedImages) {
-                    File file = new File(path);
-                    if (file.exists()) {
-                        // Upload to Cloudinary
-                        new Thread(() -> {
-                            try {
-                                // Upload the file
-                                Map<String, Object> uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
-                                Log.e("Upload", "Image uploaded: " + uploadResult.get("url"));
-                                if (context != null) {
-                                    ((Activity) context).runOnUiThread(() ->
-                                            Toast.makeText(context, "Upload completed!", Toast.LENGTH_SHORT).show()
-                                    );
-                                }
-                                AssetDtos.AddAssetDto addAssetDto = new AssetDtos.AddAssetDto();
-                                addAssetDto.setProjectId(projectId);
-                                addAssetDto.setAssetName(file.getName());
-                                addAssetDto.setType("image");
-                                addAssetDto.setFilePath(uploadResult.get("url").toString());
-                                Call<ResponseSuccess> callAddAssets= apiAssets.AddAsset(addAssetDto, INSYNC_API);
-                                callAddAssets.enqueue(new Callback<ResponseSuccess>() {
-                                    @Override
-                                    public void onResponse(Call<ResponseSuccess> call, Response<ResponseSuccess> response) {
-                                        if (response.isSuccessful()) {
-                                            ResponseSuccess responseSuccess = response.body();
+                AtomicInteger uploadedCount = new AtomicInteger(0);
+                AtomicInteger serverCount = new AtomicInteger(0);
+                int totalImages = selectedImages.size();
+                try {
+                    for (int i = 0; i < selectedImages.size(); i++) {
+                        String path = selectedImages.get(i);
+                        File file = new File(path);
+                        if (file.exists()) {
+                            // Upload to Cloudinary
+                            new Thread(() -> {
+                                try {
+                                    // Upload the file
+                                    Map<String, Object> uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+                                    Log.e("Upload", "Image uploaded: " + uploadResult.get("url"));
+                                    if (context != null) {
+                                        ((Activity) context).runOnUiThread(() ->
+                                                {
+                                                    int count = uploadedCount.incrementAndGet();
+
+                                                    // Cancel the existing toast if it exists
+                                                    if (currentToast != null) {
+                                                        currentToast.cancel();
+                                                    }
+
+                                                    // Create and show a new toast message
+                                                    currentToast = Toast.makeText(context, "Upload (" + count + ") image(s) completed!", Toast.LENGTH_SHORT);
+                                                    currentToast.show();
+                                                }
+                                        );
+                                    }
+                                    AssetDtos.AddAssetDto addAssetDto = new AssetDtos.AddAssetDto();
+                                    addAssetDto.setProjectId(projectId);
+                                    addAssetDto.setAssetName(file.getName());
+                                    addAssetDto.setType("image");
+                                    addAssetDto.setFilePath(uploadResult.get("url").toString());
+                                    Call<ResponseSuccess> callAddAssets= apiAssets.AddAsset(addAssetDto, INSYNC_API);
+                                    callAddAssets.enqueue(new Callback<ResponseSuccess>() {
+                                        @Override
+                                        public void onResponse(Call<ResponseSuccess> call, Response<ResponseSuccess> response) {
                                             if (response.isSuccessful()) {
-                                                showDialogNotification("Success", "Upload completed", 1000);
+                                                ResponseSuccess responseSuccess = response.body();
+                                                if (response.isSuccessful()) {
+                                                    //showDialogNotification("Success", "Upload completed", 1000);
+                                                    int count = serverCount.incrementAndGet();
+                                                    if (count == totalImages) {
+                                                        // Show a notification when all uploads are completed
+                                                        showDialogNotification("Success", "Upload completed", 1000);
+                                                    }
+                                                } else {
+                                                    //showDialogNotification("Error", "Upload failed. Please try again", 1000);
+                                                }
                                             } else {
                                                 showDialogNotification("Error", "Upload failed. Please try again", 1000);
                                             }
-                                        } else {
+                                        }
+                                        @Override
+                                        public void onFailure(Call<ResponseSuccess> call, Throwable t) {
                                             showDialogNotification("Error", "Upload failed. Please try again", 1000);
                                         }
-                                    }
-                                    @Override
-                                    public void onFailure(Call<ResponseSuccess> call, Throwable t) {
-                                        showDialogNotification("Error", "Upload failed. Please try again", 1000);
-                                    }
-                                });
-                            } catch (Exception e) {
-                                Log.e("Upload", "Upload failed: ", e);
-                            }
-                        }).start(); // Start a new thread to avoid blocking the UI
+                                    });
+                                } catch (Exception e) {
+                                    showDialogNotification("Error", "Upload failed. Please try again", 1000);
+                                    Log.e("Upload", "Upload failed: ", e);
+                                }
+                            }).start(); // Start a new thread to avoid blocking the UI
+                        }
                     }
+                    //showDialogNotification("Success", "Upload completed", 5000);
+                    Log.e("Upload", "sendData: upload completed");
+                    dialog.dismiss();
+                }catch (Exception e){
+                    showDialogNotification("Error", "Upload failed. Please try again", 1000);
+                    e.printStackTrace();
                 }
-                Log.e("Upload", "sendData: upload completed");
-                dialog.dismiss();
+
             }
         });
         return dialog;

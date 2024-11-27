@@ -10,7 +10,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-        import android.os.Bundle;
+import android.content.SharedPreferences;
+import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -25,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,6 +52,9 @@ import java.util.Objects;
 
 
 public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialog.UploadAssetsDialogListener {
+    private static final int REQUEST_CODE_IMAGE_DETAIL = 1;
+    private static final String PREFS_NAME = "AssetPrefs";
+    private static final String HAS_RUN_ONCE_KEY = "hasRunOnce";
     private View captureButton;
     private FloatingActionButton uploadButton;
     private Context context;
@@ -60,6 +65,7 @@ public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialo
     private List<String> imageList;
     private List<String> selectedImages;
     private ActivityResultLauncher<Intent> screenshotLauncher;
+    private int count = 0;
 
     public ScreenCaptureFragment() {
     }
@@ -90,7 +96,6 @@ public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialo
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.fragment_screen_capture, null);
     }
     public void onCreate(Bundle savedInstanceState) {
@@ -143,6 +148,19 @@ public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialo
         super.onResume();
         Log.e(TAG, "onResume: Calling");
         refreshImageList();
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean hasRunOnce = sharedPreferences.getBoolean(HAS_RUN_ONCE_KEY, false);
+
+        if (!hasRunOnce) {
+            // Mark the code as run in SharedPreferences
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(HAS_RUN_ONCE_KEY, true);
+            editor.apply();
+
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new ScreenCaptureFragment()) // Replace with new instance of ScreenCaptureFragment
+                    .commit();
+        }
     }
     public void refreshImageList() {
         // Retrieve the file names
@@ -194,16 +212,18 @@ public class ScreenCaptureFragment extends Fragment implements UploadAssetsDialo
                     //@SuppressLint("UseCompatLoadingForDrawables")
                     @Override
                     public void onLongItemClick(View view, int position) {
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, new ScreenCaptureFragment()) // Replace with new instance of ScreenCaptureFragment
-                                .commit();
-
+                        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(HAS_RUN_ONCE_KEY, false);
+                        editor.apply();
                         Intent i = new Intent(context, ImageDetailActivity.class);
                         i.putExtra("imgPath", imageList.get(position));
                         context.startActivity(i);
+
                     }
                 }));
     }
+
     private void startProjection() {
         assetsHelper.startProjection();
     }

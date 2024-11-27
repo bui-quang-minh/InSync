@@ -32,7 +32,7 @@ public class LogsFirebaseService {
     private static final String LOGS_PATH = "logs";
     private static final String SCENARIOS_PATH = "scenarios";
     private static final String LOG_SESSIONS_PATH = "log_sessions";
-    private static final String PATHBASE = "https://projectinsync-f627a-default-rtdb.firebaseio.com/";
+    private static final String PATHBASE = "https://projectinsyncmain-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
@@ -199,48 +199,51 @@ public class LogsFirebaseService {
 
         Calendar finalCalFrom = calFrom;
         Calendar finalCalTo = calTo;
+        try {
+            logSessionsRef.equalTo(scenarioId).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            List<LogSession> logSessions = new ArrayList<>();
 
-        logSessionsRef.orderByChild("scenario_id").equalTo(scenarioId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        List<LogSession> logSessions = new ArrayList<>();
 
+                            for (DataSnapshot sessionSnapshot : snapshot.getChildren()) {
+                                LogSession logSession = sessionSnapshot.getValue(LogSession.class);
 
-                        for (DataSnapshot sessionSnapshot : snapshot.getChildren()) {
-                            LogSession logSession = sessionSnapshot.getValue(LogSession.class);
+                                if (logSession != null) {
+                                    // Chuyển đổi date_created từ String thành Date
+                                    Date sessionDate;
+                                    try {
+                                        sessionDate = DATE_TIME_FORMATTER.parse(logSession.getDate_created());
+                                    } catch (ParseException e) {
+                                        Log.e(TAG, "Failed to parse date", e);
+                                        continue;
+                                    }
 
-                            if (logSession != null) {
-                                // Chuyển đổi date_created từ String thành Date
-                                Date sessionDate;
-                                try {
-                                    sessionDate = DATE_TIME_FORMATTER.parse(logSession.getDate_created());
-                                } catch (ParseException e) {
-                                    Log.e(TAG, "Failed to parse date", e);
-                                    continue;
-                                }
-
-                                // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
-                                boolean inRange = sessionDate != null && (finalCalFrom == null || !sessionDate.before(finalCalFrom.getTime())) && (finalCalTo == null || !sessionDate.after(finalCalTo.getTime()));
-                                boolean isContain = logSession.getSession_name().toLowerCase().contains(keySearch.toLowerCase()) || logSession.getDevice_name().toLowerCase().contains(keySearch.toLowerCase());
-                                // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
-                                if (inRange && isContain) {
-                                    logSessions.add(logSession);
+                                    // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
+                                    boolean inRange = sessionDate != null && (finalCalFrom == null || !sessionDate.before(finalCalFrom.getTime())) && (finalCalTo == null || !sessionDate.after(finalCalTo.getTime()));
+                                    boolean isContain = logSession.getSession_name().toLowerCase().contains(keySearch.toLowerCase()) || logSession.getDevice_name().toLowerCase().contains(keySearch.toLowerCase());
+                                    // Kiểm tra xem ngày của phiên log có nằm trong khoảng thời gian không
+                                    if (inRange && isContain) {
+                                        logSessions.add(logSession);
+                                    }
                                 }
                             }
+                            logSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2, sortBy));
+                            Log.d(TAG, "Log sessions retrieved successfully: " + logSessions.size());
+                            callback.onCallback(logSessions);
                         }
-                        logSessions.sort((session1, session2) -> LogSessionSortWithOption(session1, session2, sortBy));
-                        Log.d(TAG, "Log sessions retrieved successfully: " + logSessions.size());
-                        callback.onCallback(logSessions);
-                    }
 
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        callback.onCallback(null);
-                        Log.e(TAG, "Failed to retrieve log sessions: " + error.getMessage());
-                    }
-                });
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            callback.onCallback(null);
+                            Log.e(TAG, "Failed to retrieve log sessions: " + error.getMessage());
+                        }
+                    });
+        }catch (Exception e){
+            Log.e(TAG, "Failed to parse date_created", e);
+        }
+
     }
 
 

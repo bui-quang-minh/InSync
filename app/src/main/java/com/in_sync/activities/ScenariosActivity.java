@@ -227,10 +227,12 @@ public class ScenariosActivity extends AppCompatActivity implements ScenarioAdap
         if (item.getItemId() == R.id.action_sort_scenario) {
             showSortOptionsDialog();
             return true;
-        } else if (item.getItemId() == R.id.action_add_scenario) {
-            Toast.makeText(ScenariosActivity.this, "Add project", Toast.LENGTH_SHORT).show();
-            return true;
-        } else if (item.getItemId() == android.R.id.home) {
+        }
+//        else if (item.getItemId() == R.id.action_add_scenario) {
+//            Toast.makeText(ScenariosActivity.this, "Add project", Toast.LENGTH_SHORT).show();
+//            return true;
+//        }
+        else if (item.getItemId() == android.R.id.home) {
             this.onBackPressed();
             return true;
         }

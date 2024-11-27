@@ -246,27 +246,32 @@ public class AssetsService extends AccessibilityService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         System.loadLibrary("opencv_java4");
-        AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-        info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED |
-                AccessibilityEvent.TYPE_VIEW_FOCUSED;
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
-        info.notificationTimeout = 100;
-        this.setServiceInfo(info);
-        showOverlay();
-        currentAction = null;
-        Log.e(TAG, "onStartCommand Services started");
-        action = new Action(getApplicationContext(), AssetsService.this);
-        if (isStartCommand(intent)) {
-            Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
-            startForeground(notification.first, notification.second);
+        try {
+            AccessibilityServiceInfo info = new AccessibilityServiceInfo();
+            info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED |
+                    AccessibilityEvent.TYPE_VIEW_FOCUSED;
+            info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
+            info.notificationTimeout = 100;
+            this.setServiceInfo(info);
+            showOverlay();
+            currentAction = null;
+            Log.e(TAG, "onStartCommand Services started");
+            action = new Action(getApplicationContext(), AssetsService.this);
+            if (isStartCommand(intent)) {
+                Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
+                startForeground(notification.first, notification.second);
 
-            int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
-            Intent data = intent.getParcelableExtra(DATA);
-            startProjection(resultCode, data);
-        } else if (isStopCommand(intent)) {
+                int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
+                Intent data = intent.getParcelableExtra(DATA);
+                startProjection(resultCode, data);
+            } else if (isStopCommand(intent)) {
+                stopSelf();
+            } else {
+                stopSelf();
+            }
+        } catch (Exception e) {
             stopSelf();
-        } else {
-            stopSelf();
+            e.printStackTrace();
         }
 
         return START_NOT_STICKY;
