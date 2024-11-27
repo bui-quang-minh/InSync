@@ -3,7 +3,7 @@
     <string name="toast_message_screenshot_success">huuh</string>
     <string name="toast_message_screenshot">huuhhuhu</string>
     <string name="settings_message">huhuhuuhhuhuuhuhhu</string>
-    <string name="recording">ghjwejkhggrjkghgsfajkghlgrhjklaljkghgfdsa</string>
+    <string name="recording">Screen record</string>
     <string name="accessibility_service">The accessibility service permisstion allows InSync to perform gestures on your device screen. \n\n
         This permission is required inorder to execute the clicks and swipes you will create in your automations scenerios \n\n
         InSync commits we would not gain your private information
