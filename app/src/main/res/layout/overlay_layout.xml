@@ -44,7 +44,7 @@
         android:onClick="closeOverlay"/>
     <ImageView
         android:id="@+id/screenshot_image_view"
-        android:layout_width="50dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
         android:scaleType="fitCenter"

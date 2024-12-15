@@ -13,9 +13,12 @@ import android.graphics.RectF;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Choreographer;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
@@ -31,6 +34,10 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 
@@ -48,6 +55,8 @@ public class Action extends ActionDef {
     private AccessibilityService accessibilityService;
     private boolean isDelay = false; // Biến cờ để kiểm soát việc chờ đợi
     private long startTime = 0;
+    private float screenWidth;
+    private float screenHeight;
 
 
 
@@ -77,6 +86,8 @@ public class Action extends ActionDef {
         }, null);
         Log.e(TAG, "Gesture Result: " + result);
     }
+
+
 
     public com.in_sync.models.Action actionHandler(ImageReader mImageReader, AccessibilityService accessibilityService, int mWidth, int mHeight,
                                                    android.widget.ImageView imageView, String appOpened, AccessibilityNodeInfo source, Sequence sequence,
@@ -140,7 +151,31 @@ public class Action extends ActionDef {
                             //
                             //GET SCREEN BITMAP
                             //
-                            bitmap = getScreenBitmap(image);
+                            Image.Plane[] planes = image.getPlanes();
+                            ByteBuffer buffer = planes[0].getBuffer();
+                            int pixelStride = planes[0].getPixelStride();
+                            int rowStride = planes[0].getRowStride();
+                            int rowPadding = rowStride - pixelStride * mWidth;
+
+                            bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+                            int[] pixels = new int[mWidth * mHeight];
+                            buffer.position(0);
+
+                            // Manually copy pixels row by row
+                            for (int row = 0; row < mHeight; row++) {
+                                for (int col = 0; col < mWidth; col++) {
+                                    int pixelIndex = row * mWidth + col;
+                                    int bufferIndex = row * rowStride + col * pixelStride;
+                                    buffer.position(bufferIndex);
+                                    int r = buffer.get() & 0xFF;
+                                    int g = buffer.get() & 0xFF;
+                                    int b = buffer.get() & 0xFF;
+                                    int a = buffer.get() & 0xFF;
+                                    pixels[pixelIndex] = (a << 24) | (r << 16) | (g << 8) | b;
+                                }
+                            }
+                            bitmap.setPixels(pixels, 0, mWidth, 0, 0, mWidth, mHeight);
+                            //bitmap = getScreenBitmap(image);
                             Mat mat = createMatFromBitmap(bitmap);
                             Utils.bitmapToMat(bitmap, mat);
                             //
@@ -156,11 +191,10 @@ public class Action extends ActionDef {
                             Mat result = createMatFromBitmap(bitmap);
                             Imgproc.matchTemplate(mat, template, result, Imgproc.TM_CCOEFF_NORMED);
                             //
-
-                            imageView.post(() -> {
-                                // Update UI elements here, e.g.:
-                                imageView.setImageBitmap(bmp);
-                            });
+//                            imageView.post(() -> {
+//                                // Update UI elements here, e.g.:
+//                                imageView.setImageBitmap(bmp);
+//                            });
                             // Find the location of the best match
                             //
                             Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
@@ -414,7 +448,7 @@ public class Action extends ActionDef {
         return new Mat(bitmap.getHeight(), bitmap.getWidth(), CvType.CV_8UC4);
     }
 
-    public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template, android.widget.ImageView imageView, Bitmap bmp, int index, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) {
+    public com.in_sync.models.Action processTemplateMatchingResult(Core.MinMaxLocResult mmr, Mat mat, Mat template, android.widget.ImageView imageView, Bitmap bmp, int index, AccessibilityService accessibilityService, Point matchLoc, com.in_sync.models.Action currentAction, Sequence sequence) throws IOException {
         Log.e(TAG, mmr.maxVal + " accurate value");
         if (mmr.maxVal >= 0.70) {
             if (Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF || Imgproc.TM_CCOEFF_NORMED == Imgproc.TM_SQDIFF_NORMED) {
@@ -423,17 +457,44 @@ public class Action extends ActionDef {
                 matchLoc = mmr.maxLoc;
             }
             Imgproc.rectangle(mat, matchLoc, new Point(matchLoc.x + template.cols(), matchLoc.y + template.rows()), new Scalar(255, 0, 0), 2);
+
+
             Bitmap outputBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(mat, outputBitmap);
-            Action.clickAction((float) matchLoc.x + (float) bmp.getWidth() / 2,
-                    (float) matchLoc.y + (float) bmp.getHeight() / 2,
+            WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+            if (windowManager != null) {
+                DisplayMetrics metrics = new DisplayMetrics();
+                windowManager.getDefaultDisplay().getRealMetrics(metrics);
+
+                screenWidth = metrics.widthPixels;
+                screenHeight = metrics.heightPixels;
+
+            }
+
+            float xClick = (float) matchLoc.x + ((float) bmp.getWidth() / 2);
+            float yClick = (float) matchLoc.y + ((float) bmp.getHeight() / 2);
+
+// Scale matchLoc to the screen coordinates if necessary
+            float xScaled = xClick * ((float) screenWidth / (float) mat.cols());
+            float yScaled = yClick * ((float) screenHeight / (float) mat.rows());
+
+            Action.clickAction(xScaled,
+                    yScaled,
                     currentAction.getDuration(),
                     currentAction.getTimes(),
                     accessibilityService);
+//            Action.clickAction((float) matchLoc.x + (float) bmp.getWidth() / 2,
+//                    (float) matchLoc.y + (float) bmp.getHeight() / 2,
+//                    currentAction.getDuration(),
+//                    currentAction.getTimes(),
+//                    accessibilityService);
+            Log.e("Source", "click condition is true" + ((float) matchLoc.x + (float) bmp.getWidth() / 2) + " " + ((float) matchLoc.y + (float) bmp.getHeight() / 2));
+
             ACCURACY_POINT = 0;
             IMAGES_PRODUCED = 0;
 
-            Log.e("Source", "click condition is true");
+            Log.e("Source", "click condition is true" + matchLoc.x + " " + matchLoc.y);
             com.in_sync.models.Action resultAction = sequence.traverseAction(true, currentAction);
             this.index = resultAction.getIndex();
             Log.e("No image match found", this.index + " ");
@@ -546,7 +607,26 @@ public class Action extends ActionDef {
             return null;
         }
     }
-
+    private void saveBitmapToFile(Bitmap bitmap, String filePath) {
+        File file = new File(filePath);
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream); // Save as PNG with 100% quality
+            outputStream.flush();
+            Log.e("SaveBitmap", "Saved successfully to " + filePath);
+        } catch (IOException e) {
+            Log.e("SaveBitmap", "Error saving bitmap", e);
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 
 

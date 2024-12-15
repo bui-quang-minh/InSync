@@ -22,6 +22,7 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Choreographer;
 import android.view.Display;
@@ -483,6 +484,22 @@ public class AssetsService extends AccessibilityService {
 
                 // Populate the Bitmap
                 bitmap.setPixels(pixels, 0, mWidth, 0, 0, mWidth, mHeight);
+                DisplayMetrics metrics = new DisplayMetrics();
+                WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+
+                if (windowManager != null) {
+                    windowManager.getDefaultDisplay().getRealMetrics(metrics);
+                    int realWidth = metrics.widthPixels;
+                    int realHeight = metrics.heightPixels;
+
+                    Log.e("ScreenMetrics", "Physical (Real) Resolution: " + realWidth + "x" + realHeight);
+                } else {
+                    Log.e("ScreenMetrics", "WindowManager is not available");
+                }
+
+
+
+                Log.e("Screenshot", "Bitmap dimensions: Width = " + mWidth + ", Height = " + mHeight);
 
 
                 // Set local date time
@@ -517,6 +534,106 @@ public class AssetsService extends AccessibilityService {
 
         }
     }
+
+//    private void captureScreenshot() {
+//        FileOutputStream fos = null;
+//        Bitmap bitmap = null;
+//        String fileName = "";
+//
+//        if (mImageReader == null) {
+//            Log.e("Screenshot", "ImageReader is not initialized");
+//            return;
+//        }
+//
+//        try (Image image = mImageReader.acquireLatestImage()) {
+//            if (image != null) {
+//                // Get real screen dimensions in pixels
+//                DisplayMetrics metrics = new DisplayMetrics();
+//                WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+//                int realWidth = 0, realHeight = 0;
+//
+//                if (windowManager != null) {
+//                    Display display = windowManager.getDefaultDisplay();
+//                    display.getRealMetrics(metrics);
+//                    realWidth = metrics.widthPixels;
+//                    realHeight = metrics.heightPixels;
+//
+//                    Log.d("ScreenMetrics", "Real Resolution: " + realWidth + "x" + realHeight);
+//                } else {
+//                    Log.e("ScreenMetrics", "WindowManager is not available");
+//                }
+//
+//                // Extract buffer data from Image
+//                Image.Plane[] planes = image.getPlanes();
+//                ByteBuffer buffer = planes[0].getBuffer();
+//                int pixelStride = planes[0].getPixelStride();
+//                int rowStride = planes[0].getRowStride();
+//
+//                // Create Bitmap based on real dimensions
+//                bitmap = Bitmap.createBitmap(realWidth, realHeight, Bitmap.Config.ARGB_8888);
+//                int[] pixels = new int[realWidth * realHeight];
+//                buffer.position(0);
+//
+//                // Safely copy pixels row by row
+//                for (int row = 0; row < realHeight; row++) {
+//                    for (int col = 0; col < realWidth; col++) {
+//                        int pixelIndex = row * realWidth + col;
+//                        int bufferIndex = row * rowStride + col * pixelStride;
+//
+//                        if (bufferIndex + 4 > buffer.capacity()) {
+//                            Log.e("BufferError", "Buffer underflow at index: " + bufferIndex);
+//                            break;
+//                        }
+//
+//                        buffer.position(bufferIndex);
+//
+//                        // Extract RGBA components
+//                        int r = buffer.get() & 0xFF;
+//                        int g = buffer.get() & 0xFF;
+//                        int b = buffer.get() & 0xFF;
+//                        int a = buffer.get() & 0xFF;
+//                        pixels[pixelIndex] = (a << 24) | (r << 16) | (g << 8) | b;
+//                    }
+//                }
+//
+//                // Set pixels to Bitmap
+//                bitmap.setPixels(pixels, 0, realWidth, 0, 0, realWidth, realHeight);
+//
+//                // Log Bitmap dimensions
+//                Log.d("Screenshot", "Bitmap dimensions: Width = " + realWidth + ", Height = " + realHeight);
+//
+//                // Generate file name
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                    LocalDateTime localDateTime = LocalDateTime.now();
+//                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//                    fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
+//                }
+//
+//                // Save Bitmap to file
+//                fos = new FileOutputStream(fileName);
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            // Close file output stream
+//            if (fos != null) {
+//                try {
+//                    fos.close();
+//                } catch (IOException ioe) {
+//                    ioe.printStackTrace();
+//                }
+//            }
+//
+//            // Recycle Bitmap to free memory
+//            if (bitmap != null) {
+//                bitmap.recycle();
+//            }
+//        }
+//    }
+
+
 
     private void toggleExpandCollapse() {
         LinearLayout content = overlayView.findViewById(R.id.overlay_content);
