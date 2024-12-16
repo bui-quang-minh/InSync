@@ -68,6 +68,8 @@ public class AssetsService extends AccessibilityService {
     private static final String START = "START";
     private static final String STOP = "STOP";
     private static final String SCREENCAP_NAME = "screencap";
+    private float screenWidth;
+    private float screenHeight;
 
     private WindowManager windowManager;
     private View overlayView;
@@ -456,13 +458,6 @@ public class AssetsService extends AccessibilityService {
                 int pixelStride = planes[0].getPixelStride();
                 int rowStride = planes[0].getRowStride();
                 int rowPadding = rowStride - pixelStride * mWidth;
-                //bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-//                bitmap = Bitmap.createBitmap(mWidth , mHeight, Bitmap.Config.ARGB_8888);
-
-                //bitmap = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-
-//                bitmap.copyPixelsFromBuffer(buffer);
-
 
                 bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
                 int[] pixels = new int[mWidth * mHeight];
@@ -484,29 +479,25 @@ public class AssetsService extends AccessibilityService {
 
                 // Populate the Bitmap
                 bitmap.setPixels(pixels, 0, mWidth, 0, 0, mWidth, mHeight);
-                DisplayMetrics metrics = new DisplayMetrics();
+                //DisplayMetrics metrics = new DisplayMetrics();
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-
-                if (windowManager != null) {
-                    windowManager.getDefaultDisplay().getRealMetrics(metrics);
-                    int realWidth = metrics.widthPixels;
-                    int realHeight = metrics.heightPixels;
-
-                    Log.e("ScreenMetrics", "Physical (Real) Resolution: " + realWidth + "x" + realHeight);
-                } else {
-                    Log.e("ScreenMetrics", "WindowManager is not available");
-                }
-
-
-
                 Log.e("Screenshot", "Bitmap dimensions: Width = " + mWidth + ", Height = " + mHeight);
 
+
+                if (windowManager != null) {
+                    DisplayMetrics metrics = new DisplayMetrics();
+                    windowManager.getDefaultDisplay().getRealMetrics(metrics);
+
+                    screenWidth = metrics.widthPixels;
+                    screenHeight = metrics.heightPixels;
+
+                }
 
                 // Set local date time
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     LocalDateTime localDateTime = LocalDateTime.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    fileName = mStoreDir + "/myscreen_" + localDateTime.format(formatter) + ".png";
+                    fileName = mStoreDir + "/"+ screenWidth +"-"+screenHeight +"-myscreen_" + localDateTime.format(formatter) + ".png";
                     images.add(fileName);
                     //imageGalleryAdapter.setImages(images);
                 }
